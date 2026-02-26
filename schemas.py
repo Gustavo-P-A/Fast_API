@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class UsuarioSchema(BaseModel):
     nome: str
@@ -29,6 +29,15 @@ class ItemPedidoSchema(BaseModel):
     sabor: str
     tamanho: str
     preco: float    
+
+    class Config:
+        from_attributes = True
+
+class ResponsePedidoSchema(BaseModel):
+    id: int
+    preco: float
+    status: str
+    itens: List[ItemPedidoSchema]
 
     class Config:
         from_attributes = True

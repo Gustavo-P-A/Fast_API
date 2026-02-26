@@ -29,12 +29,6 @@ class Usuario(Base):
 class Pedidos(Base):
     __tablename__ = 'pedidos'
 
-    # STATUS = (
-    #     ("PENDENTE", "PENDENTE"),
-    #     ("CANCELADO", "CANCELADO"),
-    #     ("FINALIZADO", "FINALIZADO")
-    # )
-
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     status = Column("status", String)
     usuario = Column('usuario', ForeignKey('usuarios.id'))
