@@ -27,7 +27,9 @@ def autenticar_usuario(email, senha, session):
     usuario = session.query(Usuario).filter(Usuario.email == email).first()
     if not usuario:
         return False
-    elif not bcrypt_context.verify(senha, usuario.senha):
+    # Truncate password to 72 bytes for bcrypt compatibility
+    senha_truncada = senha[:72]
+    if not bcrypt_context.verify(senha_truncada, usuario.senha):
         return False    
     return usuario
 
@@ -42,7 +44,9 @@ async def criar_usuario(usuario_schema:UsuarioSchema, session: Session =  Depend
     if usuario:
         raise HTTPException(status_code=400, detail='E-mail já cadastrado')
     else:
-        senha_cripitografada = bcrypt_context.hash(usuario_schema.senha)
+        # Truncate password to 72 bytes for bcrypt compatibility
+        senha_truncada = usuario_schema.senha[:72]
+        senha_cripitografada = bcrypt_context.hash(senha_truncada)
         novo_usuario = Usuario(usuario_schema.nome, usuario_schema.email, senha_cripitografada, usuario_schema.ativo, usuario_schema.adm)
         session.add(novo_usuario)
         session.commit()
