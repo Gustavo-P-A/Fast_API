@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from dependencies import pegar_sessao, verificar_token
 from schemas import PedidoSchema, ItemPedidoSchema, ResponsePedidoSchema
 from models import Pedidos, Usuario, ItemPedido
+from settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 order_router = APIRouter(prefix="/order", tags=['order'], dependencies=[Depends(verificar_token)])
 
