@@ -8,7 +8,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordRequestForm                                                                                                                                                                  
 
-auth_router = APIRouter(prefix='/auth', tags=['auth '])
+auth_router = APIRouter(prefix='/auth', tags=['auth'])
 
 
 def criar_token(id_usuario, duracao_token=ACCESS_TOKEN_EXPIRE_MINUTES):
