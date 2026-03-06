@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import Usuario
 from dependencies import pegar_sessao, verificar_token
-from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
+from core.settings import settings
+from core.security import bcrypt_context
 from schemas import UsuarioSchema, LoginSchema
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
@@ -11,7 +12,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 auth_router = APIRouter(prefix='/auth', tags=['auth'])
 
 
-def criar_token(id_usuario, duracao_token=ACCESS_TOKEN_EXPIRE_MINUTES):
+def criar_token(id_usuario, duracao_token=settings.ACCESS_TOKEN_EXPIRE_MINUTES):
     if isinstance(duracao_token, int):
         delta = timedelta(minutes=duracao_token)
     else:
@@ -19,7 +20,7 @@ def criar_token(id_usuario, duracao_token=ACCESS_TOKEN_EXPIRE_MINUTES):
         
     data_expiracao = datetime.now(timezone.utc) + delta 
     dic_info = {'sub': str(id_usuario), 'exp': data_expiracao}
-    jwt_codificado = jwt.encode(dic_info, SECRET_KEY, ALGORITHM)
+    jwt_codificado = jwt.encode(dic_info, settings.SECRET_KEY, settings.ALGORITHM)
     return jwt_codificado
 
 
@@ -44,9 +45,7 @@ async def criar_usuario(usuario_schema:UsuarioSchema, session: Session =  Depend
     if usuario:
         raise HTTPException(status_code=400, detail='E-mail já cadastrado')
     else:
-        # Truncate password to 72 bytes for bcrypt compatibility
-        senha_truncada = usuario_schema.senha[:72]
-        senha_cripitografada = bcrypt_context.hash(senha_truncada)
+        senha_cripitografada = bcrypt_context.hash(usuario_schema.senha)
         novo_usuario = Usuario(usuario_schema.nome, usuario_schema.email, senha_cripitografada, usuario_schema.ativo, usuario_schema.adm)
         session.add(novo_usuario)
         session.commit()
