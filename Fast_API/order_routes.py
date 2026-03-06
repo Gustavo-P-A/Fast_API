@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from dependencies import pegar_sessao, verificar_token
 from schemas import PedidoSchema, ItemPedidoSchema, ResponsePedidoSchema
 from models import Pedidos, Usuario, ItemPedido
-from settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from core.settings import settings
 
 order_router = APIRouter(prefix="/order", tags=['order'], dependencies=[Depends(verificar_token)])
 
@@ -71,9 +71,10 @@ async def adicionar_item_pedido(id_pedido: int, item_pedido_schema: ItemPedidoSc
 @order_router.post('/pedidos/remover-item/{id_item_pedido}')
 async def remover_item_pedido(id_item_pedido: int, session: Session =  Depends(pegar_sessao), usuario: Usuario = Depends(verificar_token)):
     item_pedido = session.query(ItemPedido).filter(ItemPedido.id == id_item_pedido).first()
-    pedido = session.query(Pedidos).filter(Pedidos.id == item_pedido.pedido).first()
     if not item_pedido:
         raise HTTPException(status_code=400, detail='Item do pedido não encontrado')
+    
+    pedido = session.query(Pedidos).filter(Pedidos.id == item_pedido.pedido).first()
     if not usuario.adm and usuario.id != pedido.usuario:
         raise HTTPException(status_code=401, detail='vc nao autorizacao para fazer esta modificação')
     session.delete(item_pedido)

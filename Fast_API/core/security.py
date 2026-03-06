@@ -1,3 +1,4 @@
+import hashlib
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -9,10 +10,14 @@ oauth2_schema = OAuth2PasswordBearer(tokenUrl='auth/login-form')
 
 
 async def hash_password(password: str) -> str:
-    return bcrypt_context.hash(password[:72])
+    password_monster = password + settings.SECRET
+    hash =hashlib.sha256(password_monster.encode()).hexdigest()
+    return bcrypt_context.hash(hash)
 
 async def verify_password(password: str, hashed_password: str) -> bool:
-    return bcrypt_context.verify(password, hashed_password)
+    password_monster = password + settings.SECRET
+    hash = hashlib.sha256(password_monster.encode()).hexdigest()
+    return bcrypt_context.verify(hash, hashed_password)
 
 async def access_token_expires(user_id: str, expires_minutes: int = None) -> str:
     if expires_minutes is None:
