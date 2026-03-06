@@ -45,9 +45,7 @@ async def criar_usuario(usuario_schema:UsuarioSchema, session: Session =  Depend
     if usuario:
         raise HTTPException(status_code=400, detail='E-mail já cadastrado')
     else:
-        # Truncate password to 72 bytes for bcrypt compatibility
-        senha_truncada = usuario_schema.senha[:72]
-        senha_cripitografada = bcrypt_context.hash(senha_truncada)
+        senha_cripitografada = bcrypt_context.hash(usuario_schema.senha)
         novo_usuario = Usuario(usuario_schema.nome, usuario_schema.email, senha_cripitografada, usuario_schema.ativo, usuario_schema.adm)
         session.add(novo_usuario)
         session.commit()
