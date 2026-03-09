@@ -1,13 +1,27 @@
+import { useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import LoginForm from './components/LoginForm';
 import PedidoList from './components/PedidoList';
+import { FormCadastro } from './components/RegisterForm';
 import './App.css';
 
 function App() {
   const { usuario, logout } = useAuth();
 
+  const [pagina, setPagina] = useState(
+    () => sessionStorage.getItem('pagina') || 'login'
+  );
+
+  const irPara = (p) => {
+    sessionStorage.setItem('pagina', p);
+    setPagina(p);
+  };
+
   if (!usuario) {
-    return <LoginForm />;
+    if (pagina === 'cadastro') {
+      return <FormCadastro onCadastroSucesso={() => irPara('login')} irParaLogin={() => irPara('login')} />;
+    }
+    return <LoginForm irParaCadastro={() => irPara('cadastro')} />;
   }
 
   return (
@@ -20,7 +34,7 @@ function App() {
           </button>
         </div>
       </header>
-      
+
       <PedidoList />
     </div>
   );
