@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   // Estado loading: Começa como true. Isso é para evitar que o React mostre a tela de "não logado" por um milésimo de segundo enquanto ele ainda está checando o localStorage.
 
   useEffect(() => {
-    const storegeToken = localStorage.getItem("access_token");
+    const token = localStorage.getItem("access_token");
     // useEffect: Esse hook roda uma única vez assim que o componente nasce na tela.
     // localStorage.getItem: Ele vai até a "gaveta" do navegador buscar se existe algo salvo com o nome access_token.
 
@@ -69,10 +69,11 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export default useAuth = () => useContext(AuthContext);
-
-// este é um atalho (Hook). Em vez de você ter que importar useContext e AuthContext em todo arquivo, você só importa o useAuth. É o que você usou lá no seu App.js.
-
 export const useAuth = () => useContext(AuthContext);
 // createContext cria o "espaço" onde as informações de login ficarão guardadas. O useAuth é um atalho (hook) para você não precisar importar o
 // useContext toda vez que quiser usar o login.
+
+
+// RESUMO: O código gerencia o login global da aplicação. Ele lê o token do FastAPI, salva no navegador (localStorage) para o usuário não precisar 
+// logar de novo ao dar F5 e distribui os dados do usuário (ID) para todas as telas do site via Context API.
+
