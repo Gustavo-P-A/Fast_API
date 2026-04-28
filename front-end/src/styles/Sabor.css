@@ -1,0 +1,59 @@
+/* Container principal para centralizar o conteúdo */
+.container-detalhe {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative; /* Necessário para o botão se guiar por aqui */
+  background-color: #f7f7f7;
+}
+
+/* Botão no canto superior esquerdo */
+.btn-voltar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3e3e3e;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+/* Efeito de clique: fica vermelho */
+.btn-voltar:active {
+  background-color: #ea1d2c;
+  transform: scale(0.95);
+}
+
+.btn-voltar:hover {
+  background-color: #555;
+}
+
+/* Card de detalhe centralizado */
+.card-detalhe {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.precos-lista {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fff1f2;
+  border-radius: 8px;
+}
+
+.preco-item {
+  margin: 5px 0;
+  color: #ea1d2c;
+  font-size: 1.1rem;
+}
