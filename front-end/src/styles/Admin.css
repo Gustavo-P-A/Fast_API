@@ -1,0 +1,132 @@
+/* Container principal que centraliza tudo */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f7f7;
+    padding: 60px 20px;
+    flex-direction: column;
+    gap: 40px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Área do título e botão voltar */
+.logo-area {
+    text-align: center;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+}
+
+.logo-area h1 {
+    color: #3e3e3e;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+
+.logo-area span {
+    color: #ea1d2c; /* Vermelho iFood */
+}
+
+.btn-voltar {
+    background: none;
+    border: none;
+    color: #717171;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: color 0.2s;
+}
+
+.btn-voltar:hover {
+    color: #ea1d2c;
+}
+
+/* Cards brancos de cada seção */
+.login-container {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 450px; /* Mantém os cards com largura de formulário */
+    transition: transform 0.2s;
+}
+
+.login-container:hover {
+    transform: translateY(-5px);
+}
+
+.login-container h2 {
+    color: #3e3e3e;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    border-left: 4px solid #ea1d2c;
+    padding-left: 12px;
+    text-align: left;
+}
+
+/* Organização dos formulários internos */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaço entre os inputs dentro do mesmo grupo */
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #717171;
+    margin-bottom: -4px;
+}
+
+.input-group input {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #ea1d2c;
+}
+
+/* Botões padrão do site */
+.btn-login {
+    background-color: #ea1d2c;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.btn-login:hover {
+    background-color: #d11624;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .login-page {
+        padding: 20px;
+    }
+    
+    .login-container {
+        max-width: 100%;
+    }
+}

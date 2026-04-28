@@ -28,5 +28,7 @@ dist-ssr
 .env.local
 .env.*.local
 
-
-#  Ele serve para dizer ao Git quais pastas e arquivos ele deve ignorar (não salvar no histórico), mantendo seu repositório limpo e seguro.
+package-lock.json
+package.json
+vite.config.js
+eslint.config.js
