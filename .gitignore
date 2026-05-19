@@ -1,0 +1,75 @@
+# ==============================================================================
+# 1. AMBIENTES VIRTUAIS E DEPENDÊNCIAS DO SISTEMA
+# ==============================================================================
+# Ignora completamente os ambientes virtuais do Python
+.venv/
+venv/
+ENV/
+env/
+
+# Ignora os pacotes e dependências do Node.js (Front-end)
+**/node_modules/
+
+# ==============================================================================
+# 2. ARQUIVOS SENSÍVEIS, CREDENCIAIS E BANCO DE DADOS (SEGURANÇA MÁXIMA)
+# ==============================================================================
+# Arquivos de configuração de ambiente e chaves locais
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+
+# Bancos de dados locais (SQLite/Alembic)
+*.db
+*.sqlite3
+Fast_API/banco.db
+
+# ==============================================================================
+# 3. PYTHON E FASTAPI (ARQUIVOS TEMPORÁRIOS)
+# ==============================================================================
+# Arquivos compilados e caches do Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# ==============================================================================
+# 4. COMPILAÇÃO DO FRONT-END (PRODUÇÃO)
+# ==============================================================================
+# Pastas geradas no build final do Vite/React
+dist/
+dist-ssr/
+build/
+out/
+
+# ==============================================================================
+# 5. CONFIGURAÇÕES DE IDES E EDITORES
+# ==============================================================================
+# Bloqueia pastas ocultas de editores de código que variam por desenvolvedor
+.vscode/
+.idea/
+*.swp
+*.suo
+*.sublime-project
+*.sublime-workspace
+
+# ==============================================================================
+# 6. SISTEMAS OPERACIONAIS E LOGS
+# ==============================================================================
+# Lixo gerado automaticamente pelo Windows e macOS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs de erro e execução
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+tmp/
+temp/

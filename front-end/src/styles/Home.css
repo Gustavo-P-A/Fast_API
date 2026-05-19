@@ -50,13 +50,24 @@
   color: #717171;
   font-size: 0.875rem;
   margin-bottom: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  height: 2.5em; 
+
+  /* Corte de texto */
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2; /* Isso remove o aviso do VS Code */
+  -webkit-box-orient: vertical !important;
+  
+  /* Esconder o que sobra */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+
+  /* Altura fixa para alinhar os cards */
+  line-height: 1.4em !important;
+  height: 2.8em !important; 
 }
+
+
+
 
 .preco {
   font-weight: 700;

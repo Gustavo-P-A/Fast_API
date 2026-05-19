@@ -5,18 +5,26 @@ import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }) {
   const [verificar_token, setVerificar_Token] = useState(null);
+  const [verificar_refresh_token, setVerificar_refresh_Token] = useState(null);
   const [carregando, setCarregando] = useState(true);
-  const [usuario, setUsuario] = useState('')
+  const [usuario, setUsuario] = useState(null);
 
   const navigate = useNavigate();
 
+  /////////////LOGIN////////////////
   async function handleLogin(email, senha) {
     const data = await login(email, senha);
 
     if (data && data.access_token) {
+      const userData = await me(data.access_token);
+      setUsuario(userData);
       setVerificar_Token(data.access_token);
+      setVerificar_refresh_Token(data.refresh_token);
+
       localStorage.setItem("token", data.access_token);
-      navigate("/");
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      setTimeout(() => navigate("/"), 100);
     } else {
       alert("Email ou Senha incorretos");
     }
@@ -28,36 +36,59 @@ export function AuthProvider({ children }) {
 
     try {
       if (data && data.access_token) {
+        const userData = await me(data.access_token)
+        setUsuario(userData)
         setVerificar_Token(data.access_token);
+        setVerificar_refresh_Token(data.refresh_token);
+
         localStorage.setItem("token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
+
         navigate("/perfil");
       } else {
         alert("Erro ao cadastrar, tente novamente");
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
+  }
+
+  /////////////LOGOUT////////////////
+  async function handleLogout() {
+    setVerificar_Token(null);
+    setUsuario("");
+    setVerificar_refresh_Token(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    window.location.href = "/login";
   }
 
   useEffect(() => {
     async function buscarDados() {
-        const tokenSalvo = localStorage.getItem("token");
-        if (tokenSalvo) {
-            const data = await me(tokenSalvo);
-            setVerificar_Token(tokenSalvo);
-            setUsuario(data);
-        }
-        setCarregando(false);
+      const tokenSalvo = localStorage.getItem("token");
+      if (tokenSalvo) {
+        const data = await me(tokenSalvo);
+        setVerificar_Token(tokenSalvo);
+        setUsuario(data);
+      }
+      setCarregando(false);
     }
     buscarDados();
-}, []);
+  }, []);
 
   if (carregando) {
     return <div>carregando...</div>;
   }
   return (
     <AuthContext.Provider
-      value={{ verificar_token, handleLogin, handleCadastro, usuario }}
+      value={{
+        verificar_token,
+        handleLogin,
+        handleCadastro,
+        usuario,
+        handleLogout,
+        carregando,
+      }}
     >
       {children}
     </AuthContext.Provider>

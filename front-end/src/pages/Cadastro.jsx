@@ -9,6 +9,7 @@ export function Cadastro() {
   const [Email, setEmail] = useState("");
   const { handleCadastro } = useContext(AuthContext);
 
+
   async function handleSubmit(e) {
     e.preventDefault();
     handleCadastro(Nome, Email, Senha);

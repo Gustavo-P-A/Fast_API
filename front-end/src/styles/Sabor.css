@@ -1,59 +1,144 @@
-/* Container principal para centralizar o conteúdo */
+/* Container Principal */
 .container-detalhe {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  position: relative; /* Necessário para o botão se guiar por aqui */
-  background-color: #f7f7f7;
+  flex-direction: column;
+  align-items: center; /* Centraliza tudo no meio da tela */
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 25px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Botão no canto superior esquerdo */
+/* Botão Voltar */
 .btn-voltar {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background-color: #3e3e3e;
+  align-self: flex-start; /* Fica na esquerda */
+  background: #333;
   color: white;
-  font-weight: bold;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: bold;
   transition: background 0.2s;
 }
 
-/* Efeito de clique: fica vermelho */
-.btn-voltar:active {
-  background-color: #ea1d2c;
-  transform: scale(0.95);
-}
-
 .btn-voltar:hover {
-  background-color: #555;
+  background: #e41e1e;
 }
 
-/* Card de detalhe centralizado */
-.card-detalhe {
-  background: white;
+/* 📸 IMAGEM: Proporcional e Centralizada (estilo Home, mas maior) */
+.foto-container {
   width: 100%;
-  max-width: 500px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  max-width: 650px; 
+  height: 250px !important; /* Altura equilibrada: nem fina, nem gigante */
+  border-radius: 20px;
   overflow: hidden;
-  border: 1px solid #eee;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
+.foto-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Bloco de Informações */
+.card-detalhe {
+  width: 100%;
+  max-width: 700px; /* Mesma largura da foto para harmonia */
+  text-align: center;
+}
+
+.nome {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+/* 📝 DESCRIÇÃO: Corrigida para não cortar nada */
+.descricao {
+  font-size: 1.15rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  height: auto;           /* Deixa o texto crescer */
+  overflow: visible;      /* Garante que nada suma */
+  display: block;
+  word-wrap: break-word;  /* Quebra palavras longas se necessário */
+}
+
+/* Lista de Tamanhos */
 .precos-lista {
-  margin-top: 15px;
-  padding: 10px;
-  background-color: #fff1f2;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center; /* Centraliza os botões de tamanho */
 }
 
+/* Item de Tamanho (M, G, etc) */
 .preco-item {
-  margin: 5px 0;
-  color: #ea1d2c;
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 25px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
   font-size: 1.1rem;
+}
+
+.preco-item:hover {
+  border-color: #e41e1e;
+}
+
+/* Efeito quando o tamanho está selecionado */
+.preco-item.selecionado {
+  border-color: #e41e1e;
+  background-color: #fff5f5;
+  box-shadow: 0 4px 10px rgba(228, 30, 30, 0.1);
+  font-weight: bold;
+}
+
+/* 🔘 BOTÃO FINALIZAR: Efeito de 'Acender' */
+.btn-pedido-final {
+  width: 100%;
+  max-width: 450px;
+  margin-top: 25px;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.4s ease;
+  
+  /* Estado inicial: Apagado/Desabilitado */
+  background-color: #ddd; 
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* Estado Ativo: Quando o usuário marca um tamanho */
+.btn-pedido-final.ativo {
+  background-color: #e41e1e;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(228, 30, 30, 0.3);
+}
+
+.btn-pedido-final.ativo:hover {
+  background-color: #c21515;
+  transform: translateY(-2px);
+}
+
+/* Responsivo para celulares */
+@media (max-width: 768px) {
+  .foto-container { height: 300px; }
+  .nome { font-size: 2rem; }
+  .container-detalhe { padding: 20px 15px; }
 }
