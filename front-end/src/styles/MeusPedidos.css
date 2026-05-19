@@ -1,0 +1,124 @@
+/* --- LAYOUT GERAL --- */
+.main-wrapper {
+  min-height: 100vh;
+  background-color: #f7f7f7;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  width: 100%;
+}
+
+/* --- NAVBAR --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ea1d2c;
+  cursor: pointer;
+}
+
+/* --- BOTÃO VOLTAR (Baseado no seu 1º CSS) --- */
+.btn-voltar {
+  position: relative; 
+  top: auto;
+  left: auto;
+  background-color: #3e3e3e;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-voltar:hover {
+  background-color: #555;
+}
+
+.btn-voltar:active {
+  background-color: #ea1d2c;
+  transform: scale(0.95);
+}
+
+/* --- GRID DE PEDIDOS --- */
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 25px;
+}
+
+/* --- CARD DE PEDIDO (Baseado no seu 3º CSS) --- */
+.card {
+  display: flex;
+  flex-direction: column; 
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background-color: #fff;
+  overflow: hidden; 
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: #ea1d2c;
+}
+
+.foto-container {
+  width: 100%;
+  height: 180px; 
+  background-color: #f2f2f2;
+}
+
+.foto-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+}
+
+.info {
+  padding: 15px;
+}
+
+.nome {
+  font-weight: 700;
+  color: #3e3e3e;
+  font-size: 1.2rem;
+  margin: 10px 0 5px 0;
+}
+
+.descricao {
+  color: #717171;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.preco {
+  font-weight: 800;
+  color: #3e3e3e;
+  font-size: 1.1rem;
+}
+
+/* --- STATUS BADGE --- */
+.badge-status {
+  display: inline-block;
+  padding: 5px 12px;
+  background-color: #fff1f2;
+  color: #ea1d2c;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

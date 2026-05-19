@@ -6,7 +6,7 @@ export function AdminRoute({children}){
    const { usuario } = useContext(AuthContext)
 
     if (!usuario || !usuario.adm) {
-    return <Navigate to='/login' replace />
+    return <Navigate to='/' replace />
 }
 
     return children
