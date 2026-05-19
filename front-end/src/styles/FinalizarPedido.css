@@ -1,0 +1,228 @@
+/* --- LAYOUT GERAL --- */
+.finalizar-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f7f7f7;
+  min-height: 100vh;
+}
+
+.titulo-pagina {
+  text-align: center;
+  color: #3e3e3e;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.titulo-secao {
+  font-size: 1.1rem;
+  color: #3e3e3e;
+  margin-bottom: 15px;
+  border-left: 4px solid #ea1d2c;
+  padding-left: 12px;
+  text-align: left;
+}
+
+/* --- CARDS DE ENDEREÇO --- */
+.endereco-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.endereco-card:hover {
+  border-color: #ea1d2c;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ALTERADO: Fundo branco quando selecionado para não ficar vermelho na edição */
+.endereco-card.selecionado {
+  border: 2px solid #ea1d2c;
+  background-color: #ffffff !important; /* Força o fundo branco */
+}
+
+/* --- TEXTO DO ENDEREÇO --- */
+.endereco-info-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rua-numero {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin: 0 0 5px 0;
+}
+
+.bairro-cidade {
+  color: #717171;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* --- FORMULÁRIOS (EDIÇÃO E CRIAÇÃO) --- */
+.formulario-edicao, 
+.formulario-criacao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+
+/* Definição padrão para todos os inputs */
+.formulario-edicao input,
+.formulario-criacao input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%; /* Garante que ocupem a largura toda */
+  box-sizing: border-box; /* Evita que o input "saia" do card */
+}
+
+
+.formulario-edicao input:focus,
+.formulario-criacao input:focus {
+  border-color: #000000 !important; /* Borda preta ao clicar */
+  outline: none;
+}
+
+.botoes-form-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* --- BOTÕES --- */
+.btn-salvar {
+  flex: 1;
+  background-color: #ea1d2c;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-cancelar {
+  flex: 1;
+  background-color: white;
+  color: #717171;
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-editar-card {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #3e3e3e;
+}
+
+.btn-abrir-novo {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 12px 20px;
+  border-radius: 8px;
+  width: 100%;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 30px;
+  color: #3e3e3e;
+}
+
+.btn-abrir-novo:hover {
+  border-color: #ea1d2c;
+  color: #ea1d2c;
+}
+
+/* --- PAGAMENTO --- */
+.pagamento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.btn-pagamento-item {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #717171;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-pagamento-item.ativo {
+  border: 2px solid #ea1d2c;
+  color: #ea1d2c;
+  background-color: #fff1f2;
+}
+
+/* --- BOTÃO FINALIZAR --- */
+.container-finalizar {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-confirmar-pedido {
+  width: 100%;
+  max-width: 400px;
+  padding: 18px;
+  background-color: #ea1d2c;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(234, 29, 44, 0.2);
+}
+
+.btn-confirmar-pedido:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 600px) {
+  .pagamento-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .botoes-form-container {
+    flex-direction: column;
+  }
+}
+
+.msg-erro {
+  color: #000000;      
+  font-size: 0.7rem;   
+  margin: -5px 0 5px 5px; 
+  font-weight: 600;
+  text-align: left;
+  display: block;
+}
+
+/* --- BORDA DE ERRO (Quando o campo está vazio) --- */
+.input-erro {
+  border: 2px solid #ea1d2c !important;
+}
