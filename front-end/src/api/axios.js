@@ -2,30 +2,48 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "/api",
+  withCredentials: true,
 });
 
-api.interceptors.response.use(
-    response => response,
-    async error => {
-        if (error.response?.status === 401 && !error.config._retry) {
-            error.config._retry = true
-            const refreshToken = localStorage.getItem("refresh_token")
-            if (refreshToken) {
-                try{
-                    const response = await axios.get('/api/auth/refresh', {
-                    headers: { Authorization: `Bearer ${refreshToken}` }
-                })
-                localStorage.setItem("token", response.data.access_token)
-                error.config.headers.Authorization = `Bearer ${response.data.access_token}`
-                return api(error.config)
-            } catch {
-                localStorage.removeItem("token")
-                localStorage.removeItem("refresh_token")
-                window.location.href = "/login"
-            }
-        }
-        return Promise.reject(error)
-    }
-})
+// Helper para converter URLs relativas em absolutas do backend
+export function getImagemUrl(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `http://localhost:8000${url}`;
+}
 
-export default api    
+let isRefreshing = false;
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const rotasIgnoradas = ["/auth/refresh", "/auth/me"];
+    const rotaAtual = error.config?.url || "";
+
+    const deveIgnorar = rotasIgnoradas.some((rota) => rotaAtual.endsWith(rota));
+
+    if (
+      error.response?.status === 401 &&
+      !error.config._retry &&
+      !deveIgnorar &&
+      !isRefreshing
+    ) {
+      error.config._retry = true;
+      isRefreshing = true;
+
+      try {
+        await api.post("/auth/refresh");
+        isRefreshing = false;
+        return api(error.config);
+      } catch (refreshError) {
+        isRefreshing = false;
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+export default api;

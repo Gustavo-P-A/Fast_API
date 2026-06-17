@@ -3,9 +3,13 @@ import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
 export function PrivateRoute({children}){
-    const { verificar_token}= useContext(AuthContext)
+    const { usuario, carregando } = useContext(AuthContext)
 
-    if (!verificar_token){
+    if (carregando) {
+        return <div>Carregando...</div>
+    }
+
+    if (!usuario) {
         return <Navigate to='/login' replace />
     }
 

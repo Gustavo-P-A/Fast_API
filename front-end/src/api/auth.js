@@ -6,6 +6,7 @@ export async function login(email, senha) {
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
@@ -19,6 +20,20 @@ export async function cadastro(nome, email, senha) {
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
+  }
+}
+
+export async function me() {
+  try {
+    const response = await api.get("/auth/me");
+    return response.data;
+  } catch (error) {
+    if (error.response?.status === 401) {
+      return null;
+    }
+    console.error(error);
+    throw error;
   }
 }
 
@@ -28,6 +43,7 @@ export async function cardapio() {
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
@@ -37,6 +53,7 @@ export async function precos() {
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
@@ -46,234 +63,410 @@ export async function saborId(id) {
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
-
-export async function criar_pedido(token) {
-  try {
-    const response = await api.post(
-      "/order/pedido",
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function pedido_adicionais(id, precopizza_id, token) {
-  try {
-    const response = await api.post(
-      `/order/pedidos/adicionar-item/${id}?precopizza_id=${precopizza_id}`,
-      { quantidade: 1 },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-export async function me(token) {
-  try {
-    const response = await api.get("/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function admin_sabores(token, nome, descricao) {
-  try {
-    const response = await api.post(
-      "/admin/sabores",
-      { nome, descricao },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function admin_tamanho(token, nome) {
-  try {
-    const response = await api.post(
-      "/admin/tamanhos",
-      { nome },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function admin_preco_pizza(token, sabor_id, tamanho_id, preco) {
-  try {
-    const response = await api.post(
-      "/admin/preco_pizza",
-      { sabor_id, tamanho_id, preco },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function meus_pedidos(token) {
-  try {
-    const response = await api.get("/order/listar/meus-pedidos", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function endereco(token) {
-  try {
-    const response = await api.get("/enderecos/meus-enderecos", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function finalizar_pedido_id(id, id_endereco, tipo_pagamento, token) {
-  try {
-    const response = await api.post(
-      `/order/pedido/finalizar/${id}?tipo_pagamento=${tipo_pagamento}&id_endereco=${id_endereco}`,
-      {},
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-
-export async function editar_endereco(id,endereco, token) {
-  try {
-    const response = await api.put(
-      `/enderecos/meus-enderecos/editar/${id}`,
-      endereco,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function criar_endereco(endereco, token) {
-  try {
-    const response = await api.post(
-      '/enderecos/localizacao',
-      endereco,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function delete_endereco(id, token) {
-  try {
-    const response = await api.delete(
-      `/enderecos/meus-enderecos/deletar/${id}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 
 export async function preco_adicional(tamanho_id) {
   try {
     const response = await api.get(
-      `/cardapio/preco_adicional?tamanho_id=${tamanho_id}`
+      `/cardapio/preco_adicional?tamanho_id=${tamanho_id}`,
     );
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
-export async function adicionar_adicional(id_pedido, id_item_pedido, id_adicional, id_tamanho, token) {
+export async function criar_pedido() {
+  try {
+    const response = await api.post("/order/pedido", {});
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function pedido_adicionais(id, precopizza_id) {
+  try {
+    const response = await api.post(
+      `/order/pedidos/adicionar-item/${id}?precopizza_id=${precopizza_id}`,
+      { quantidade: 1 },
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function meus_pedidos() {
+  try {
+    const response = await api.get("/order/listar/meus-pedidos");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function finalizar_pedido_id(id, id_endereco, tipo_pagamento) {
+  try {
+    const response = await api.post(
+      `/order/pedido/finalizar/${id}?tipo_pagamento=${tipo_pagamento}&id_endereco=${id_endereco}`,
+      {},
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function adicionar_adicional(
+  id_pedido,
+  id_item_pedido,
+  id_adicional,
+  id_tamanho,
+) {
   try {
     const response = await api.post(
       `/order/adicionais?id_pedido=${id_pedido}&id_item_pedido=${id_item_pedido}&id_adicional=${id_adicional}&id_tamanho=${id_tamanho}`,
-       {},
-      { headers: { Authorization: `Bearer ${token}` } },
+      {},
     );
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
-
-export async function criar_grade(nome, posicao,token) {
+export async function endereco() {
   try {
-    const response = await api.post(
-      '/admin/grade',
-       {nome, posicao},
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    const response = await api.get("/enderecos/meus-enderecos");
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
-export async function listar_grade(token) {
+export async function criar_endereco(endereco) {
   try {
-    const response = await api.get(
-      '/admin/listar/grade',    
-      { headers: { Authorization: `Bearer ${token}` } },
+    const response = await api.post("/enderecos/localizacao", endereco);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function editar_endereco(id, endereco) {
+  try {
+    const response = await api.put(
+      `/enderecos/meus-enderecos/editar/${id}`,
+      endereco,
     );
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
-export async function deletar_grade(id_grade, token) {
+export async function delete_endereco(id) {
   try {
     const response = await api.delete(
-      `/admin/deletar/grade/${id_grade}`,
-       {},
-      { headers: { Authorization: `Bearer ${token}` } },
+      `/enderecos/meus-enderecos/deletar/${id}`,
     );
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
+  }
+}
+export async function admin_tamanho(nome, qtd_sabores, qtd_bordas) {
+  try {
+    const response = await api.post("/admin/tamanhos", {
+      nome,
+      qtd_sabores,
+      qtd_bordas,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_grade(nome, posicao) {
+  try {
+    const response = await api.post("/admin/grade", { nome, posicao });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_grade() {
+  try {
+    const response = await api.get("/admin/listar/grade");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deletar_grade(id_grade) {
+  try {
+    const response = await api.delete(`/admin/deletar/grade/${id_grade}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_grade_sabores(id_grade, id_sabores) {
+  try {
+    const response = await api.post("/admin/grade_sabores", {
+      id_grade,
+      id_sabores,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_categoria() {
+  try {
+    const response = await api.get("/admin/listar/categoria");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_tamanho() {
+  try {
+    const response = await api.get("/admin/listar/tamanho");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_novo_produto(
+  nome,
+  descricao,
+  ativo,
+  categoria_id,
+  grade_id,
+  precos,
+  imagem_url
+) {
+  try {
+    const response = await api.post("/admin/novo-produto", {
+      nome,
+      descricao,
+      ativo,
+      categoria_id,
+      grade_id,
+      precos,
+      imagem_url,
+    });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deletar_sabor(id_sabor) {
+  try {
+    const response = await api.delete(`/admin/deletar/sabor/${id_sabor}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function editar_produto(
+  id_novo_produto,
+  nome,
+  descricao,
+  ativo,
+  grade_id,
+  categoria_id,
+  precos,
+  imagem_url
+) {
+  try {
+    const response = await api.put(
+      `/admin/editar/novo-produto/${id_novo_produto}`,
+      { nome, descricao, ativo, grade_id, categoria_id, precos, imagem_url },
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_novo_produto(id) {
+  try {
+    const response = await api.get(`/admin/listar/novo-produto/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deletar_tamanho(id) {
+  try {
+    const response = await api.delete(`/admin/deletar/tamanho/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
 
 
-export async function criar_grade_sabores(id_grade,id_sabores, token) {
+export async function listar_pedidos_admin(status = "") {
   try {
-    const response = await api.post(
-      '/admin/grade_sabores',
-       {id_grade, id_sabores},
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    const params = status ? `?status=${status}` : "";
+    const response = await api.get(`/admin/listar/pedidos-cliente${params}`);
     return response.data;
   } catch (error) {
     console.error(error);
+    throw error;
+  }
+}
+
+export async function upload_imagem(arquivo) {
+  try {
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const response = await api.post("/admin/upload-imagem", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Erro no upload:", error);
+    throw error;
+  }
+}
+
+export async function toggle_status_produto(id) {
+  try {
+    const response = await api.patch(`/admin/produto/${id}/status`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function mudar_status_pedido(id, status) {
+  try {
+    const response = await api.put(`/admin/mudar_status/${id}?tipo_status=${encodeURIComponent(status)}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_clientes_admin() {
+  try {
+    const response = await api.get("/admin/clientes");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function pedidos_do_cliente(id) {
+  try {
+    const response = await api.get(`/admin/clientes/${id}/pedidos`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
+export async function listar_todos_produtos() {
+  try {
+    const response = await api.get("/admin/listar/todos-produtos");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_categoria(nome) {
+  try {
+    const response = await api.post("/admin/categoria", { nome });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function mover_produtos_grade(sabor_ids, grade_id) {
+  try {
+    const response = await api.patch("/admin/produtos/mover-grade", { sabor_ids, grade_id });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_produtos_por_grade() {
+  try {
+    const response = await api.get("/admin/listar/produtos-por-grade");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_grade_publica() {
+  try {
+    const response = await api.get("/admin/listar/grade");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function cardapio_por_grade() {
+  try {
+    const response = await api.get("/cardapio/grades");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
 }
