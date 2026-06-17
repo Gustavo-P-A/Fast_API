@@ -1,96 +1,83 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, cadastro, me } from "../api/auth";
+import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
+
 export function AuthProvider({ children }) {
-  const [verificar_token, setVerificar_Token] = useState(null);
-  const [verificar_refresh_token, setVerificar_refresh_Token] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [usuario, setUsuario] = useState(null);
-
   const navigate = useNavigate();
 
-  /////////////LOGIN////////////////
   async function handleLogin(email, senha) {
-    const data = await login(email, senha);
-
-    if (data && data.access_token) {
-      const userData = await me(data.access_token);
-      setUsuario(userData);
-      setVerificar_Token(data.access_token);
-      setVerificar_refresh_Token(data.refresh_token);
-
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("refresh_token", data.refresh_token);
-
-      setTimeout(() => navigate("/"), 100);
-    } else {
-      alert("Email ou Senha incorretos");
-    }
-  }
-
-  /////////////CADASTRO////////////////
-  async function handleCadastro(nome, email, senha) {
-    const data = await cadastro(nome, email, senha);
-
+    setCarregando(true);
     try {
-      if (data && data.access_token) {
-        const userData = await me(data.access_token)
-        setUsuario(userData)
-        setVerificar_Token(data.access_token);
-        setVerificar_refresh_Token(data.refresh_token);
-
-        localStorage.setItem("token", data.access_token);
-        localStorage.setItem("refresh_token", data.refresh_token);
-
-        navigate("/perfil");
-      } else {
-        alert("Erro ao cadastrar, tente novamente");
-      }
+      await login(email, senha);
+      const userData = await me();
+      if (!userData) throw new Error("Não foi possível obter os dados do usuário.");
+      setUsuario(userData);
+      navigate(userData.adm ? "/admin" : "/");
     } catch (error) {
-      console.error(error);
+      const msgErro = error.response?.data?.detail || error.message || "Dados inválidos.";
+      alert(msgErro);
+    } finally {
+      setCarregando(false);
     }
   }
 
-  /////////////LOGOUT////////////////
-  async function handleLogout() {
-    setVerificar_Token(null);
-    setUsuario("");
-    setVerificar_refresh_Token(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token");
+  async function handleCadastro(nome, email, senha) {
+    setCarregando(true);
+    try {
+      const data = await cadastro(nome, email, senha);
+      if (!data) { alert("Erro ao cadastrar, tente novamente."); return; }
+      const userData = await me();
+      if (!userData) throw new Error("Não foi possível obter os dados do usuário.");
+      setUsuario(userData);
+      navigate("/perfil");
+    } catch (error) {
+      const msgErro = error.response?.data?.detail || error.message || "Falha ao registrar conta.";
+      alert(msgErro);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function logout() {
+    setUsuario(null);
     window.location.href = "/login";
   }
 
   useEffect(() => {
     async function buscarDados() {
-      const tokenSalvo = localStorage.getItem("token");
-      if (tokenSalvo) {
-        const data = await me(tokenSalvo);
-        setVerificar_Token(tokenSalvo);
-        setUsuario(data);
+      try {
+        const data = await me();
+        if (data) setUsuario(data);
+      } catch {
+        setUsuario(null);
+      } finally {
+        setCarregando(false);
       }
-      setCarregando(false);
     }
     buscarDados();
   }, []);
 
-  if (carregando) {
-    return <div>carregando...</div>;
+  if (carregando && !usuario) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <div>Carregando aplicação...</div>
+      </div>
+    );
   }
+
   return (
-    <AuthContext.Provider
-      value={{
-        verificar_token,
-        handleLogin,
-        handleCadastro,
-        usuario,
-        handleLogout,
-        carregando,
-      }}
-    >
+    <AuthContext.Provider value={{ handleLogin, handleCadastro, usuario, logout, handleLogout: logout, carregando }}>
       {children}
     </AuthContext.Provider>
   );
+}
+
+
+export function useAuth() {
+  return useContext(AuthContext);
 }
