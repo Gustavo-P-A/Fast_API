@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
+
 class UsuarioSchema(BaseModel):
     nome: str
     email: str
@@ -9,11 +10,13 @@ class UsuarioSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class PedidoSchema(BaseModel):
     id_usuario: int
 
     class Config:
-        from_attributes = True 
+        from_attributes = True
+
 
 class LoginSchema(BaseModel):
     email: str
@@ -22,12 +25,6 @@ class LoginSchema(BaseModel):
     class Config:
         from_attributes = True
 
-class SaboresSchema(BaseModel):
-    nome: str
-    descricao: Optional[str] = None
-
-    class Config:
-        from_attributes =True
 
 class TamanhosSchema(BaseModel):
     nome: str
@@ -35,37 +32,32 @@ class TamanhosSchema(BaseModel):
     qtd_bordas: int
 
     class Config:
-        from_attributes =True
+        from_attributes = True
+
 
 class AdicionaisSchema(BaseModel):
     nome: str
 
     class Config:
-        from_attributes =True
-
-class PrecoPizzaSchema(BaseModel):
-    sabor_id: int
-    tamanho_id: int
-    preco: float
-
-    class Config:
-        from_attributes =True
+        from_attributes = True
 
 class SaboresResponseSchema(BaseModel):
     id: int
     nome: str
     descricao: Optional[str] = None
-
+    imagem_url: Optional[str] = None  
 
     class Config:
         from_attributes = True
+
 
 class AdicionaisResponseSchema(BaseModel):
     id: int
     nome: str
 
     class Config:
-        from_attributes =True 
+        from_attributes = True
+
 
 class TamanhoResponseSchema(BaseModel):
     id: int
@@ -76,6 +68,7 @@ class TamanhoResponseSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ItemPedidoCriacaoSchema(BaseModel):
     quantidade: int = Field(ge=1)
     observacoes: Optional[str] = None
@@ -83,14 +76,15 @@ class ItemPedidoCriacaoSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class PrecoPizzaResponseSchema(BaseModel):
     id: int
     preco: float
     sabor_rel: SaboresResponseSchema
     tamanho_rel: TamanhoResponseSchema
-    
+
     class Config:
-        from_attributes = True    
+        from_attributes = True
 
 
 class PrecoAdicionalResponseSchema(BaseModel):
@@ -103,7 +97,7 @@ class PrecoAdicionalResponseSchema(BaseModel):
 
 
 class ItemPedidoSchema(BaseModel):
-    quantidade:int = Field(ge=1)
+    quantidade: int = Field(ge=1)
     observacoes: Optional[str] = None
     precopizza_rel: PrecoPizzaResponseSchema
     adicionais_rel: List[PrecoAdicionalResponseSchema]
@@ -111,11 +105,11 @@ class ItemPedidoSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class ResponsePedidoSchema(BaseModel):
     preco: Optional[float] = None
     status: str
     itens: List[ItemPedidoSchema]
-    
 
     class Config:
         from_attributes = True
@@ -129,13 +123,18 @@ class PrecoAdicionalSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class SaboresVisualizacaoSchema(BaseModel):
+    id: int
     nome: str
-    descricao: str
+    descricao: Optional[str] = None
+    ativo: bool
+    imagem_url: Optional[str] = None
     preco_float: List[PrecoPizzaResponseSchema]
 
     class Config:
         from_attributes = True
+
 
 class EnderecoEntregaBaseSchema(BaseModel):
     rua: str
@@ -145,7 +144,7 @@ class EnderecoEntregaBaseSchema(BaseModel):
     cidade: str
     estado: str
     cep: str
-    
+
     class Config:
         from_attributes = True
 
@@ -162,6 +161,7 @@ class EnderecoEntregaResponseSchema(EnderecoEntregaBaseSchema):
 
 
 class GradeSchema(BaseModel):
+    id: int
     nome: str
     posicao: int
 
@@ -176,12 +176,67 @@ class GradeSaboresSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
+class GradeCriarSchema(BaseModel):
+    nome: str
+    posicao: int
+
+    class Config:
+        from_attributes = True
+
+class PrecoItemSchema(BaseModel):
+    tamanho_id: int
+    preco: float
+
+    class Config:
+        from_attributes = True
+
+
 class NovoProdutoSchema(BaseModel):
     nome: str
-    id_tamanho: int
-    id_preco: int
-    id_grade: int
-    id_grade_sabores: int
-    
+    descricao: str
+    ativo: bool
+    grade_id: int
+    categoria_id: int
+    precos: List[PrecoItemSchema]
+    imagem_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CategoriaSchema(BaseModel):
+    nome: str
+
+    class Config:
+        from_attributes = True
+
+
+class PrecoItemAdminSchema(BaseModel):
+    id: int
+    tamanho_id: int
+    preco: float
+
+    class Config:
+        from_attributes = True
+
+
+class ProdutoAdminSchema(BaseModel):
+    id: int
+    nome: str
+    descricao: Optional[str] = None
+    ativo: bool
+    categoria_id: Optional[int] = None
+    grade_id: Optional[int] = None
+    precos: List[PrecoItemAdminSchema]
+    imagem_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class MoverGradeSchema(BaseModel):
+    id: int
+    nova_posicao: int
+
     class Config:
         from_attributes = True

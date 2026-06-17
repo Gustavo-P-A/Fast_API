@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, Column, String, Integer, Float, Boolean, ForeignKey, Enum as SQLEnum
+from sqlalchemy import create_engine, Column, String, Integer, Float, Boolean, ForeignKey, Enum as SQLEnum, DateTime
 from sqlalchemy.orm import declarative_base, relationship
 from enum import Enum
+from datetime import datetime, timezone
 
 #conexao do banco de dados
 db = create_engine(
@@ -23,7 +24,7 @@ class Usuario(Base):
 
     pedidos = relationship('Pedidos', back_populates='usuario_rel')
     endereco_rel = relationship('EnderecoEntrega')
-
+ 
 
 class Sabores(Base):
     __tablename__ = 'sabores'
@@ -32,6 +33,8 @@ class Sabores(Base):
     nome = Column(String, nullable=False)
     descricao = Column(String, nullable=True)
     ativo = Column(Boolean, default=True)
+    categoria_id = Column(Integer, ForeignKey('categoria.id'))
+    imagem_url = Column(String, nullable=True)
 
     preco_float = relationship('PrecoPizza', back_populates='sabor_rel')
 
@@ -120,6 +123,12 @@ class GradeSabores(Base):
     sabores_id = Column(Integer, ForeignKey('sabores.id'), nullable=False)
 
 
+class Categoria(Base):
+    __tablename__ = 'categoria'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nome = Column(String, nullable=False)
+
 
 class EnderecoEntrega(Base):
     __tablename__ = 'enderecos_entrega'
@@ -141,7 +150,6 @@ class TipoPagamento(Enum):
     CARTAO_DE_DEBITO = 'Cartão de débito'
     DINHEIRO = 'Dinheiro'
 
-
 class Pedidos(Base):
     __tablename__ = 'pedidos'
 
@@ -151,8 +159,9 @@ class Pedidos(Base):
     preco = Column(Float)
     endereco_id = Column(Integer, ForeignKey('enderecos_entrega.id'), nullable=True)
     formato_de_pagamento = Column(SQLEnum(TipoPagamento))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    itens = relationship('ItemPedido', back_populates='pedido_rel',cascade='all, delete')
+    itens = relationship('ItemPedido', back_populates='pedido_rel', cascade='all, delete')
     usuario_rel = relationship('Usuario', back_populates='pedidos')
 
     def calcular_preco(self):
