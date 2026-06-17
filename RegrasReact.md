@@ -1,71 +1,102 @@
-my-rocketseat-app/
-├── public/
-│ └── index.html
-├── src/
-│ ├── assets/ # Imagens e arquivos estáticos
-│ ├── components/ # Componentes reutilizáveis
-│ │ ├── Button/
-│ │ │ ├── Button.js
-│ │ │ ├── Button.test.js
-│ │ │ └── Button.css
-│ │ └── Modal/
-│ │ ├── Modal.js
-│ │ ├── Modal.test.js
-│ │ └── Modal.css
-│ ├── context/ # Contextos para estado global
-│ │ └── AuthContext.js
-│ ├── features/ # Funcionalidades específicas da aplicação
-│ │ ├── Auth/
-│ │ │ ├── Login.js
-│ │ │ ├── Register.js
-│ │ │ └── authSlice.js
-│ │ └── Dashboard/
-│ │ ├── Dashboard.js
-│ │ ├── Dashboard.css
-│ │ └── Dashboard.test.js
-│ ├── hooks/ # Hooks personalizados
-│ │ ├── useAuth.js
-│ │ └── useFetch.js
-│ ├── pages/ # Páginas principais da aplicação
-│ │ ├── Home.js
-│ │ └── Profile.js
-│ ├── services/ # Serviços de API e outras integrações externas
-│ │ ├── api.js
-│ │ └── authService.js
-│ ├── styles/ # Estilos globais
-│ │ ├── variables.css
-│ │ └── main.css
-│ ├── utils/ # Utilitários e funções auxiliares
-│ │ ├── formatDate.js
-│ │ └── slugify.js
-│ ├── App.js
-│ ├── index.js
-│ └── setupTests.js # Configurações globais para testes
-├── .env # Variáveis de ambiente
-├── package.json
-└── README.md
+# 🍕 Pizzaria — Sistema Web Completo
 
-# 1. Gera o arquivo de migração novo com base nos seus models atuais
+> Plataforma completa para gerenciamento e venda online de pizzas, desenvolvida com FastAPI e React.
 
-> > python -m alembic revision --autogenerate -m "Ajuste no Pedidos"
-> >
-> > # 2. Cria o arquivo banco.db novo com todas as tabelas
-> >
-> > python -m alembic upgrade head
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
+![Backend](https://img.shields.io/badge/backend-FastAPI-009688?logo=fastapi)
+![Frontend](https://img.shields.io/badge/frontend-React-61DAFB?logo=react)
+![Banco](https://img.shields.io/badge/banco-SQLite-003B57?logo=sqlite)
 
-Para que serve cada pasta
+---
 
-api — funções que chamam seu backend FastAPI
-components — peças reutilizáveis como botões, cards, navbar
-contexts — estado global como o usuário logado e o carrinho
-pages — as telas completas como Home, Login, Cardápio
-services — lógica de negócio separada
-styles — arquivos CSS
+## 📌 Sobre o Projeto
 
-Por onde começar
-A ordem certa é:
+Sistema web completo para pizzarias, com área de cliente, cardápio interativo, pedidos online e painel administrativo. O cliente consegue montar seu pedido, escolher tamanho, sabores, bordas e adicionais — tudo pelo navegador.
 
-api — configura a conexão com o backend
-contexts — cria o contexto de autenticação
-pages — cria as telas
-components — cria os componentes reutilizáveis
+---
+
+## ✅ Funcionalidades Implementadas
+
+### 👤 Autenticação
+- Cadastro e login de usuários
+- Autenticação via JWT (Access Token + Refresh Token)
+- Renovação automática de token (sem precisar logar novamente)
+- Controle de acesso por nível (cliente / administrador)
+
+### 🍕 Cardápio
+- Listagem de sabores com categoria
+- Visualização de preços por tamanho
+- Adicionais disponíveis por tamanho
+- Filtro de produtos ativos/inativos
+
+### 🛒 Pedidos
+- Criação de pedido
+- Adição de itens (pizza + adicionais)
+- Finalização com endereço e forma de pagamento
+- Histórico de pedidos do cliente
+
+### 🏠 Endereços
+- Cadastro, edição e remoção de endereços de entrega
+
+### 🔧 Painel Administrativo
+- Gerenciamento de produtos (criar, editar, excluir)
+- Upload de imagem dos produtos
+- Controle de tamanhos e preços
+- Ativar/desativar produtos do cardápio
+- Gerenciamento de grades e categorias
+
+---
+
+## 🛠️ Tecnologias
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Backend | FastAPI (Python) |
+| Frontend | React + Vite |
+| Banco de dados | SQLite + SQLAlchemy |
+| Autenticação | JWT (python-jose) |
+| Estilização | CSS puro |
+| Roteamento | React Router DOM |
+| HTTP Client | Axios |
+
+---
+
+## 🚧 Em Desenvolvimento
+
+- [ ] Upload de imagem dos produtos
+- [ ] Preview do produto no painel admin
+- [ ] Status do produto (ativo, disponível hoje, em destaque)
+- [ ] Dashboard com métricas e relatórios
+- [ ] Painel de controle de pedidos em tempo real
+- [ ] Integração com meios de pagamento (PIX, cartão)
+- [ ] Notificações de status do pedido
+- [ ] Versão mobile otimizada
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+/
+├── Fast_API/         # Backend (FastAPI)
+│   ├── models.py
+│   ├── schemas.py
+│   ├── main.py
+│   ├── auth_routes.py
+│   ├── cardapio_routes.py
+│   ├── order_routes.py
+│   ├── area_admin.py
+│   └── uploads/
+│
+└── front-end/        # Frontend (React + Vite)
+    ├── src/
+    │   ├── pages/
+    │   ├── components/
+    │   ├── api/
+    │   ├── contexts/
+    │   └── styles/
+```
+
+---
+
+> 🚧 Projeto em desenvolvimento ativo.
