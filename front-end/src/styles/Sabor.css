@@ -1,144 +1,165 @@
-/* Container Principal */
-.container-detalhe {
+.sabor-page {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centraliza tudo no meio da tela */
-  padding: 40px 20px;
-  max-width: 1200px;
+  align-items: center;
+  padding: 32px 20px;
+  max-width: 700px;
   margin: 0 auto;
-  gap: 25px;
+  gap: 24px;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Botão Voltar */
-.btn-voltar {
-  align-self: flex-start; /* Fica na esquerda */
+.sabor-btn-voltar {
+  align-self: flex-start;
   background: #333;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 18px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 0.9rem;
   transition: background 0.2s;
 }
+.sabor-btn-voltar:hover { background: #e53935; }
 
-.btn-voltar:hover {
-  background: #e41e1e;
-}
-
-/* 📸 IMAGEM: Proporcional e Centralizada (estilo Home, mas maior) */
-.foto-container {
+.sabor-foto {
   width: 100%;
-  max-width: 650px; 
-  height: 250px !important; /* Altura equilibrada: nem fina, nem gigante */
-  border-radius: 20px;
+  height: 260px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
 
-.foto-container img {
+.sabor-foto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
 }
 
-/* Bloco de Informações */
-.card-detalhe {
+.sabor-info {
   width: 100%;
-  max-width: 700px; /* Mesma largura da foto para harmonia */
   text-align: center;
 }
 
-.nome {
-  font-size: 2.5rem;
+.sabor-nome {
+  font-size: 2rem;
   font-weight: 800;
   color: #1a1a1a;
-  margin-bottom: 10px;
+  margin: 0 0 8px;
 }
 
-/* 📝 DESCRIÇÃO: Corrigida para não cortar nada */
-.descricao {
-  font-size: 1.15rem;
-  color: #555;
+.sabor-descricao {
+  font-size: 1rem;
+  color: #666;
   line-height: 1.6;
-  margin-bottom: 30px;
-  height: auto;           /* Deixa o texto crescer */
-  overflow: visible;      /* Garante que nada suma */
-  display: block;
-  word-wrap: break-word;  /* Quebra palavras longas se necessário */
+  margin: 0 0 24px;
 }
 
-/* Lista de Tamanhos */
-.precos-lista {
+.sabor-precos-lista {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  align-items: center; /* Centraliza os botões de tamanho */
+  gap: 10px;
+  align-items: center;
 }
 
-/* Item de Tamanho (M, G, etc) */
-.preco-item {
+.sabor-preco-item {
   width: 100%;
-  max-width: 450px;
+  max-width: 440px;
   display: flex;
   justify-content: space-between;
-  padding: 15px 25px;
+  align-items: center;
+  padding: 14px 20px;
   border: 2px solid #eee;
   border-radius: 12px;
   background: white;
   cursor: pointer;
+  font-size: 1rem;
   transition: all 0.2s ease;
-  font-size: 1.1rem;
 }
-
-.preco-item:hover {
-  border-color: #e41e1e;
+.sabor-preco-item:hover { border-color: #e53935; }
+.sabor-preco-item.selecionado {
+  border-color: #e53935;
+  background: #fff5f5;
+  box-shadow: 0 4px 10px rgba(228,30,30,0.1);
+  font-weight: 700;
 }
+.sabor-preco-item:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* Efeito quando o tamanho está selecionado */
-.preco-item.selecionado {
-  border-color: #e41e1e;
-  background-color: #fff5f5;
-  box-shadow: 0 4px 10px rgba(228, 30, 30, 0.1);
-  font-weight: bold;
-}
-
-/* 🔘 BOTÃO FINALIZAR: Efeito de 'Acender' */
-.btn-pedido-final {
+.sabor-btn-finalizar {
   width: 100%;
-  max-width: 450px;
-  margin-top: 25px;
-  padding: 18px;
+  max-width: 440px;
+  margin-top: 16px;
+  padding: 16px;
   border: none;
   border-radius: 12px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  transition: all 0.4s ease;
-  
-  /* Estado inicial: Apagado/Desabilitado */
-  background-color: #ddd; 
+  font-size: 1.1rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  background: #ddd;
   color: #888;
   cursor: not-allowed;
 }
-
-/* Estado Ativo: Quando o usuário marca um tamanho */
-.btn-pedido-final.ativo {
-  background-color: #e41e1e;
+.sabor-btn-finalizar.ativo {
+  background: #e53935;
   color: white;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(228, 30, 30, 0.3);
+  box-shadow: 0 6px 20px rgba(228,30,30,0.3);
 }
-
-.btn-pedido-final.ativo:hover {
-  background-color: #c21515;
+.sabor-btn-finalizar.ativo:hover {
+  background: #c62828;
   transform: translateY(-2px);
 }
 
-/* Responsivo para celulares */
-@media (max-width: 768px) {
-  .foto-container { height: 300px; }
-  .nome { font-size: 2rem; }
-  .container-detalhe { padding: 20px 15px; }
+.sabor-adicionais {
+  width: 100%;
+  max-width: 440px;
+  text-align: left;
+}
+
+.sabor-adicionais h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 16px 0 10px;
+}
+
+.sabor-adicional-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #fafafa;
+}
+
+.sabor-adicional-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sabor-adicional-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.sabor-adicional-btn:hover { background: #f0f0f0; }
+.sabor-adicional-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+  .sabor-foto { height: 200px; }
+  .sabor-nome { font-size: 1.6rem; }
 }

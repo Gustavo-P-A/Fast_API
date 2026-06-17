@@ -1,21 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { meus_pedidos } from "../api/auth";
-import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
 import "../styles/MeusPedidos.css";
 
 export function MeusPedidos() {
   const [pedidos, setPedidos] = useState([]);
-  const { verificar_token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
     async function buscarPedidos() {
-      const data = await meus_pedidos(verificar_token);
+      const data = await meus_pedidos();
       setPedidos(data);
     }
     buscarPedidos();
-  }, [verificar_token]);
+  }, []);
 
   return (
     <div className="main-wrapper">

@@ -1,76 +1,107 @@
-.container {
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.home-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 20px;
-  padding: 20px;
 }
 
-.card {
+.home-card {
   display: flex;
-  flex-direction: column; 
-  border: 1px solid #f2f2f2;
-  border-radius: 12px;
-  background-color: #fff;
-  overflow: hidden; 
-  transition: transform 0.2s, box-shadow 0.2s;
+  flex-direction: column;
+  border: 1px solid #f0f0f0;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.card:hover {
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+.home-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
   transform: translateY(-4px);
-  border-color: #ea1d2c;
+  border-color: #e53935;
 }
 
-
-.foto-container {
+.home-card-foto {
   width: 100%;
-  height: 160px; 
-  background-color: #f2f2f2;
+  height: 170px;
+  background: #f5f5f5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.foto-container img {
+.home-card-foto img {
   width: 100%;
   height: 100%;
-  object-fit: cover; 
+  object-fit: cover;
 }
 
-.info {
-  padding: 12px;
+.home-card-sem-foto {
+  font-size: 3rem;
+  color: #ddd;
 }
 
-.nome {
-  font-weight: 600;
-  color: #3e3e3e;
-  font-size: 1.1rem;
-  margin-bottom: 6px;
+.home-card-info {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
-.descricao {
-  color: #717171;
-  font-size: 0.875rem;
-  margin-bottom: 12px;
-
-  /* Corte de texto */
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2; /* Isso remove o aviso do VS Code */
-  -webkit-box-orient: vertical !important;
-  
-  /* Esconder o que sobra */
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-
-  /* Altura fixa para alinhar os cards */
-  line-height: 1.4em !important;
-  height: 2.8em !important; 
-}
-
-
-
-
-.preco {
+.home-card-nome {
   font-weight: 700;
-  color: #3e3e3e;
+  color: #1a1a1a;
   font-size: 1rem;
+  margin: 0 0 6px;
+}
+
+.home-card-descricao {
+  color: #888;
+  font-size: 0.85rem;
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4em;
+  height: 2.8em;
+  flex: 1;
+}
+
+
+.home-card-preco {
+  font-weight: 700;
+  color: #e53935;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.home-card-preco-label {
+  font-size: 0.78rem;
+  color: #aaa;
+  font-weight: 400;
+}
+
+.home-secao {
+  margin-bottom: 2.5rem;
+}
+
+.home-secao-titulo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e53935;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid #e53935;
 }
