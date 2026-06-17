@@ -165,8 +165,8 @@ async def pedido_entregue (id_pedido: int, session: Session = Depends(pegar_sess
     pedido = session.query(Pedidos).filter(Pedidos.id == id_pedido).first()
     if not pedido:
         raise HTTPException (status_code=404, detail='Pedido não encontrado')
-    if usuario.adm or usuario.id != pedido.usuario_id:
-        raise HTTPException(status_code=401, detail='Você não tem autorização para fazer está modificação')
+    if usuario.id != pedido.usuario_id:
+        raise HTTPException(status_code=403, detail='Você não tem autorização para fazer está modificação')
 
     pedido.status = 'ENTREGUE'
     session.commit()

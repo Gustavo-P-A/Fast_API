@@ -5,7 +5,8 @@ from order_routes import order_router
 from area_admin import area_admin
 from cardapio_routes import cardapio_routes
 from enderecos_routes import enderecos_router
-
+from produto_routes import produto_routes
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
 app = FastAPI(title="Pizzaria API", description="WebSite Pizzaria", version="1.0.0")
@@ -27,3 +28,5 @@ app.include_router(order_router)
 app.include_router(area_admin)
 app.include_router(cardapio_routes)
 app.include_router(enderecos_router)
+app.include_router(produto_routes)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
