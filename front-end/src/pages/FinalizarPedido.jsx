@@ -1,98 +1,100 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import {
-  endereco, finalizar_pedido_id, editar_endereco,
-  criar_endereco, delete_endereco,
-  criar_pedido, pedido_adicionais, adicionar_adicional,
-} from "../api/auth";
-import { CardEndereco } from "../components/finalizar_pedido/CardEndereco";
-import { FormEndereco } from "../components/finalizar_pedido/FormEndereco";
-import { SecaoPagamento } from "../components/finalizar_pedido/SecaoPagamento";
+import { criar_pedido, pedido_adicionais, adicionar_adicional, finalizar_pedido_id } from "../api/auth";
 import "../styles/FinalizarPedido.css";
 
 export function FinalizarPedido() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [enderecos, setEnderecos] = useState([]);
-  const [enderecoSelecionado, setEnderecoSelecionado] = useState("");
-  const [pagamento, setPagamento] = useState("");
-  const [editando, setEditando] = useState(null);
-  const [adicionando, setAdicionando] = useState(false);
-  const [confirmando, setConfirmando] = useState(false);
+  const [enviando, setEnviando] = useState(false);
 
-  useEffect(() => {
-    if (!state?.precopizza_id) { navigate("/"); return; }
-    endereco().then(setEnderecos);
-  }, []);
+  if (!state?.tamanho_id || !state?.endereco || !state?.pagamento) {
+    navigate("/");
+    return null;
+  }
 
-  async function handleFinalizar() {
-    if (!enderecoSelecionado || !pagamento) return;
-    setConfirmando(true);
+  // mesma regra B usada no Sabor.jsx: 1 sabor de borda = preço cheio, 2+ = proporcional
+  const bordas = state.bordas || [];
+  const precoBordas = bordas.length === 0
+    ? 0
+    : bordas.length === 1
+      ? bordas[0].preco
+      : bordas.reduce((soma, b) => soma + b.preco * (b.partes / state.qtd_bordas), 0);
+
+  const total = state.preco_sabor + precoBordas;
+
+  async function handleFinalizarEnviar() {
+    setEnviando(true);
     try {
       const pedido = await criar_pedido();
-      const item = await pedido_adicionais(pedido.id, state.precopizza_id);
-      for (const entry of state.adicionais) {
-        for (let i = 0; i < entry.quantidade; i++) {
-          await adicionar_adicional(pedido.id, item.item_id, entry.item.id, state.tamanho_id);
-        }
+      const item = await pedido_adicionais(pedido.id, {
+        tamanho_id: state.tamanho_id,
+        sabor_ids: state.sabor_ids,
+      });
+
+      for (const borda of bordas) {
+        await adicionar_adicional(pedido.id, item.item_id, borda.adicional_id, borda.tamanho_id, borda.partes);
       }
-      await finalizar_pedido_id(pedido.id, enderecoSelecionado, pagamento);
-      alert("Pedido realizado com sucesso!");
+
+      await finalizar_pedido_id(pedido.id, state.endereco.id, state.pagamento);
       navigate("/meus-pedidos");
     } catch {
-      alert("Erro ao finalizar pedido. Tente novamente.");
+      alert("Erro ao enviar pedido. Tente novamente.");
     } finally {
-      setConfirmando(false);
+      setEnviando(false);
     }
   }
 
-  async function buscar() { setEnderecos(await endereco()); }
-
-  async function handleSalvarEdicao(idEnd, form) {
-    await editar_endereco(idEnd, form); await buscar(); setEditando(null);
-  }
-
-  async function handleSalvarNovo(form) {
-    await criar_endereco(form); await buscar(); setAdicionando(false);
-  }
-
   return (
-    <div className="finalizar-container">
-      <h1 className="titulo-pagina">Finalizar Pedido</h1>
+    <div className="revisao-container">
+      <h1 className="revisao-titulo">Revise seu pedido</h1>
 
-      <div className="secao-enderecos">
-        <h2 className="titulo-secao">Endereço de entrega</h2>
-        {enderecos.map(local => (
-          <CardEndereco
-            key={local.id}
-            local={local}
-            selecionado={enderecoSelecionado === local.id}
-            editando={editando === local.id}
-            onSelecionar={() => setEnderecoSelecionado(local.id)}
-            onIniciarEdicao={() => setEditando(local.id)}
-            onCancelarEdicao={() => setEditando(null)}
-            onSalvarEdicao={form => handleSalvarEdicao(local.id, form)}
-            onDeletar={async () => { await delete_endereco(local.id); buscar(); }}
-          />
-        ))}
+      <div className="revisao-secao">
+        <h2 className="revisao-secao-titulo">Item</h2>
+        <div className="revisao-item">
+          {state.sabor_imagem && (
+            <img className="revisao-item-foto" src={state.sabor_imagem} alt={state.sabor_nome} />
+          )}
+          <div className="revisao-item-info">
+            <p className="revisao-item-nome">{state.sabor_nome}</p>
+            <p className="revisao-linha">Tamanho: {state.tamanho_nome}</p>
+            {bordas.length > 0 ? (
+              <p className="revisao-linha">
+                Borda: {bordas.map(b => `${b.nome}${bordas.length > 1 ? ` (${b.partes}/${state.qtd_bordas})` : ""}`).join(", ")}
+              </p>
+            ) : (
+              <p className="revisao-linha">Sem borda</p>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="secao-adicionar">
-        {!adicionando
-          ? <button className="btn-abrir-novo" onClick={() => setAdicionando(true)}>+ Adicionar endereço</button>
-          : <FormEndereco labelSalvar="Salvar Endereço" onSalvar={handleSalvarNovo} onCancelar={() => setAdicionando(false)} />
-        }
+      <div className="revisao-secao">
+        <h2 className="revisao-secao-titulo">Endereço de entrega</h2>
+        <p className="revisao-linha">
+          {state.endereco.rua}, {state.endereco.numero}
+          {state.endereco.complemento && ` - ${state.endereco.complemento}`}<br />
+          {state.endereco.bairro} — {state.endereco.cidade}/{state.endereco.estado}<br />
+          CEP: {state.endereco.cep}
+        </p>
       </div>
 
-      <SecaoPagamento selecionado={pagamento} onSelecionar={setPagamento} />
+      <div className="revisao-secao">
+        <h2 className="revisao-secao-titulo">Forma de pagamento</h2>
+        <p className="revisao-linha">{state.pagamento}</p>
+      </div>
 
-      <div className="container-finalizar">
-        <button
-          className="btn-confirmar-pedido"
-          onClick={handleFinalizar}
-          disabled={!enderecoSelecionado || !pagamento || confirmando}
-        >
-          {confirmando ? "Processando..." : "Confirmar Pedido"}
+      <div className="revisao-total">
+        <span>Total</span>
+        <strong>R$ {total.toFixed(2).replace(".", ",")}</strong>
+      </div>
+
+      <div className="revisao-acoes">
+        <button className="revisao-btn-voltar" onClick={() => navigate(-1)} disabled={enviando}>
+          ← Voltar e corrigir
+        </button>
+        <button className="revisao-btn-confirmar" onClick={handleFinalizarEnviar} disabled={enviando}>
+          {enviando ? "Enviando..." : "Finalizar e Enviar Pedido"}
         </button>
       </div>
     </div>

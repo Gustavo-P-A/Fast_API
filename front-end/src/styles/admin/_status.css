@@ -1,0 +1,49 @@
+.ap-btn-status {
+  padding: 4px 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.ap-btn-status:hover { opacity: 0.75; }
+.ap-status-ativo { background: #dcfce7; color: #16a34a; }
+.ap-status-inativo { background: #fee2e2; color: #dc2626; }
+
+.ap-status-cards {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ap-status-card {
+  flex: 1;
+  min-width: 100px;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 10px;
+  padding: 14px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: border 0.15s, box-shadow 0.15s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.ap-status-card:hover { border-color: #e53935; }
+.ap-status-card-ativo {
+  border-color: #e53935;
+  box-shadow: 0 0 0 2px #fca5a5;
+}
+
+.ap-status-card-num { font-size: 1.5rem; font-weight: 700; color: #1a1a1a; }
+.ap-status-card-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #888;
+  text-align: center;
+}
