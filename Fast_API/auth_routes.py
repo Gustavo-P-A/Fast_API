@@ -68,3 +68,10 @@ async def login(response: Response,login_schema: LoginSchema, session: Session =
         response.set_cookie(key='token', value=access_token, httponly=True, samesite='lax', secure=False, path='/', max_age=1800)
         response.set_cookie(key='refresh_token', value=refresh, httponly=True, samesite='lax', secure=False, path='/', max_age=604800)
         return {"mensagem": "Login realizado com sucesso"}
+
+
+@auth_router.post('/logout')
+async def logout(response: Response):
+    response.delete_cookie('token', path='/')
+    response.delete_cookie('refresh_token', path='/')
+    return {"mensagem": "Logout realizado com sucesso"}

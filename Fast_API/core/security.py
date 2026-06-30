@@ -51,7 +51,6 @@ def verificar_refresh_token(refresh_token: str = Cookie(None), session: Session 
     return usuario
 
 
-# A função ORIGINAL continua igual:
 def verificar_token(token: str = Cookie(None), session: Session = Depends(pegar_sessao)):
     if not token:
         raise HTTPException(status_code=401, detail='Acesso negado: Token ausente')
