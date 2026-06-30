@@ -15,7 +15,7 @@ export function AdminDashboard() {
           listar_clientes_admin(),
         ]);
 
-        const pedidosFinalizados = pedidos.filter(p => p.status === "FINALIZADO");
+        const pedidosFinalizados = pedidos.filter(p => p.status === "ENTREGUE");
         const faturamento = pedidosFinalizados.reduce((acc, p) => acc + (p.preco || 0), 0);
         const ticketMedio = pedidosFinalizados.length > 0 ? faturamento / pedidosFinalizados.length : 0;
 
@@ -49,7 +49,7 @@ export function AdminDashboard() {
     "CONFIRMADO":        "#1d4ed8",
     "EM PREPARO":        "#c2410c",
     "SAIU PARA ENTREGA": "#6d28d9",
-    "FINALIZADO":        "#15803d",
+    "ENTREGUE":        "#15803d",
     "CANCELADO":         "#dc2626",
   };
 
@@ -207,8 +207,8 @@ export function AdminDashboard() {
               <span style={{ color: "#dc2626", fontWeight: 600 }}>{produtos.filter(p => !p.ativo).length}</span>
             </div>
             <div className="dash-status-item">
-              <span className="dash-status-nome">Pedidos finalizados</span>
-              <span className="ap-nome">{porStatus["FINALIZADO"] || 0}</span>
+              <span className="dash-status-nome">Pedidos entregues</span>
+              <span className="ap-nome">{porStatus["ENTREGUE"] || 0}</span>
             </div>
             <div className="dash-status-item">
               <span className="dash-status-nome">Pedidos cancelados</span>

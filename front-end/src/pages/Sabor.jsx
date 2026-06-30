@@ -1,52 +1,76 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { saborId, criar_pedido, pedido_adicionais, preco_adicional, adicionar_adicional } from "../api/auth";
+import { saborId, preco_adicional } from "../api/auth";
 import { getImagemUrl } from "../api/axios";
-import "../styles/Sabor.css";
 import { AuthContext } from "../contexts/AuthContext";
+import { SeletorTamanho } from "../components/sabor/SeletorTamanho";
+import { SeletorBorda } from "../components/sabor/SeletorBorda";
+import "../styles/Sabor.css";
 
 export function Sabor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { usuario } = useContext(AuthContext);
 
-  const [saborpizza, setSaborpizza] = useState(null);
-  const [tamanhoSelecionado, setTamanhoSelecionado] = useState(null);
-  const [pedidoFeito, setPedidoFeito] = useState(false);
+  const [sabor, setSabor] = useState(null);
+  const [precoSelecionado, setPrecoSelecionado] = useState(null); // objeto PrecoPizza
   const [adicionaisAPI, setAdicionaisAPI] = useState([]);
-  const [adicionaisCliente, setAdicionaisCliente] = useState({});
+  const [bordasSelecionadas, setBordasSelecionadas] = useState([]); // [{ adicional_id, partes }]
 
   useEffect(() => {
-    async function buscar() {
-      const data = await saborId(id);
-      setSaborpizza(data);
-    }
-    buscar();
+    saborId(id).then(setSabor);
   }, [id]);
 
-  async function fazerPedido() {
-  if (!tamanhoSelecionado) return;
-  navigate("/finalizar-pedido", {
-    state: {
-      precopizza_id: tamanhoSelecionado.id,
-      tamanho_id: tamanhoSelecionado.tamanho_rel.id,
-      adicionais: Object.values(adicionaisCliente),
-    }
-  });
-}
-
-  async function buscarAdicionais(preco) {
-    const data = await preco_adicional(preco.tamanho_rel.id);
-    setAdicionaisAPI(data);
+  function selecionarTamanho(preco) {
+    setPrecoSelecionado(preco);
+    setBordasSelecionadas([]);
+    preco_adicional(preco.tamanho_rel.id).then(setAdicionaisAPI);
   }
 
-  if (!saborpizza) return <div style={{ padding: 40, textAlign: "center" }}>Carregando...</div>;
+  if (!sabor) return <div style={{ padding: 40, textAlign: "center" }}>Carregando...</div>;
 
-  const precosOrdenados = saborpizza.preco_float
-    ? [...saborpizza.preco_float].sort((a, b) => Number(a.preco) - Number(b.preco))
+  const precosOrdenados = sabor.preco_float
+    ? [...sabor.preco_float].sort((a, b) => Number(a.preco) - Number(b.preco))
     : [];
 
-  const totalAdicionais = Object.values(adicionaisCliente).reduce((s, e) => s + e.quantidade, 0);
+  const qtdBordas = precoSelecionado?.tamanho_rel.qtd_bordas || 0;
+
+  function precoDaBorda(adicionalId) {
+    return adicionaisAPI.find(a => a.adicional_rel.id === adicionalId)?.preco || 0;
+  }
+
+  // Regra B: 1 sabor de borda = preço cheio; 2+ sabores = proporcional às partes
+  const sabotesDeBordaDistintos = bordasSelecionadas.length;
+  const precoBordas = sabotesDeBordaDistintos === 0
+    ? 0
+    : sabotesDeBordaDistintos === 1
+      ? precoDaBorda(bordasSelecionadas[0].adicional_id)
+      : bordasSelecionadas.reduce((soma, b) => soma + precoDaBorda(b.adicional_id) * (b.partes / qtdBordas), 0);
+
+  const precoEstimado = precoSelecionado ? Number(precoSelecionado.preco) + precoBordas : null;
+  const podeFinalizar = !!precoSelecionado;
+
+  function handleFinalizar() {
+    if (!podeFinalizar) return;
+    navigate("/endereco-pagamento", {
+      state: {
+        tamanho_id: precoSelecionado.tamanho_rel.id,
+        tamanho_nome: precoSelecionado.tamanho_rel.nome,
+        qtd_bordas: qtdBordas,
+        sabor_ids: [sabor.id],
+        sabor_nome: sabor.nome,
+        sabor_imagem: sabor.imagem_url,
+        preco_sabor: Number(precoSelecionado.preco),
+        bordas: bordasSelecionadas.map(b => ({
+          adicional_id: b.adicional_id,
+          partes: b.partes,
+          tamanho_id: precoSelecionado.tamanho_rel.id,
+          nome: adicionaisAPI.find(a => a.adicional_rel.id === b.adicional_id)?.adicional_rel.nome,
+          preco: precoDaBorda(b.adicional_id),
+        })),
+      },
+    });
+  }
 
   return (
     <div className="sabor-page">
@@ -54,71 +78,39 @@ export function Sabor() {
 
       <div className="sabor-foto">
         <img
-          src={saborpizza.imagem_url ? getImagemUrl(saborpizza.imagem_url) : "/pizza_padrao.png"}
-          alt={saborpizza.nome}
+          src={sabor.imagem_url ? getImagemUrl(sabor.imagem_url) : "/pizza_padrao.png"}
+          alt={sabor.nome}
         />
       </div>
 
       <div className="sabor-info">
-        <h1 className="sabor-nome">{saborpizza.nome}</h1>
-        <p className="sabor-descricao">{saborpizza.descricao}</p>
+        <h1 className="sabor-nome">{sabor.nome}</h1>
+        <p className="sabor-descricao">{sabor.descricao}</p>
 
-        <div className="sabor-precos-lista">
-          {precosOrdenados.map(preco => (
-            <button
-              key={preco.id}
-              disabled={pedidoFeito}
-              className={`sabor-preco-item ${tamanhoSelecionado?.id === preco.id ? "selecionado" : ""}`}
-              onClick={() => { setTamanhoSelecionado(preco); buscarAdicionais(preco); }}
-            >
-              <strong>{preco.tamanho_rel.nome}</strong>
-              <span>R$ {preco.preco.toFixed(2).replace(".", ",")}</span>
-            </button>
-          ))}
+        <SeletorTamanho precos={precosOrdenados} selecionado={precoSelecionado} onSelecionar={selecionarTamanho} />
 
-          {adicionaisAPI.length > 0 && (
-            <div className="sabor-adicionais">
-              <h3>Escolha seus adicionais</h3>
-              {adicionaisAPI.map(item => (
-                <div key={item.id} className="sabor-adicional-item">
-                  <div>
-                    <span>{item.adicional_rel.nome}</span>
-                    <span style={{ color: "#888", fontSize: "0.85rem", marginLeft: 8 }}>
-                      + R$ {item.preco.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="sabor-adicional-controles">
-                    <button
-                      className="sabor-adicional-btn"
-                      disabled={totalAdicionais >= tamanhoSelecionado.tamanho_rel.qtd_bordas}
-                      onClick={() => setAdicionaisCliente(prev => ({
-                        ...prev,
-                        [item.id]: { item, quantidade: (prev[item.id]?.quantidade || 0) + 1 }
-                      }))}
-                    >+</button>
-                    <span>{adicionaisCliente[item.id]?.quantidade || 0}</span>
-                    <button
-                      className="sabor-adicional-btn"
-                      onClick={() => setAdicionaisCliente(prev => {
-                        const novaQtd = (prev[item.id]?.quantidade || 0) - 1;
-                        if (novaQtd <= 0) { const { [item.id]: _, ...resto } = prev; return resto; }
-                        return { ...prev, [item.id]: { item, quantidade: novaQtd } };
-                      })}
-                    >-</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        {precoSelecionado && (
+          <SeletorBorda
+            opcoes={adicionaisAPI}
+            qtdBordas={qtdBordas}
+            bordasSelecionadas={bordasSelecionadas}
+            setBordasSelecionadas={setBordasSelecionadas}
+          />
+        )}
 
-          <button
-            className={`sabor-btn-finalizar ${tamanhoSelecionado ? "ativo" : ""}`}
-            disabled={pedidoFeito || !tamanhoSelecionado}
-            onClick={() => usuario ? fazerPedido() : navigate("/cadastro")}
-          >
-            {usuario ? "Finalizar Pedido" : "Criar Conta"}
-          </button>
-        </div>
+        {precoSelecionado && (
+          <div className="sabor-preco-estimado">
+            Total estimado: <strong>R$ {precoEstimado.toFixed(2).replace(".", ",")}</strong>
+          </div>
+        )}
+
+        <button
+          className={`sabor-btn-finalizar ${podeFinalizar ? "ativo" : ""}`}
+          disabled={!podeFinalizar}
+          onClick={() => usuario ? handleFinalizar() : navigate("/cadastro")}
+        >
+          {usuario ? "Finalizar Pedido" : "Criar Conta"}
+        </button>
       </div>
     </div>
   );

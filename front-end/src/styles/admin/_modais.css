@@ -1,0 +1,82 @@
+.ap-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  backdrop-filter: blur(2px);
+}
+
+.ap-modal {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: apModalFadeIn 0.2s ease-out;
+}
+
+.ap-modal-titulo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ap-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ap-modal-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ap-modal-sublabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.ap-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  background: #fafafa;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #eeeeee;
+}
+
+.ap-modal-grid-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ap-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+@keyframes apModalFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

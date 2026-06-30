@@ -163,3 +163,34 @@
   .sabor-foto { height: 200px; }
   .sabor-nome { font-size: 1.6rem; }
 }
+
+.sabor-extras { margin: 1.2rem 0; }
+.sabor-extra-slot { margin-bottom: 0.6rem; }
+.sabor-extra-label { display: block; font-size: 0.85rem; color: #888; margin-bottom: 4px; }
+.sabor-extra-select {
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid #e0e0e0; font-size: 0.95rem;
+}
+
+.borda-modo-toggle { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.borda-modo-toggle button {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid #e0e0e0;
+  background: #fff; cursor: pointer; font-size: 0.88rem;
+}
+.borda-modo-toggle button.ativo { background: #e53935; color: #fff; border-color: #e53935; }
+
+.borda-opcoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.borda-opcao {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid #e0e0e0;
+  background: #fff; cursor: pointer; font-size: 0.88rem; display: flex; gap: 6px;
+}
+.borda-opcao.selecionada { border-color: #e53935; background: #fff5f4; }
+.borda-opcao span { color: #888; font-size: 0.82rem; }
+
+.borda-metades { display: flex; flex-direction: column; gap: 16px; }
+.borda-metade-label { font-weight: 600; font-size: 0.88rem; margin-bottom: 6px; }
+
+.sabor-preco-estimado {
+  margin: 14px 0; font-size: 1rem; color: #444;
+  padding: 10px 14px; background: #fafafa; border-radius: 8px;
+}

@@ -8,6 +8,7 @@ import {
 import { InfoBasicas } from "../components/produto/InfoBasicas";
 import { SelectComCriar } from "../components/produto/SelectComCriar";
 import { ToggleAtivo } from "../components/produto/ToggleAtivo";
+import { ToggleGenerico } from "../components/produto/ToggleGenerico";
 import { FormPrecos } from "../components/produto/FormPrecos";
 import { ListaPrecos } from "../components/produto/ListaPrecos";
 import { ModalTamanho } from "../components/produto/ModalTamanho";
@@ -23,6 +24,10 @@ export function NovoProduto() {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [ativo, setAtivo] = useState(true);
+  const [disponivelCardapioNormal, setDisponivelCardapioNormal] = useState(true);
+  const [disponivelMonteSuaPizza, setDisponivelMonteSuaPizza] = useState(false);
+  const [permiteBorda, setPermiteBorda] = useState(true);
+  const [permiteIngrediente, setPermiteIngrediente] = useState(true);
   const [grade_id, setGrade_id] = useState("");
   const [categoria_id, setCategoria_id] = useState("");
   const [precos, setPrecos] = useState([]);
@@ -52,6 +57,10 @@ export function NovoProduto() {
         setNome(data.nome);
         setDescricao(data.descricao);
         setAtivo(data.ativo);
+        setDisponivelCardapioNormal(data.disponivel_cardapio_normal ?? true);
+        setDisponivelMonteSuaPizza(data.disponivel_monte_sua_pizza ?? false);
+        setPermiteBorda(data.permite_borda ?? true);
+        setPermiteIngrediente(data.permite_ingrediente ?? true);
         setCategoria_id(String(data.categoria_id));
         setGrade_id(String(data.grade_id));
         setImagemAtual(data.imagem_url || null);
@@ -98,11 +107,18 @@ export function NovoProduto() {
         preco: Number(String(p.preco).replace(",", ".")),
       }));
 
+      const flags = {
+        disponivel_cardapio_normal: disponivelCardapioNormal,
+        disponivel_monte_sua_pizza: disponivelMonteSuaPizza,
+        permite_borda: permiteBorda,
+        permite_ingrediente: permiteIngrediente,
+      };
+
       if (isEditing) {
-        await editar_produto(id, nome, descricao, ativo, Number(grade_id), Number(categoria_id), precosParaEnviar, imagem_url);
+        await editar_produto(id, nome, descricao, ativo, Number(grade_id), Number(categoria_id), precosParaEnviar, imagem_url, flags);
         alert("Produto atualizado com sucesso!");
       } else {
-        await criar_novo_produto(nome, descricao, ativo, Number(categoria_id), Number(grade_id), precosParaEnviar, imagem_url);
+        await criar_novo_produto(nome, descricao, ativo, Number(categoria_id), Number(grade_id), precosParaEnviar, imagem_url, flags);
         alert("Produto criado com sucesso!");
         navigate("/admin/produtos");
       }
@@ -156,10 +172,6 @@ export function NovoProduto() {
               />
             </div>
           </div>
-
-          <div className="np-section">
-            <ToggleAtivo ativo={ativo} onChange={setAtivo} />
-          </div>
         </div>
 
         {/* Coluna direita */}
@@ -167,6 +179,15 @@ export function NovoProduto() {
           <FormPrecos tamanhos={tamanhos} onAdicionar={handleAdicionarPreco} onNovoTamanho={() => setModal("tamanho")} />
           {erros.precos && <span className="np-erro">{erros.precos}</span>}
           <ListaPrecos precos={precos} tamanhos={tamanhos} onChange={handlePrecoChange} onRemover={handleRemoverPreco} />
+
+          <div className="np-section">
+            <h2 className="np-section-titulo">Regras deste sabor</h2>
+            <ToggleAtivo ativo={ativo} onChange={setAtivo} />
+            <ToggleGenerico label="Disponível no cardápio normal" valor={disponivelCardapioNormal} onChange={setDisponivelCardapioNormal} />
+            <ToggleGenerico label="Disponível no Monte Sua Pizza" valor={disponivelMonteSuaPizza} onChange={setDisponivelMonteSuaPizza} />
+            <ToggleGenerico label="Permite borda" valor={permiteBorda} onChange={setPermiteBorda} />
+            <ToggleGenerico label="Permite ingrediente" valor={permiteIngrediente} onChange={setPermiteIngrediente} />
+          </div>
         </div>
       </div>
 
