@@ -50,7 +50,11 @@ async def criar_novo_produto(
         descricao=novo_produto_schema.descricao,
         ativo=novo_produto_schema.ativo,
         categoria_id=novo_produto_schema.categoria_id,
-        imagem_url=novo_produto_schema.imagem_url
+        imagem_url=novo_produto_schema.imagem_url,
+        disponivel_cardapio_normal=novo_produto_schema.disponivel_cardapio_normal,
+        disponivel_monte_sua_pizza=novo_produto_schema.disponivel_monte_sua_pizza,
+        permite_borda=novo_produto_schema.permite_borda,
+        permite_ingrediente=novo_produto_schema.permite_ingrediente,
     )
     session.add(sabor)
     session.commit()
@@ -82,10 +86,12 @@ async def editar_novo_produto(
     produto.descricao = produto_schema.descricao
     produto.ativo = produto_schema.ativo
     produto.categoria_id = produto_schema.categoria_id
+    produto.disponivel_cardapio_normal = produto_schema.disponivel_cardapio_normal
+    produto.disponivel_monte_sua_pizza = produto_schema.disponivel_monte_sua_pizza
+    produto.permite_borda = produto_schema.permite_borda
+    produto.permite_ingrediente = produto_schema.permite_ingrediente
     if produto_schema.imagem_url:
         produto.imagem_url = produto_schema.imagem_url
-
-    grade.grade_id = produto_schema.grade_id
 
     for i in produto_schema.precos:
         preco_db = session.query(PrecoPizza).filter(
@@ -145,7 +151,11 @@ async def listar_produto(
         'categoria_id': produto.categoria_id,
         'grade_id': grade.grade_id,
         'precos': precos,
-        'imagem_url': imagem_url
+        'imagem_url': imagem_url,
+        'disponivel_cardapio_normal': produto.disponivel_cardapio_normal,
+        'disponivel_monte_sua_pizza': produto.disponivel_monte_sua_pizza,
+        'permite_borda': produto.permite_borda,
+        'permite_ingrediente': produto.permite_ingrediente,
     }
 
 
