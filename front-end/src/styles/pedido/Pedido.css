@@ -1,0 +1,142 @@
+/* === ItemPedidoCard === */
+.detalhe-item-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.detalhe-item-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detalhe-item-foto {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f5f5f5;
+}
+
+.detalhe-item-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detalhe-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.detalhe-item-nome {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.detalhe-item-linha {
+  font-size: 0.84rem;
+  color: #666;
+  margin: 0;
+}
+
+.detalhe-item-obs {
+  font-size: 0.82rem;
+  color: #888;
+  font-style: italic;
+  margin: 4px 0 0;
+}
+
+/* === TimelineStatus === */
+.timeline-status {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 10px 4px;
+}
+
+.timeline-etapa {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.timeline-bolinha {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px #e0e0e0;
+  z-index: 1;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.timeline-etapa.concluida .timeline-bolinha {
+  background: #e53935;
+  box-shadow: 0 0 0 1px #e53935;
+}
+
+.timeline-etapa.atual .timeline-bolinha {
+  background: #e53935;
+  box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.2), 0 0 0 1px #e53935;
+}
+
+.timeline-label {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  max-width: 80px;
+}
+
+.timeline-etapa.concluida .timeline-label,
+.timeline-etapa.atual .timeline-label {
+  color: #e53935;
+}
+
+.timeline-linha {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 0;
+}
+
+.timeline-etapa.concluida .timeline-linha {
+  background: #e53935;
+}
+
+/* Cancelado */
+.timeline-cancelado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.timeline-cancelado-bolinha {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #dc2626;
+  flex-shrink: 0;
+}

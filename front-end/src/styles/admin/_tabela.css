@@ -1,0 +1,75 @@
+.ap-resumo-linha {
+  display: flex;
+  gap: 16px;
+  font-size: 0.88rem;
+  color: #888;
+}
+
+.ap-resumo-ativo { color: #22c55e; font-weight: 600; }
+.ap-resumo-inativo { color: #ef4444; font-weight: 600; }
+
+.ap-table-wrap { overflow-x: auto; }
+
+.ap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+
+.ap-table th {
+  background: #fafafa;
+  color: #888;
+  font-weight: 600;
+  padding: 12px 14px;
+  border-bottom: 2px solid #f0f0f0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ap-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+
+.ap-table tbody tr:hover { background: #fafafa; }
+
+.ap-row-inativo td { opacity: 0.45; }
+
+.ap-vazio {
+  text-align: center;
+  color: #aaa;
+  padding: 32px !important;
+}
+
+.ap-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.ap-thumb-empty {
+  width: 48px;
+  height: 48px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.ap-nome { font-weight: 600; color: #1a1a1a; }
+.ap-desc { color: #888; font-size: 0.88rem; max-width: 260px; }
+.text-center { text-align: center; }
+
+.ap-table-inner {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.ap-table-inner th { background: #f5f5f5; font-size: 0.82rem; }
+.ap-table-inner td { font-size: 0.88rem; }
