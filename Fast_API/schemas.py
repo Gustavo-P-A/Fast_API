@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from datetime import datetime
+from datetime import datetime, timezone
+from pydantic import BaseModel, Field,field_serializer
+from typing import Optional, List, Literal
 
 
 class UsuarioSchema(BaseModel):
@@ -9,14 +11,6 @@ class UsuarioSchema(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class PedidoSchema(BaseModel):
-    id_usuario: int
-
-    class Config:
-        from_attributes = True
-
 
 class LoginSchema(BaseModel):
     email: str
@@ -41,11 +35,12 @@ class AdicionaisSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class SaboresResponseSchema(BaseModel):
     id: int
     nome: str
     descricao: Optional[str] = None
-    imagem_url: Optional[str] = None  
+    imagem_url: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -54,6 +49,7 @@ class SaboresResponseSchema(BaseModel):
 class AdicionaisResponseSchema(BaseModel):
     id: int
     nome: str
+    ativo: bool
 
     class Config:
         from_attributes = True
@@ -70,8 +66,19 @@ class TamanhoResponseSchema(BaseModel):
 
 
 class ItemPedidoCriacaoSchema(BaseModel):
-    quantidade: int = Field(ge=1)
+    tamanho_id: int
+    sabor_ids: List[int] = Field(min_length=1)
+    quantidade: int = Field(ge=1, default=1)
     observacoes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class PrecoAdicionalResponseSchema(BaseModel):
+    id: int
+    preco: float
+    adicional_rel: AdicionaisResponseSchema
 
     class Config:
         from_attributes = True
@@ -87,33 +94,53 @@ class PrecoPizzaResponseSchema(BaseModel):
         from_attributes = True
 
 
-class PrecoAdicionalResponseSchema(BaseModel):
-    id: int
-    preco: float
-    adicional_rel: AdicionaisResponseSchema
+class ItemPedidoSaborResponseSchema(BaseModel):
+    sabor_rel: SaboresResponseSchema
 
     class Config:
         from_attributes = True
 
 
+class PrecoAdicionalItemResponseSchema(BaseModel):
+    partes: int
+    preco_adicional_rel: PrecoAdicionalResponseSchema
+
+    class Config:
+        from_attributes = True
+
+
+class ItemSimplesResponseSchema(BaseModel):
+    id: int
+    tipo: str
+    nome: str
+    categoria_id: Optional[int] = None
+    grade_id: Optional[int] = None
+    preco: float
+    descricao: Optional[str] = None
+    ativo: bool
+    imagem_url: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ItemPedidoIngredienteResponseSchema(BaseModel):
+    quantidade: int
+    item_simples_rel: ItemSimplesResponseSchema
+
+    class Config:
+        from_attributes = True
 class ItemPedidoSchema(BaseModel):
+    id: int
     quantidade: int = Field(ge=1)
     observacoes: Optional[str] = None
-    precopizza_rel: PrecoPizzaResponseSchema
-    adicionais_rel: List[PrecoAdicionalResponseSchema]
+    tamanho_rel: TamanhoResponseSchema
+    sabores_rel: List[ItemPedidoSaborResponseSchema]
+    adicionais_rel: List[PrecoAdicionalItemResponseSchema]
+    ingredientes_rel: List[ItemPedidoIngredienteResponseSchema] = []
 
     class Config:
         from_attributes = True
-
-
-class ResponsePedidoSchema(BaseModel):
-    preco: Optional[float] = None
-    status: str
-    itens: List[ItemPedidoSchema]
-
-    class Config:
-        from_attributes = True
-
 
 class PrecoAdicionalSchema(BaseModel):
     adicional_id: int
@@ -131,10 +158,11 @@ class SaboresVisualizacaoSchema(BaseModel):
     ativo: bool
     imagem_url: Optional[str] = None
     preco_float: List[PrecoPizzaResponseSchema]
+    disponivel_cardapio_normal: bool
+    disponivel_monte_sua_pizza: bool
 
     class Config:
         from_attributes = True
-
 
 class EnderecoEntregaBaseSchema(BaseModel):
     rua: str
@@ -156,6 +184,25 @@ class EnderecoEntregaCreateSchema(EnderecoEntregaBaseSchema):
 class EnderecoEntregaResponseSchema(EnderecoEntregaBaseSchema):
     id: int
 
+    class Config:
+        from_attributes = True
+
+
+class ResponsePedidoSchema(BaseModel):
+    id: int
+    preco: Optional[float] = None
+    status: str
+    created_at: datetime
+    formato_de_pagamento: Optional[str] = None
+    endereco_rel: Optional[EnderecoEntregaResponseSchema] = None
+    itens: List[ItemPedidoSchema]
+ 
+    @field_serializer('created_at')
+    def serializar_created_at(self, dt: datetime) -> str:
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+ 
     class Config:
         from_attributes = True
 
@@ -184,6 +231,7 @@ class GradeCriarSchema(BaseModel):
     class Config:
         from_attributes = True
 
+
 class PrecoItemSchema(BaseModel):
     tamanho_id: int
     preco: float
@@ -200,6 +248,10 @@ class NovoProdutoSchema(BaseModel):
     categoria_id: int
     precos: List[PrecoItemSchema]
     imagem_url: Optional[str] = None
+    disponivel_cardapio_normal: bool = True
+    disponivel_monte_sua_pizza: bool = False
+    permite_borda: bool = True
+    permite_ingrediente: bool = True
 
     class Config:
         from_attributes = True
@@ -211,32 +263,26 @@ class CategoriaSchema(BaseModel):
     class Config:
         from_attributes = True
 
-
-class PrecoItemAdminSchema(BaseModel):
-    id: int
-    tamanho_id: int
-    preco: float
-
-    class Config:
-        from_attributes = True
-
-
-class ProdutoAdminSchema(BaseModel):
-    id: int
+class ItemSimplesSchema(BaseModel):
+    tipo: Literal['BEBIDA', 'INGREDIENTE']
     nome: str
-    descricao: Optional[str] = None
-    ativo: bool
     categoria_id: Optional[int] = None
     grade_id: Optional[int] = None
-    precos: List[PrecoItemAdminSchema]
+    preco: float
+    descricao: Optional[str] = None
+    ativo: bool = True
     imagem_url: Optional[str] = None
 
     class Config:
         from_attributes = True
 
-class MoverGradeSchema(BaseModel):
-    id: int
-    nova_posicao: int
+
+
+class ConfigMonteSuaPizzaSchema(BaseModel):
+    quantidade_sabores: int
+    tipo_divisao: str
 
     class Config:
         from_attributes = True
+
+

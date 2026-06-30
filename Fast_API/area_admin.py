@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from models import PrecoPizza, Sabores, Usuario, Tamanhos, Adicionais, Pedidos, PrecoAdicional, Grade, GradeSabores, Categoria
 from dependencies import pegar_sessao
 from dependsadm import verificar_adm
-from schemas import GradeCriarSchema, TamanhosSchema, AdicionaisSchema, ResponsePedidoSchema, PrecoAdicionalSchema, GradeSchema, GradeSaboresSchema, CategoriaSchema
+from schemas import GradeCriarSchema, TamanhosSchema, AdicionaisSchema, PrecoAdicionalSchema, GradeSchema, GradeSaboresSchema, CategoriaSchema
 from sqlalchemy.orm import Session
 from enum import Enum
 
@@ -15,19 +15,67 @@ async def tamanho_pizza(tamanho_schema: TamanhosSchema, session: Session = Depen
     session.commit()
     return {'mensagem': 'Tamanho adicionado com sucesso'}
 
-
 @area_admin.post('/adicionais')
-async def adicionais_pizza(adicionais_schema: AdicionaisSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
-    session.add(Adicionais(nome=adicionais_schema.nome))
+async def criar_adicional(adicionais_schema: AdicionaisSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
+    novo = Adicionais(nome=adicionais_schema.nome)
+    session.add(novo)
     session.commit()
-    return {'mensagem': 'Adicionais adicionado com sucesso'}
+    return {'mensagem': 'Adicional criado com sucesso', 'id': novo.id}
 
 
-@area_admin.post('/preco_adicional')
-async def precos_adicional(preco_adicional_schema: PrecoAdicionalSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
-    session.add(PrecoAdicional(adicional_id=preco_adicional_schema.adicional_id, tamanho_id=preco_adicional_schema.tamanho_id, preco=preco_adicional_schema.preco))
+@area_admin.get('/listar/adicionais')
+async def listar_adicionais(session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
+    adicionais = session.query(Adicionais).all()
+    return [
+        {
+            'id': a.id,
+            'nome': a.nome,
+            'ativo': a.ativo,
+            'precos': [
+                {'id': p.id, 'tamanho_id': p.tamanho_id, 'tamanho_nome': p.tamanho_rel.nome, 'preco': p.preco}
+                for p in a.preco_adicional
+            ]
+        }
+        for a in adicionais
+    ]
+
+
+@area_admin.put('/adicionais/{id_adicional}/preco/{id_tamanho}')
+async def upsert_preco_adicional(
+    id_adicional: int, id_tamanho: int, preco_adicional_schema: PrecoAdicionalSchema,
+    session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)
+):
+    preco = session.query(PrecoAdicional).filter(
+        PrecoAdicional.adicional_id == id_adicional,
+        PrecoAdicional.tamanho_id == id_tamanho
+    ).first()
+    if preco:
+        preco.preco = preco_adicional_schema.preco
+    else:
+        session.add(PrecoAdicional(adicional_id=id_adicional, tamanho_id=id_tamanho, preco=preco_adicional_schema.preco))
     session.commit()
-    return {'mensagem': 'Preco adicionais cadastrado com sucesso'}
+    return {'mensagem': 'Preço salvo com sucesso'}
+
+
+@area_admin.patch('/adicionais/{id}/status')
+async def toggle_status_adicional(id: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
+    adicional = session.query(Adicionais).filter(Adicionais.id == id).first()
+    if not adicional:
+        raise HTTPException(status_code=404, detail='Adicional não encontrado')
+    adicional.ativo = not adicional.ativo
+    session.commit()
+    return {'id': id, 'ativo': adicional.ativo}
+
+
+@area_admin.delete('/adicionais/{id}')
+async def deletar_adicional(id: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
+    adicional = session.query(Adicionais).filter(Adicionais.id == id).first()
+    if not adicional:
+        raise HTTPException(status_code=404, detail='Adicional não encontrado')
+    session.query(PrecoAdicional).filter(PrecoAdicional.adicional_id == id).delete()
+    session.delete(adicional)
+    session.commit()
+    return {'mensagem': 'Adicional deletado com sucesso'}
 
 
 class TipoStatus(str, Enum):
@@ -91,18 +139,6 @@ async def editar_tamanho(id_tamanho: int, tamanho_schema: TamanhosSchema, sessio
     return {'mensagem': 'Tamanho editado com sucesso'}
 
 
-@area_admin.put('/editar/adicionais/{id_adicionais}')
-async def editar_adicionais(id_adicionais: int, id_tamanho: int, adicionais_schema: PrecoAdicionalSchema, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
-    adicional = session.query(PrecoAdicional).filter(PrecoAdicional.adicional_id == id_adicionais, PrecoAdicional.tamanho_id == id_tamanho).first()
-    if not adicional:
-        raise HTTPException(status_code=404, detail='Produto não encontrado')
-    adicional.adicional_id = adicionais_schema.adicional_id
-    adicional.tamanho_id = adicionais_schema.tamanho_id
-    adicional.preco = adicionais_schema.preco
-    session.commit()
-    return {'mensagem': 'Adicionais editado com sucesso'}
-
-
 @area_admin.delete('/deletar/tamanho/{id_tamanho}')
 async def deletar_tamanho(id_tamanho: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
     tamanho = session.query(Tamanhos).filter(Tamanhos.id == id_tamanho).first()
@@ -123,15 +159,6 @@ async def deletar_preco(id_preco: int, session: Session = Depends(pegar_sessao),
     session.commit()
     return {'msg': 'Preco deletado com sucesso'}
 
-
-@area_admin.delete('/deletar/adicionais/{id_adicionais}')
-async def deletar_adicionais(id_adicionais: int, id_tamanho: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
-    adicional = session.query(PrecoAdicional).filter(PrecoAdicional.adicional_id == id_adicionais, PrecoAdicional.tamanho_id == id_tamanho).first()
-    if not adicional:
-        raise HTTPException(status_code=404, detail='Produto não encontrado')
-    session.delete(adicional)
-    session.commit()
-    return {'mensagem': 'Adicionais deletado com sucesso'}
 
 
 @area_admin.post('/grade')
@@ -192,8 +219,8 @@ async def listar_clientes(session: Session = Depends(pegar_sessao), usuario: Usu
             'gasto_total': round(sum(p.preco or 0 for p in c.pedidos), 2),
         }
         for c in clientes
+        if len(c.pedidos) > 0
     ]
-
 
 @area_admin.get('/clientes/{id}/pedidos')
 async def pedidos_do_cliente(id: int, session: Session = Depends(pegar_sessao), usuario: Usuario = Depends(verificar_adm)):
