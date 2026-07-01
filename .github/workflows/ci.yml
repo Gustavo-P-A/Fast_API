@@ -1,0 +1,67 @@
+name: CI - Backend
+
+# Quando esse pipeline roda:
+# - toda vez que alguém abre/atualiza um PR contra a main
+# - toda vez que algo é enviado direto pra main (ex: merge do PR)
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  testes-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório na máquina do GitHub
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Instala o Python
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 3. Instala as dependências do projeto + as de teste
+      - name: Instalar dependências
+        working-directory: ./Fast_API
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r ../requirements-dev.txt
+
+      # 4. Roda os testes
+      #    Se qualquer teste falhar, este step falha, o job falha,
+      #    e o PR aparece com um X vermelho no GitHub -- é isso que
+      #    impede (ou pelo menos avisa) que código quebrado seja
+      #    mesclado na main.
+      - name: Rodar testes
+        env:
+          SECRET_KEY: chave-de-teste-ci-nao-usar-em-producao
+          SECRET: segredo-de-teste-ci-nao-usar-em-producao
+        run: |
+          python -m pytest tests/ -v
+
+  testes-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: front-end/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: ./front-end
+        run: npm ci
+
+      - name: Rodar testes
+        working-directory: ./front-end
+        run: npm test
