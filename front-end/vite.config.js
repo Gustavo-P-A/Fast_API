@@ -4,6 +4,11 @@ import react from "@vitejs/plugin-react-swc"; //2
 export default defineConfig({
   //3
   plugins: [react()],
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./src/setupTests.js",
+  },
   server: {
     port: 3000, //4
     proxy: {
