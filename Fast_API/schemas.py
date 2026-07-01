@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import datetime, timezone
-from pydantic import BaseModel, Field,field_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from typing import Optional, List, Literal
 
 
@@ -9,15 +9,13 @@ class UsuarioSchema(BaseModel):
     email: str
     senha: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class LoginSchema(BaseModel):
     email: str
     senha: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TamanhosSchema(BaseModel):
@@ -25,15 +23,13 @@ class TamanhosSchema(BaseModel):
     qtd_sabores: int
     qtd_bordas: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdicionaisSchema(BaseModel):
     nome: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SaboresResponseSchema(BaseModel):
@@ -42,8 +38,7 @@ class SaboresResponseSchema(BaseModel):
     descricao: Optional[str] = None
     imagem_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AdicionaisResponseSchema(BaseModel):
@@ -51,8 +46,7 @@ class AdicionaisResponseSchema(BaseModel):
     nome: str
     ativo: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TamanhoResponseSchema(BaseModel):
@@ -61,8 +55,7 @@ class TamanhoResponseSchema(BaseModel):
     qtd_sabores: int
     qtd_bordas: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ItemPedidoCriacaoSchema(BaseModel):
@@ -71,8 +64,7 @@ class ItemPedidoCriacaoSchema(BaseModel):
     quantidade: int = Field(ge=1, default=1)
     observacoes: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PrecoAdicionalResponseSchema(BaseModel):
@@ -80,8 +72,7 @@ class PrecoAdicionalResponseSchema(BaseModel):
     preco: float
     adicional_rel: AdicionaisResponseSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PrecoPizzaResponseSchema(BaseModel):
@@ -90,23 +81,20 @@ class PrecoPizzaResponseSchema(BaseModel):
     sabor_rel: SaboresResponseSchema
     tamanho_rel: TamanhoResponseSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ItemPedidoSaborResponseSchema(BaseModel):
     sabor_rel: SaboresResponseSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PrecoAdicionalItemResponseSchema(BaseModel):
     partes: int
     preco_adicional_rel: PrecoAdicionalResponseSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ItemSimplesResponseSchema(BaseModel):
@@ -120,16 +108,14 @@ class ItemSimplesResponseSchema(BaseModel):
     ativo: bool
     imagem_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ItemPedidoIngredienteResponseSchema(BaseModel):
     quantidade: int
     item_simples_rel: ItemSimplesResponseSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 class ItemPedidoSchema(BaseModel):
     id: int
     quantidade: int = Field(ge=1)
@@ -139,16 +125,14 @@ class ItemPedidoSchema(BaseModel):
     adicionais_rel: List[PrecoAdicionalItemResponseSchema]
     ingredientes_rel: List[ItemPedidoIngredienteResponseSchema] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PrecoAdicionalSchema(BaseModel):
     adicional_id: int
     tamanho_id: int
     preco: float
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SaboresVisualizacaoSchema(BaseModel):
@@ -161,8 +145,7 @@ class SaboresVisualizacaoSchema(BaseModel):
     disponivel_cardapio_normal: bool
     disponivel_monte_sua_pizza: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EnderecoEntregaBaseSchema(BaseModel):
     rua: str
@@ -173,8 +156,7 @@ class EnderecoEntregaBaseSchema(BaseModel):
     estado: str
     cep: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EnderecoEntregaCreateSchema(EnderecoEntregaBaseSchema):
@@ -184,8 +166,7 @@ class EnderecoEntregaCreateSchema(EnderecoEntregaBaseSchema):
 class EnderecoEntregaResponseSchema(EnderecoEntregaBaseSchema):
     id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ResponsePedidoSchema(BaseModel):
@@ -203,8 +184,7 @@ class ResponsePedidoSchema(BaseModel):
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.isoformat()
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GradeSchema(BaseModel):
@@ -212,32 +192,28 @@ class GradeSchema(BaseModel):
     nome: str
     posicao: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GradeSaboresSchema(BaseModel):
     id_grade: int
     id_sabores: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GradeCriarSchema(BaseModel):
     nome: str
     posicao: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PrecoItemSchema(BaseModel):
     tamanho_id: int
     preco: float
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class NovoProdutoSchema(BaseModel):
@@ -253,15 +229,13 @@ class NovoProdutoSchema(BaseModel):
     permite_borda: bool = True
     permite_ingrediente: bool = True
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CategoriaSchema(BaseModel):
     nome: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ItemSimplesSchema(BaseModel):
     tipo: Literal['BEBIDA', 'INGREDIENTE']
@@ -273,8 +247,7 @@ class ItemSimplesSchema(BaseModel):
     ativo: bool = True
     imagem_url: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 
@@ -282,7 +255,4 @@ class ConfigMonteSuaPizzaSchema(BaseModel):
     quantidade_sabores: int
     tipo_divisao: str
 
-    class Config:
-        from_attributes = True
-
-
+    model_config = ConfigDict(from_attributes=True)
