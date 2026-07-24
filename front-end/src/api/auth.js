@@ -1,5 +1,25 @@
 import api from "./axios.js";
 
+export function validarDadosCadastro(nome, email, senha) {
+  if (!nome?.trim()) {
+    return "Informe seu nome.";
+  }
+
+  if (!email?.trim()) {
+    return "Informe um e-mail válido.";
+  }
+
+  if (!senha || senha.length < 8) {
+    return "A senha precisa ter pelo menos 8 caracteres.";
+  }
+
+  if (!/[A-Za-z]/.test(senha) || !/\d/.test(senha)) {
+    return "A senha precisa ter letras e números.";
+  }
+
+  return null;
+}
+
 export async function login(email, senha) {
   try {
     const response = await api.post("/auth/login", { email, senha });
@@ -37,6 +57,16 @@ export async function me() {
   }
 }
 
+export async function atualizar_meus_dados(payload) {
+  try {
+    const response = await api.put("/auth/me", payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function cardapio() {
   try {
     const response = await api.get("/cardapio/sabores");
@@ -60,6 +90,16 @@ export async function precos() {
 export async function saborId(id) {
   try {
     const response = await api.get(`/cardapio/sabores/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function tamanhos_publico() {
+  try {
+    const response = await api.get("/cardapio/tamanhos");
     return response.data;
   } catch (error) {
     console.error(error);
@@ -91,7 +131,10 @@ export async function criar_pedido() {
 
 export async function pedido_adicionais(id_pedido, payload) {
   try {
-    const response = await api.post(`/order/pedidos/adicionar-item/${id_pedido}`, payload);
+    const response = await api.post(
+      `/order/pedidos/adicionar-item/${id_pedido}`,
+      payload,
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -190,6 +233,26 @@ export async function criar_grade(nome, posicao) {
   }
 }
 
+export async function editar_grade(id, nome, posicao) {
+  try {
+    const response = await api.put(`/admin/grade/${id}`, { nome, posicao });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function excluir_grade(id) {
+  try {
+    const response = await api.delete(`/admin/deletar/grade/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function listar_grade() {
   try {
     const response = await api.get("/admin/listar/grade");
@@ -251,7 +314,7 @@ export async function criar_novo_produto(
   grade_id,
   precos,
   imagem_url,
-  flags = {}
+  flags = {},
 ) {
   try {
     const response = await api.post("/admin/novo-produto", {
@@ -293,13 +356,19 @@ export async function editar_produto(
   categoria_id,
   precos,
   imagem_url,
-  flags = {}
+  flags = {},
 ) {
   try {
     const response = await api.put(
       `/admin/editar/novo-produto/${id_novo_produto}`,
       {
-        nome, descricao, ativo, grade_id, categoria_id, precos, imagem_url,
+        nome,
+        descricao,
+        ativo,
+        grade_id,
+        categoria_id,
+        precos,
+        imagem_url,
         disponivel_cardapio_normal: flags.disponivel_cardapio_normal ?? true,
         disponivel_monte_sua_pizza: flags.disponivel_monte_sua_pizza ?? false,
         permite_borda: flags.permite_borda ?? true,
@@ -332,7 +401,6 @@ export async function deletar_tamanho(id) {
     throw error;
   }
 }
-
 
 export async function listar_pedidos_admin(status = "") {
   try {
@@ -373,7 +441,9 @@ export async function toggle_status_produto(id) {
 
 export async function mudar_status_pedido(id, status) {
   try {
-    const response = await api.put(`/admin/mudar_status/${id}?tipo_status=${encodeURIComponent(status)}`);
+    const response = await api.put(
+      `/admin/mudar_status/${id}?tipo_status=${encodeURIComponent(status)}`,
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -401,7 +471,6 @@ export async function pedidos_do_cliente(id) {
   }
 }
 
-
 export async function listar_todos_produtos() {
   try {
     const response = await api.get("/admin/listar/todos-produtos");
@@ -422,9 +491,39 @@ export async function criar_categoria(nome) {
   }
 }
 
-export async function mover_produtos_grade(sabor_ids, grade_id) {
+export async function editar_categoria(id, nome) {
   try {
-    const response = await api.patch("/admin/produtos/mover-grade", { sabor_ids, grade_id });
+    const response = await api.put(`/admin/categoria/${id}`, { nome });
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function excluir_categoria(id) {
+  try {
+    const response = await api.delete(`/admin/categoria/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function mover_produtos_grade(
+  sabor_ids,
+  grade_id,
+  monte_pizza_ids = [],
+  item_simples_ids = [],
+) {
+  try {
+    const response = await api.patch("/admin/produtos/mover-grade", {
+      sabor_ids,
+      grade_id,
+      monte_pizza_ids,
+      item_simples_ids,
+    });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -452,7 +551,6 @@ export async function cardapio_por_grade() {
   }
 }
 
-
 export async function criar_adicionais(nome) {
   try {
     const response = await api.post("/admin/adicionais", { nome });
@@ -475,7 +573,11 @@ export async function listar_adicionais() {
 
 export async function criar_preco_adicional(adicional_id, tamanho_id, preco) {
   try {
-    const response = await api.post("/admin/preco_adicional", { adicional_id, tamanho_id, preco });
+    const response = await api.post("/admin/preco_adicional", {
+      adicional_id,
+      tamanho_id,
+      preco,
+    });
     return response.data;
   } catch (error) {
     console.error(error);
@@ -485,9 +587,14 @@ export async function criar_preco_adicional(adicional_id, tamanho_id, preco) {
 
 export async function editar_preco_adicional(id_adicionais, id_tamanho, preco) {
   try {
-    const response = await api.put(`/admin/editar/adicionais/${id_adicionais}?id_tamanho=${id_tamanho}`, {
-      adicional_id: id_adicionais, tamanho_id: id_tamanho, preco,
-    });
+    const response = await api.put(
+      `/admin/editar/adicionais/${id_adicionais}?id_tamanho=${id_tamanho}`,
+      {
+        adicional_id: id_adicionais,
+        tamanho_id: id_tamanho,
+        preco,
+      },
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -495,10 +602,112 @@ export async function editar_preco_adicional(id_adicionais, id_tamanho, preco) {
   }
 }
 
-export async function adicionar_adicional(id_pedido, id_item_pedido, id_adicional, id_tamanho, partes = 1) {
+export async function adicionar_adicional(
+  id_pedido,
+  id_item_pedido,
+  id_adicional,
+  id_tamanho,
+  partes = 1,
+) {
   try {
-    const params = new URLSearchParams({ id_pedido, id_item_pedido, id_adicional, id_tamanho, partes });
-    const response = await api.post(`/order/adicionais?${params.toString()}`, {});
+    const params = new URLSearchParams({
+      id_pedido,
+      id_item_pedido,
+      id_adicional,
+      id_tamanho,
+      partes,
+    });
+    const response = await api.post(
+      `/order/adicionais?${params.toString()}`,
+      {},
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function adicionar_ingrediente(
+  id_pedido,
+  id_item_pedido,
+  id_item_simples,
+  quantidade = 1,
+) {
+  try {
+    const params = new URLSearchParams({
+      id_pedido,
+      id_item_pedido,
+      id_item_simples,
+      quantidade,
+    });
+    const response = await api.post(
+      `/order/ingredientes?${params.toString()}`,
+      {},
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function remover_ingrediente(id_item_pedido, id_item_simples) {
+  try {
+    const response = await api.delete(
+      `/order/ingredientes/${id_item_pedido}/${id_item_simples}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function adicionar_bebida_pedido(id_pedido, id_item_simples, quantidade = 1) {
+  try {
+    const params = new URLSearchParams({ id_pedido, id_item_simples, quantidade });
+    const response = await api.post(`/order/bebidas?${params.toString()}`, {});
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function remover_bebida_pedido(id_pedido, id_item_simples) {
+  try {
+    const response = await api.delete(`/order/bebidas/${id_pedido}/${id_item_simples}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function itens_simples_publico(tipo) {
+  try {
+    const response = await api.get(`/cardapio/itens-simples?tipo=${tipo}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function monte_pizza_publico() {
+  try {
+    const response = await api.get("/cardapio/monte-pizza");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function buscar_monte_pizza_publico(id) {
+  try {
+    const response = await api.get(`/cardapio/monte-pizza/${id}`);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -578,9 +787,14 @@ export async function buscar_item_simples(id) {
 
 export async function salvar_preco_adicional(id_adicional, id_tamanho, preco) {
   try {
-    const response = await api.put(`/admin/adicionais/${id_adicional}/preco/${id_tamanho}`, {
-      adicional_id: id_adicional, tamanho_id: id_tamanho, preco,
-    });
+    const response = await api.put(
+      `/admin/adicionais/${id_adicional}/preco/${id_tamanho}`,
+      {
+        adicional_id: id_adicional,
+        tamanho_id: id_tamanho,
+        preco,
+      },
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -601,6 +815,165 @@ export async function toggle_status_adicional(id) {
 export async function deletar_adicional(id) {
   try {
     const response = await api.delete(`/admin/adicionais/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_monte_pizza(payload) {
+  try {
+    const response = await api.post("/admin/monte-pizza/", payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function editar_monte_pizza(id, payload) {
+  try {
+    const response = await api.put(`/admin/monte-pizza/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function buscar_monte_pizza(id) {
+  try {
+    const response = await api.get(`/admin/monte-pizza/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_monte_pizza() {
+  try {
+    const response = await api.get("/admin/monte-pizza/");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function toggle_status_monte_pizza(id) {
+  try {
+    const response = await api.patch(`/admin/monte-pizza/${id}/status`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deletar_monte_pizza(id) {
+  try {
+    const response = await api.delete(`/admin/monte-pizza/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function importar_sabores_monte_pizza(id) {
+  try {
+    const response = await api.post(
+      `/admin/monte-pizza/${id}/sabores/importar-automatico`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function sincronizar_sabores_monte_pizza(id) {
+  try {
+    const response = await api.post(
+      `/admin/monte-pizza/${id}/sabores/sincronizar`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function adicionar_sabores_monte_pizza(id, sabor_ids) {
+  try {
+    const response = await api.post(
+      `/admin/monte-pizza/${id}/sabores/adicionar`,
+      { sabor_ids },
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function remover_sabor_monte_pizza(id, sabor_id) {
+  try {
+    const response = await api.delete(
+      `/admin/monte-pizza/${id}/sabores/${sabor_id}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function listar_formas_pagamento() {
+  try {
+    const response = await api.get("/formas-pagamento/minhas");
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function criar_forma_pagamento(payload) {
+  try {
+    const response = await api.post("/formas-pagamento/", payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function editar_forma_pagamento(id, payload) {
+  try {
+    const response = await api.put(`/formas-pagamento/${id}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function definir_forma_pagamento_padrao(id) {
+  try {
+    const response = await api.patch(`/formas-pagamento/${id}/padrao`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deletar_forma_pagamento(id) {
+  try {
+    const response = await api.delete(`/formas-pagamento/${id}`);
     return response.data;
   } catch (error) {
     console.error(error);

@@ -1,0 +1,56 @@
+.tgl-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tgl-toggle-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.tgl-toggle {
+  width: 48px;
+  height: 26px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s;
+}
+
+.tgl-toggle-on {
+  background: #22c55e;
+}
+
+.tgl-toggle-off {
+  background: #d1d5db;
+}
+
+.tgl-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: 0.2s;
+}
+
+.tgl-toggle-on .tgl-toggle-thumb {
+  transform: translateX(22px);
+}
+
+.tgl-toggle-text {
+  font-weight: 600;
+}
+
+.tgl-toggle-text-on {
+  color: #16a34a;
+}
+
+.tgl-toggle-text-off {
+  color: #888;
+}

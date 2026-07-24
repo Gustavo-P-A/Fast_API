@@ -1,6 +1,6 @@
 import { getImagemUrl } from "../../api/axios";
 
-export function InfoBasicas({ nome, setNome, descricao, setDescricao, imagem, setImagem, imagemAtual, erros }) {
+export function InfoBasicas({ nome, setNome, descricao, setDescricao, imagem, setImagem, imagemAtual, erros, descricaoObrigatoria = true }) {
   return (
     <div className="np-section">
       <h2 className="np-section-titulo">Informações Básicas</h2>
@@ -18,7 +18,7 @@ export function InfoBasicas({ nome, setNome, descricao, setDescricao, imagem, se
       </div>
 
       <div className="np-field">
-        <label className="np-label">Descrição *</label>
+        <label className="np-label">Descrição{descricaoObrigatoria ? " *" : " (opcional)"}</label>
         <textarea
           className="np-input np-textarea"
           placeholder="Ex: Molho de tomate, calabresa fatiada, cebola..."

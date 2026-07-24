@@ -1,0 +1,98 @@
+.modaling-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modaling-modal {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modaling-modal-titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modaling-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modaling-modal-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.modaling-input {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modaling-input:focus {
+  border-color: #dc2626;
+}
+
+.modaling-modal-acoes {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.modaling-btn-ghost {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modaling-btn-ghost:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.modaling-btn-primary {
+  flex: 1;
+  background: #dc2626;
+  border: none;
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modaling-btn-primary:hover {
+  background: #b91c1c;
+}
+
+.modaling-btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

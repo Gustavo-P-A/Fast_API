@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import "../../styles/admin/Bordas.css";
 import { listar_adicionais, listar_tamanho, toggle_status_adicional, deletar_adicional } from "../../api/auth";
 import { ModalBorda } from "../../components/borda/ModalBorda";
-import "../../styles/AdminPaginas.css";
 
 export function AdminBordas() {
   const [bordas, setBordas] = useState([]);
@@ -48,39 +48,47 @@ export function AdminBordas() {
   }
 
   return (
-    <div className="ap-page">
-      <div className="ap-header">
+    <div className="bor-page">
+      <div className="bor-header">
         <div>
-          <h1 className="ap-titulo">Bordas</h1>
-          <p className="ap-subtitulo">Cadastre as bordas e seus preços por tamanho.</p>
+          <h1 className="bor-titulo">Bordas</h1>
+          <p className="bor-subtitulo">Cadastre as bordas e seus preços por tamanho.</p>
         </div>
-        <button className="ap-btn-primary" onClick={abrirNova}>+ Nova Borda</button>
+        <button className="bor-btn-primary" onClick={abrirNova}>+ Nova Borda</button>
       </div>
 
-      <div className="ap-card">
-        <div className="ap-table-wrap">
-          <table className="ap-table">
+      <div className="bor-card">
+        <div className="bor-table-wrap">
+          <table className="bor-table bor-table-bordas">
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              <col className="bor-col-filler" />
+            </colgroup>
             <thead>
               <tr>
                 <th>Nome</th>
                 <th>Preços por tamanho</th>
                 <th className="text-center">Status</th>
                 <th className="text-center">Ações</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {carregando && <tr><td colSpan={4} className="ap-vazio">Carregando...</td></tr>}
+              {carregando && <tr><td colSpan={5} className="bor-vazio">Carregando...</td></tr>}
               {!carregando && bordas.length === 0 && (
-                <tr><td colSpan={4} className="ap-vazio">Nenhuma borda cadastrada.</td></tr>
+                <tr><td colSpan={5} className="bor-vazio">Nenhuma borda cadastrada.</td></tr>
               )}
               {!carregando && bordas.map(b => (
-                <tr key={b.id} className={!b.ativo ? "ap-row-inativo" : ""}>
-                  <td className="ap-nome">{b.nome}</td>
+                <tr key={b.id} className={!b.ativo ? "bor-row-inativo" : ""}>
+                  <td className="bor-nome">{b.nome}</td>
                   <td>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                      {b.precos.length === 0 && <span className="ag-sem-grade">Sem preço definido</span>}
+                    <div className="bor-precos">
+                      {b.precos.length === 0 && <span className="bor-ag-sem-grade">Sem preço definido</span>}
                       {b.precos.map(p => (
-                        <span key={p.id} className="ag-badge-grade">
+                        <span key={p.id} className="bor-ag-badge-grade">
                           {p.tamanho_nome}: R$ {p.preco.toFixed(2)}
                         </span>
                       ))}
@@ -88,18 +96,19 @@ export function AdminBordas() {
                   </td>
                   <td className="text-center">
                     <button
-                      className={`ap-btn-status ${b.ativo ? "ap-status-ativo" : "ap-status-inativo"}`}
+                      className={`bor-btn-status ${b.ativo ? "bor-status-ativo" : "bor-status-inativo"}`}
                       onClick={() => handleToggle(b.id)}
                     >
                       {b.ativo ? "Ativo" : "Inativo"}
                     </button>
                   </td>
                   <td className="text-center">
-                    <div className="ap-acoes">
-                      <button className="ap-btn-edit" onClick={() => abrirEdicao(b)}>Editar</button>
-                      <button className="ap-btn-delete" onClick={() => handleDeletar(b.id)}>Excluir</button>
+                    <div className="bor-acoes">
+                      <button className="bor-btn-edit" onClick={() => abrirEdicao(b)}>Editar</button>
+                      <button className="bor-btn-delete" onClick={() => handleDeletar(b.id)}>Excluir</button>
                     </div>
                   </td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import "../../styles/admin/Dashboard.css";
 import { listar_todos_produtos, listar_pedidos_admin, listar_clientes_admin } from "../../api/auth";
-import "../../styles/AdminPaginas.css";
 
 export function AdminDashboard() {
   const [resumo, setResumo] = useState(null);
@@ -40,7 +40,7 @@ export function AdminDashboard() {
     buscar();
   }, []);
 
-  if (carregando) return <div className="ap-vazio">Carregando dashboard...</div>;
+  if (carregando) return <div className="dash-vazio">Carregando dashboard...</div>;
 
   const { produtos, pedidos, clientes, faturamento, ticketMedio, porStatus, ultimos, topClientes } = resumo;
 
@@ -54,11 +54,11 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className="ap-page">
-      <div className="ap-header">
+    <div className="dash-page">
+      <div className="dash-header">
         <div>
-          <h1 className="ap-titulo">Dashboard</h1>
-          <p className="ap-subtitulo">Visão geral do desempenho da sua pizzaria.</p>
+          <h1 className="dash-titulo">Dashboard</h1>
+          <p className="dash-subtitulo">Visão geral do desempenho da sua pizzaria.</p>
         </div>
       </div>
 
@@ -103,7 +103,7 @@ export function AdminDashboard() {
 
       <div className="dash-grid">
         {/* Pedidos por status */}
-        <div className="ap-card dash-card">
+        <div className="dash-card dash-subcard">
           <h2 className="dash-card-titulo">Pedidos por Status</h2>
           <div className="dash-status-lista">
             {Object.entries(porStatus).map(([status, qtd]) => (
@@ -136,9 +136,9 @@ export function AdminDashboard() {
         </div>
 
         {/* Últimos pedidos */}
-        <div className="ap-card dash-card">
+        <div className="dash-card dash-subcard">
           <h2 className="dash-card-titulo">Últimos Pedidos</h2>
-          <table className="ap-table ap-table-inner">
+          <table className="dash-table dash-table-inner">
             <thead>
               <tr>
                 <th>#</th>
@@ -149,12 +149,12 @@ export function AdminDashboard() {
             </thead>
             <tbody>
               {ultimos.length === 0 && (
-                <tr><td colSpan={4} className="ap-vazio">Sem pedidos.</td></tr>
+                <tr><td colSpan={4} className="dash-vazio">Sem pedidos.</td></tr>
               )}
               {ultimos.map(p => (
                 <tr key={p.id}>
-                  <td className="ap-nome">#{p.id}</td>
-                  <td className="ap-desc">{p.cliente_nome}</td>
+                  <td className="dash-nome">#{p.id}</td>
+                  <td className="dash-desc">{p.cliente_nome}</td>
                   <td>R$ {p.preco?.toFixed(2) ?? "—"}</td>
                   <td>
                     <span style={{
@@ -172,17 +172,17 @@ export function AdminDashboard() {
         </div>
 
         {/* Top clientes */}
-        <div className="ap-card dash-card">
+        <div className="dash-card dash-subcard">
           <h2 className="dash-card-titulo">Top Clientes</h2>
           <div className="dash-top-clientes">
-            {topClientes.length === 0 && <p className="ap-vazio">Sem dados.</p>}
+            {topClientes.length === 0 && <p className="dash-vazio">Sem dados.</p>}
             {topClientes.map((c, i) => (
               <div key={c.id} className="dash-top-cliente-item">
                 <div className="dash-top-pos">{i + 1}</div>
-                <div className="ap-cliente-avatar">{c.nome[0].toUpperCase()}</div>
+                <div className="dash-cliente-avatar">{c.nome[0].toUpperCase()}</div>
                 <div className="dash-top-info">
-                  <span className="ap-nome">{c.nome}</span>
-                  <span className="ap-desc">{c.total_pedidos} pedido(s)</span>
+                  <span className="dash-nome">{c.nome}</span>
+                  <span className="dash-desc">{c.total_pedidos} pedido(s)</span>
                 </div>
                 <span className="dash-top-gasto">R$ {c.gasto_total.toFixed(2)}</span>
               </div>
@@ -191,12 +191,12 @@ export function AdminDashboard() {
         </div>
 
         {/* Resumo do cardápio */}
-        <div className="ap-card dash-card">
+        <div className="dash-card dash-subcard">
           <h2 className="dash-card-titulo">Resumo do Cardápio</h2>
           <div className="dash-status-lista">
             <div className="dash-status-item">
               <span className="dash-status-nome">Total de produtos</span>
-              <span className="ap-nome">{produtos.length}</span>
+              <span className="dash-nome">{produtos.length}</span>
             </div>
             <div className="dash-status-item">
               <span className="dash-status-nome">Produtos ativos</span>
@@ -208,7 +208,7 @@ export function AdminDashboard() {
             </div>
             <div className="dash-status-item">
               <span className="dash-status-nome">Pedidos entregues</span>
-              <span className="ap-nome">{porStatus["ENTREGUE"] || 0}</span>
+              <span className="dash-nome">{porStatus["ENTREGUE"] || 0}</span>
             </div>
             <div className="dash-status-item">
               <span className="dash-status-nome">Pedidos cancelados</span>
