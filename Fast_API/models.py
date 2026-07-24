@@ -17,11 +17,14 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     senha = Column(String, nullable=False)
+    cpf = Column(String, nullable=True, unique=True)
+    telefone = Column(String, nullable=True)
     ativo = Column(Boolean, default=True)
     adm = Column(Boolean, default=True)  
 
     pedidos = relationship('Pedidos', back_populates='usuario_rel')
     endereco_rel = relationship('EnderecoEntrega')
+    formas_pagamento_rel = relationship('FormaPagamento', back_populates='usuario_rel')
 
 
 class Sabores(Base):
@@ -195,6 +198,30 @@ class EnderecoEntrega(Base):
     usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
 
 
+class TipoFormaPagamento(Enum):
+    CREDITO = 'CREDITO'
+    DEBITO = 'DEBITO'
+    VALE_ALIMENTACAO = 'VALE_ALIMENTACAO'
+    VALE_REFEICAO = 'VALE_REFEICAO'
+
+
+class FormaPagamento(Base):
+    __tablename__ = 'formas_pagamento'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    usuario_id = Column(Integer, ForeignKey('usuarios.id'), nullable=False)
+    tipo = Column(SQLEnum(TipoFormaPagamento), nullable=False)
+    bandeira = Column(String, nullable=True)
+    nome_impresso = Column(String, nullable=False)
+    # Por segurança (PCI-DSS), nunca armazenamos o número completo do cartão nem o CVV — só os 4 últimos dígitos.
+    final_numero = Column(String(4), nullable=False)
+    validade = Column(String, nullable=True)
+    padrao = Column(Boolean, default=False)
+    ativo = Column(Boolean, default=True)
+
+    usuario_rel = relationship('Usuario', back_populates='formas_pagamento_rel')
+
+
 class TipoPagamento(Enum):
     PIX = 'Pix'
     CARTAO_DE_CREDITO = 'Cartão de crédito'
@@ -215,10 +242,11 @@ class Pedidos(Base):
     troco_para = Column(Float, nullable=True)  
 
     itens = relationship('ItemPedido', back_populates='pedido_rel', cascade='all, delete')
+    bebidas_rel = relationship('ItemPedidoBebida', back_populates='pedido_rel', cascade='all, delete')
     usuario_rel = relationship('Usuario', back_populates='pedidos')
 
     def calcular_preco(self):
-        self.preco = sum(i.preco_total() for i in self.itens)
+        self.preco = sum(i.preco_total() for i in self.itens) + sum(b.preco_total() for b in self.bebidas_rel)
     endereco_rel = relationship('EnderecoEntrega')
 
 class TipoItemSimples(Enum):
@@ -241,6 +269,22 @@ class ItemSimples(Base):
     categoria_rel = relationship('Categoria')
     grade_rel = relationship('Grade')
 
+
+# ── bebida: item avulso do pedido, não pertence a um ItemPedido (pizza) ──
+class ItemPedidoBebida(Base):
+    __tablename__ = 'item_pedido_bebida'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    pedido_id = Column(Integer, ForeignKey('pedidos.id'), nullable=False)
+    item_simples_id = Column(Integer, ForeignKey('itens_simples.id'), nullable=False)
+    quantidade = Column(Integer, nullable=False, default=1)
+
+    pedido_rel = relationship('Pedidos', back_populates='bebidas_rel')
+    item_simples_rel = relationship('ItemSimples')
+
+    def preco_total(self):
+        return self.item_simples_rel.preco * self.quantidade
+
 class ConfigMonteSuaPizza(Base):
     __tablename__ = 'config_monte_pizza'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -258,11 +302,17 @@ class ProdutoMonteSuaPizza(Base):
     imagem_url = Column(String, nullable=True)
     descricao = Column(String, nullable=True)
     ativo = Column(Boolean, default=True)
+    qtd_sabores_override = Column(Integer, nullable=True)  # None = usa tamanho_rel.qtd_sabores
+    permite_borda = Column(Boolean, default=True)
+    permite_ingrediente = Column(Boolean, default=True)
 
     tamanho_rel = relationship('Tamanhos')
     categoria_rel = relationship('Categoria')
     grade_rel = relationship('Grade')
     sabores_rel = relationship('MonteSuaPizzaSabor', back_populates='produto_rel', cascade='all, delete')
+
+    def qtd_sabores_efetiva(self):
+        return self.qtd_sabores_override if self.qtd_sabores_override else self.tamanho_rel.qtd_sabores
 
 
 class MonteSuaPizzaSabor(Base):
