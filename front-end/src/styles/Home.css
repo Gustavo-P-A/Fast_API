@@ -91,6 +91,23 @@
   font-weight: 400;
 }
 
+.home-card-btn-adicionar {
+  margin-top: 8px;
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.home-card-btn-adicionar:hover {
+  background: #c62828;
+}
+
 .home-secao {
   margin-bottom: 2.5rem;
 }

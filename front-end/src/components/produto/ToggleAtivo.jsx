@@ -1,17 +1,17 @@
-import "../../styles/NovoProduto.css";
+import "../../styles/produto/ToggleAtivo.css";
 
 export function ToggleAtivo({ ativo, onChange }) {
   return (
-    <div className="np-toggle-wrap">
-      <span className="np-toggle-label">Status do produto</span>
+    <div className="tgl-toggle-wrap">
+      <span className="tgl-toggle-label">Status do produto</span>
       <button
         type="button"
-        className={`np-toggle ${ativo ? "np-toggle-on" : "np-toggle-off"}`}
+        className={`tgl-toggle ${ativo ? "tgl-toggle-on" : "tgl-toggle-off"}`}
         onClick={() => onChange(!ativo)}
       >
-        <span className="np-toggle-thumb" />
+        <span className="tgl-toggle-thumb" />
       </button>
-      <span className={`np-toggle-text ${ativo ? "np-toggle-text-on" : "np-toggle-text-off"}`}>
+      <span className={`tgl-toggle-text ${ativo ? "tgl-toggle-text-on" : "tgl-toggle-text-off"}`}>
         {ativo ? "Ativo" : "Inativo"}
       </span>
     </div>

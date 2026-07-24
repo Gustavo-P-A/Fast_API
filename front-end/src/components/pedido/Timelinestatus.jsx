@@ -1,4 +1,4 @@
-import '../../styles/pedido/Pedido.css';
+import '../../styles/pedido/TimelineStatus.css';
 const ETAPAS = ["PENDENTE", "CONFIRMADO", "EM PREPARO", "SAIU PARA ENTREGA", "ENTREGUE"];
 
 export function TimelineStatus({ status }) {
