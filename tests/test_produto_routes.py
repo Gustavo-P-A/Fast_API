@@ -10,38 +10,38 @@ Isso é o "robô" que você pediu: quando você mexer em produto_routes.py,
 roda `pytest` e ele te avisa na hora se algo quebrou -- sem precisar
 abrir o /docs e clicar manualmente toda vez.
 """
-from models import Categoria, Grade, Tamanhos
 
 
-def _criar_categoria_grade_tamanho(db_session):
+def _criar_categoria_grade_tamanho(db_conn):
     """Helper: cria o mínimo de dados relacionados que a rota exige
     (categoria_id, grade_id, tamanho_id) para não repetir isso em
     cada teste."""
-    categoria = Categoria(nome="Pizzas Salgadas")
-    grade = Grade(nome="Grade Padrão", posicao=1)
-    tamanho = Tamanhos(nome="Grande", qtd_sabores=1, qtd_bordas=2)
-
-    db_session.add_all([categoria, grade, tamanho])
-    db_session.commit()
-    db_session.refresh(categoria)
-    db_session.refresh(grade)
-    db_session.refresh(tamanho)
+    categoria = db_conn.execute(
+        "INSERT INTO categoria (nome) VALUES (%s) RETURNING *", ("Pizzas Salgadas",)
+    ).fetchone()
+    grade = db_conn.execute(
+        "INSERT INTO grade (nome, posicao) VALUES (%s, %s) RETURNING *", ("Grade Padrão", 1)
+    ).fetchone()
+    tamanho = db_conn.execute(
+        "INSERT INTO tamanhos (nome, qtd_sabores, qtd_bordas) VALUES (%s, %s, %s) RETURNING *",
+        ("Grande", 1, 2),
+    ).fetchone()
     return categoria, grade, tamanho
 
 
 class TestCriarNovoProduto:
 
-    def test_cria_produto_com_sucesso(self, client, db_session):
-        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_session)
+    def test_cria_produto_com_sucesso(self, client, db_conn):
+        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_conn)
 
         payload = {
             "nome": "Pizza Calabresa",
             "descricao": "Calabresa fatiada, cebola e mussarela",
             "ativo": True,
-            "grade_id": grade.id,
-            "categoria_id": categoria.id,
+            "grade_id": grade["id"],
+            "categoria_id": categoria["id"],
             "precos": [
-                {"tamanho_id": tamanho.id, "preco": 45.90}
+                {"tamanho_id": tamanho["id"], "preco": 45.90}
             ],
         }
 
@@ -50,39 +50,38 @@ class TestCriarNovoProduto:
         assert response.status_code == 200
         assert response.json() == {"mensagem": "Produto criado com sucesso"}
 
-    def test_produto_criado_aparece_no_banco_com_preco_correto(self, client, db_session):
-        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_session)
+    def test_produto_criado_aparece_no_banco_com_preco_correto(self, client, db_conn):
+        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_conn)
 
         payload = {
             "nome": "Pizza Marguerita",
             "descricao": "Molho, mussarela e manjericão",
             "ativo": True,
-            "grade_id": grade.id,
-            "categoria_id": categoria.id,
-            "precos": [{"tamanho_id": tamanho.id, "preco": 39.90}],
+            "grade_id": grade["id"],
+            "categoria_id": categoria["id"],
+            "precos": [{"tamanho_id": tamanho["id"], "preco": 39.90}],
         }
 
         client.post("/admin/novo-produto", json=payload)
 
-        from models import Sabores, PrecoPizza
-        produto = db_session.query(Sabores).filter_by(nome="Pizza Marguerita").first()
+        produto = db_conn.execute("SELECT * FROM sabores WHERE nome = %s", ("Pizza Marguerita",)).fetchone()
         assert produto is not None
-        assert produto.categoria_id == categoria.id
+        assert produto["categoria_id"] == categoria["id"]
 
-        preco = db_session.query(PrecoPizza).filter_by(sabor_id=produto.id).first()
-        assert preco.preco == 39.90
-        assert preco.tamanho_id == tamanho.id
+        preco = db_conn.execute("SELECT * FROM preco_pizza WHERE sabor_id = %s", (produto["id"],)).fetchone()
+        assert preco["preco"] == 39.90
+        assert preco["tamanho_id"] == tamanho["id"]
 
-    def test_rejeita_produto_sem_nome(self, client, db_session):
-        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_session)
+    def test_rejeita_produto_sem_nome(self, client, db_conn):
+        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_conn)
 
         payload = {
             # "nome" propositalmente omitido
             "descricao": "Sem nome",
             "ativo": True,
-            "grade_id": grade.id,
-            "categoria_id": categoria.id,
-            "precos": [{"tamanho_id": tamanho.id, "preco": 20.0}],
+            "grade_id": grade["id"],
+            "categoria_id": categoria["id"],
+            "precos": [{"tamanho_id": tamanho["id"], "preco": 20.0}],
         }
 
         response = client.post("/admin/novo-produto", json=payload)
@@ -90,15 +89,15 @@ class TestCriarNovoProduto:
         # Validação do Pydantic deve barrar antes de chegar no banco
         assert response.status_code == 422
 
-    def test_rejeita_produto_sem_precos(self, client, db_session):
-        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_session)
+    def test_rejeita_produto_sem_precos(self, client, db_conn):
+        categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_conn)
 
         payload = {
             "nome": "Pizza Sem Preço",
             "descricao": "teste",
             "ativo": True,
-            "grade_id": grade.id,
-            "categoria_id": categoria.id,
+            "grade_id": grade["id"],
+            "categoria_id": categoria["id"],
             "precos": [],
         }
 
@@ -114,7 +113,7 @@ class TestCriarNovoProduto:
 
 class TestAutorizacao:
 
-    def test_bloqueia_quem_nao_e_admin(self, client, db_session):
+    def test_bloqueia_quem_nao_e_admin(self, client, db_conn):
         """
         Sobrescreve de novo o dependency override, desta vez simulando
         um usuário comum (não-admin), pra confirmar que a regra de
