@@ -1,4 +1,4 @@
-import "../../styles/adminlayout.css";
+import "../../styles/admin/AdminLista.css";
 
 export function PreviewCardapio({ preview = [] }) {
   return (

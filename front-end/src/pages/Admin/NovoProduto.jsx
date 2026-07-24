@@ -3,18 +3,18 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   listar_categoria, listar_grade, listar_tamanho,
   criar_novo_produto, editar_produto, listar_novo_produto,
-  admin_tamanho, upload_imagem
-} from "../api/auth";
-import { InfoBasicas } from "../components/produto/InfoBasicas";
-import { SelectComCriar } from "../components/produto/SelectComCriar";
-import { ToggleAtivo } from "../components/produto/ToggleAtivo";
-import { ToggleGenerico } from "../components/produto/ToggleGenerico";
-import { FormPrecos } from "../components/produto/FormPrecos";
-import { ListaPrecos } from "../components/produto/ListaPrecos";
-import { ModalTamanho } from "../components/produto/ModalTamanho";
-import { ModalCriarCategoria } from "../components/produto/ModalCriarCategoria";
-import { ModalCriarGrade } from "../components/produto/ModalCriarGrade.jsx";
-import "../styles/NovoProduto.css";
+  admin_tamanho, upload_imagem, excluir_categoria, excluir_grade
+} from "../../api/auth.js";
+import { InfoBasicas } from "../../components/produto/InfoBasicas.jsx";
+import { SelectComCriar } from "../../components/produto/SelectComCriar.jsx";
+import { ToggleAtivo } from "../../components/produto/ToggleAtivo.jsx";
+import { ToggleGenerico } from "../../components/produto/ToggleGenerico.jsx";
+import { FormPrecos } from "../../components/produto/FormPrecos.jsx";
+import { ListaPrecos } from "../../components/produto/ListaPrecos.jsx";
+import { ModalTamanho } from "../../components/produto/ModalTamanho.jsx";
+import { ModalCriarCategoria } from "../../components/produto/ModalCriarCategoria.jsx";
+import { ModalCriarGrade } from "../../components/produto/ModalCriarGrade.jsx";
+import "../../styles/admin/NovoProduto.css"; /* design system "np-" compartilhado por NovoProduto, ModalBebida e NovoMonteSuaPizza */
 
 export function NovoProduto() {
   const { id } = useParams();
@@ -39,6 +39,41 @@ export function NovoProduto() {
   const [erros, setErros] = useState({});
   const [salvando, setSalvando] = useState(false);
   const [modal, setModal] = useState(null); // 'tamanho' | 'categoria' | 'grade'
+  const [itemEditando, setItemEditando] = useState(null);
+
+  async function handleExcluirCategoria(categoria) {
+    if (!window.confirm(`Excluir a categoria "${categoria.nome}"?`)) return;
+    try {
+      await excluir_categoria(categoria.id);
+      if (String(categoria_id) === String(categoria.id)) setCategoria_id("");
+      await buscarTodos();
+    } catch (e) {
+      alert(e?.response?.data?.detail || "Erro ao excluir categoria.");
+    }
+  }
+
+  async function handleExcluirGrade(gradeRemapeada) {
+    const grade = grades.find(g => g.id === gradeRemapeada.id) || gradeRemapeada;
+    if (!window.confirm(`Excluir a grade "${grade.nome}"?`)) return;
+    try {
+      await excluir_grade(grade.id);
+      if (String(grade_id) === String(grade.id)) setGrade_id("");
+      await buscarTodos();
+    } catch (e) {
+      alert(e?.response?.data?.detail || "Erro ao excluir grade.");
+    }
+  }
+
+  function handleEditarCategoria(categoria) {
+    setItemEditando(categoria);
+    setModal("categoria");
+  }
+
+  function handleEditarGrade(gradeRemapeada) {
+    const grade = grades.find(g => g.id === gradeRemapeada.id) || gradeRemapeada;
+    setItemEditando(grade);
+    setModal("grade");
+  }
 
   async function buscarTodos() {
     const [cats, grs, tams] = await Promise.all([listar_categoria(), listar_grade(), listar_tamanho()]);
@@ -159,7 +194,9 @@ export function NovoProduto() {
                 valor={categoria_id}
                 onChange={setCategoria_id}
                 opcoes={categorias}
-                onCriar={() => setModal("categoria")}
+                onCriar={() => { setItemEditando(null); setModal("categoria"); }}
+                onEditar={handleEditarCategoria}
+                onExcluir={handleExcluirCategoria}
                 erro={erros.categoria}
               />
               <SelectComCriar
@@ -167,7 +204,9 @@ export function NovoProduto() {
                 valor={grade_id}
                 onChange={setGrade_id}
                 opcoes={grades.map(g => ({ ...g, nome: `${g.nome} — Posição ${g.posicao}` }))}
-                onCriar={() => setModal("grade")}
+                onCriar={() => { setItemEditando(null); setModal("grade"); }}
+                onEditar={handleEditarGrade}
+                onExcluir={handleExcluirGrade}
                 erro={erros.grade}
               />
             </div>
@@ -203,10 +242,18 @@ export function NovoProduto() {
         />
       )}
       {modal === "categoria" && (
-        <ModalCriarCategoria onCriado={async () => { await buscarTodos(); setModal(null); }} onCancelar={() => setModal(null)} />
+        <ModalCriarCategoria
+          categoriaEditando={itemEditando}
+          onCriado={async () => { await buscarTodos(); setModal(null); setItemEditando(null); }}
+          onCancelar={() => { setModal(null); setItemEditando(null); }}
+        />
       )}
       {modal === "grade" && (
-        <ModalCriarGrade onCriado={async () => { await buscarTodos(); setModal(null); }} onCancelar={() => setModal(null)} />
+        <ModalCriarGrade
+          gradeEditando={itemEditando}
+          onCriado={async () => { await buscarTodos(); setModal(null); setItemEditando(null); }}
+          onCancelar={() => { setModal(null); setItemEditando(null); }}
+        />
       )}
     </div>
   );
