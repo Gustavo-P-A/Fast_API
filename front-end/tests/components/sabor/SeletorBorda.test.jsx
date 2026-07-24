@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { useState } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SeletorBorda } from "./SeletorBorda";
+import { SeletorBorda } from "../../../src/components/sabor/SeletorBorda";
 
 // Duas opções de borda de exemplo, no mesmo formato que a API devolve
 const OPCOES = [
