@@ -1,4 +1,4 @@
-import { ModalIngrediente } from "../../components/Ingrediente/ModalIngrediente.jsx";
+import { ModalIngrediente } from "../../components/ingrediente/ModalIngrediente.jsx";
 
 export function NovoIngrediente() {
   return (

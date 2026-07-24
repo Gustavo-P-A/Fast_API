@@ -1,6 +1,4 @@
-export function SelectComCriar({ label, valor, onChange, opcoes, onCriar, onEditar, onExcluir, erro }) {
-  const itemSelecionado = opcoes.find(op => String(op.id) === String(valor));
-
+export function SelectComCriar({ label, valor, onChange, opcoes, onCriar, erro }) {
   return (
     <div className="np-field">
       <div className="np-field-header">
@@ -16,20 +14,6 @@ export function SelectComCriar({ label, valor, onChange, opcoes, onCriar, onEdit
         ))}
       </select>
       {erro && <span className="np-erro">{erro}</span>}
-      {itemSelecionado && (onEditar || onExcluir) && (
-        <div className="np-select-acoes">
-          {onEditar && (
-            <button type="button" className="np-btn-link" onClick={() => onEditar(itemSelecionado)}>
-              Editar
-            </button>
-          )}
-          {onExcluir && (
-            <button type="button" className="np-btn-link np-btn-link-perigo" onClick={() => onExcluir(itemSelecionado)}>
-              Excluir
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }

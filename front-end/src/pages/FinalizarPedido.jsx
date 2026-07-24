@@ -1,50 +1,42 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  criar_pedido, pedido_adicionais, adicionar_adicional, adicionar_ingrediente,
-  adicionar_bebida_pedido, finalizar_pedido_id,
-} from "../api/auth";
-import { CartContext } from "../contexts/CartContext";
-import { precoItemCarrinho } from "../contexts/CartProvider";
+import { criar_pedido, pedido_adicionais, adicionar_adicional, finalizar_pedido_id } from "../api/auth";
 import "../styles/FinalizarPedido.css";
 
 export function FinalizarPedido() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { itens, bebidas, total, vazio, limparCarrinho } = useContext(CartContext);
   const [enviando, setEnviando] = useState(false);
 
-  if (vazio || !state?.endereco || !state?.pagamento) {
-    navigate("/carrinho");
+  if (!state?.tamanho_id || !state?.endereco || !state?.pagamento) {
+    navigate("/");
     return null;
   }
+
+  // mesma regra B usada no Sabor.jsx: 1 sabor de borda = preço cheio, 2+ = proporcional
+  const bordas = state.bordas || [];
+  const precoBordas = bordas.length === 0
+    ? 0
+    : bordas.length === 1
+      ? bordas[0].preco
+      : bordas.reduce((soma, b) => soma + b.preco * (b.partes / state.qtd_bordas), 0);
+
+  const total = state.preco_sabor + precoBordas;
 
   async function handleFinalizarEnviar() {
     setEnviando(true);
     try {
       const pedido = await criar_pedido();
+      const item = await pedido_adicionais(pedido.id, {
+        tamanho_id: state.tamanho_id,
+        sabor_ids: state.sabor_ids,
+      });
 
-      for (const item of itens) {
-        const itemCriado = await pedido_adicionais(pedido.id, {
-          tamanho_id: item.tamanho_id,
-          sabor_ids: item.sabor_ids,
-        });
-
-        for (const borda of item.bordas) {
-          await adicionar_adicional(pedido.id, itemCriado.item_id, borda.adicional_id, borda.tamanho_id, borda.partes);
-        }
-
-        for (const ingrediente of item.ingredientes) {
-          await adicionar_ingrediente(pedido.id, itemCriado.item_id, ingrediente.item_simples_id, ingrediente.quantidade);
-        }
-      }
-
-      for (const bebida of bebidas) {
-        await adicionar_bebida_pedido(pedido.id, bebida.item_simples_id, bebida.quantidade);
+      for (const borda of bordas) {
+        await adicionar_adicional(pedido.id, item.item_id, borda.adicional_id, borda.tamanho_id, borda.partes);
       }
 
       await finalizar_pedido_id(pedido.id, state.endereco.id, state.pagamento);
-      limparCarrinho();
       navigate("/meus-pedidos");
     } catch {
       alert("Erro ao enviar pedido. Tente novamente.");
@@ -57,44 +49,25 @@ export function FinalizarPedido() {
     <div className="revisao-container">
       <h1 className="revisao-titulo">Revise seu pedido</h1>
 
-      {itens.map(item => (
-        <div key={item.id} className="revisao-secao">
-          <h2 className="revisao-secao-titulo">Item</h2>
-          <div className="revisao-item">
-            {item.sabor_imagem && (
-              <img className="revisao-item-foto" src={item.sabor_imagem} alt={item.sabor_nomes.join(" / ")} />
+      <div className="revisao-secao">
+        <h2 className="revisao-secao-titulo">Item</h2>
+        <div className="revisao-item">
+          {state.sabor_imagem && (
+            <img className="revisao-item-foto" src={state.sabor_imagem} alt={state.sabor_nome} />
+          )}
+          <div className="revisao-item-info">
+            <p className="revisao-item-nome">{state.sabor_nome}</p>
+            <p className="revisao-linha">Tamanho: {state.tamanho_nome}</p>
+            {bordas.length > 0 ? (
+              <p className="revisao-linha">
+                Borda: {bordas.map(b => `${b.nome}${bordas.length > 1 ? ` (${b.partes}/${state.qtd_bordas})` : ""}`).join(", ")}
+              </p>
+            ) : (
+              <p className="revisao-linha">Sem borda</p>
             )}
-            <div className="revisao-item-info">
-              <p className="revisao-item-nome">{item.sabor_nomes.join(" / ")}</p>
-              <p className="revisao-linha">Tamanho: {item.tamanho_nome}</p>
-              {item.bordas.length > 0 ? (
-                <p className="revisao-linha">
-                  Borda: {item.bordas.map(b => `${b.nome}${item.bordas.length > 1 ? ` (${b.partes}/${item.qtd_bordas})` : ""}`).join(", ")}
-                </p>
-              ) : (
-                <p className="revisao-linha">Sem borda</p>
-              )}
-              {item.ingredientes.length > 0 && (
-                <p className="revisao-linha">
-                  Adicionais: {item.ingredientes.map(i => `${i.nome}${i.quantidade > 1 ? ` x${i.quantidade}` : ""}`).join(", ")}
-                </p>
-              )}
-              <p className="revisao-linha"><strong>R$ {precoItemCarrinho(item).toFixed(2).replace(".", ",")}</strong></p>
-            </div>
           </div>
         </div>
-      ))}
-
-      {bebidas.length > 0 && (
-        <div className="revisao-secao">
-          <h2 className="revisao-secao-titulo">Bebidas</h2>
-          {bebidas.map(b => (
-            <p key={b.item_simples_id} className="revisao-linha">
-              {b.quantidade}x {b.nome} — R$ {(b.preco * b.quantidade).toFixed(2).replace(".", ",")}
-            </p>
-          ))}
-        </div>
-      )}
+      </div>
 
       <div className="revisao-secao">
         <h2 className="revisao-secao-titulo">Endereço de entrega</h2>

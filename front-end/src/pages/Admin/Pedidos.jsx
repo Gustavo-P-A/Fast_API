@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import "../../styles/admin/Pedidos.css";
 import { listar_pedidos_admin, mudar_status_pedido } from "../../api/auth";
+import "../../styles/AdminPaginas.css";
 
 const STATUS_FLUXO = [
   "PENDENTE",
@@ -27,14 +27,11 @@ function StatusBadge({ status }) {
       style={{
         background: cor.bg,
         color: cor.color,
-        padding: "6px 14px",
+        padding: "3px 10px",
         borderRadius: "12px",
-        fontSize: "0.9rem",
+        fontSize: "0.78rem",
         fontWeight: 600,
-        textTransform: "lowercase",
         whiteSpace: "nowrap",
-        display: "inline-block",
-        boxSizing: "border-box",
       }}
     >
       {status}
@@ -90,18 +87,18 @@ export function AdminPedidos() {
   }, {});
 
   return (
-    <div className="ped-page">
-      <div className="ped-header">
+    <div className="ap-page">
+      <div className="ap-header">
         <div>
-          <h1 className="ped-titulo">Pedidos</h1>
-          <p className="ped-subtitulo">
+          <h1 className="ap-titulo">Pedidos</h1>
+          <p className="ap-subtitulo">
             Gerencie e acompanhe todos os pedidos da sua pizzaria.
           </p>
         </div>
       </div>
 
       {/* Contadores por status */}
-      <div className="ped-status-cards">
+      <div className="ap-status-cards">
         {[
           "PENDENTE",
           "CONFIRMADO",
@@ -112,19 +109,19 @@ export function AdminPedidos() {
         ].map((s) => (
           <button
             key={s}
-            className={`ped-status-card ${filtroStatus === s ? "ped-status-card-ativo" : ""}`}
+            className={`ap-status-card ${filtroStatus === s ? "ap-status-card-ativo" : ""}`}
             onClick={() => setFiltroStatus((prev) => (prev === s ? "" : s))}
           >
-            <span className="ped-status-card-num">{contadores[s] || 0}</span>
-            <span className="ped-status-card-label">{s}</span>
+            <span className="ap-status-card-num">{contadores[s] || 0}</span>
+            <span className="ap-status-card-label">{s}</span>
           </button>
         ))}
       </div>
 
-      <div className="ped-card">
-        <div className="ped-filtros">
+      <div className="ap-card">
+        <div className="ap-filtros">
           <select
-            className="ped-select"
+            className="ap-select"
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
           >
@@ -135,14 +132,14 @@ export function AdminPedidos() {
               </option>
             ))}
           </select>
-          <button className="ped-btn-ghost" onClick={() => setFiltroStatus("")}>
+          <button className="ap-btn-ghost" onClick={() => setFiltroStatus("")}>
             Limpar
           </button>
-          <span className="ped-resumo-linha">{pedidos.length} pedido(s)</span>
+          <span className="ap-resumo-linha">{pedidos.length} pedido(s)</span>
         </div>
 
-        <div className="ped-table-wrap">
-          <table className="ped-table">
+        <div className="ap-table-wrap">
+          <table className="ap-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -158,14 +155,14 @@ export function AdminPedidos() {
             <tbody>
               {carregando && (
                 <tr>
-                  <td colSpan={8} className="ped-vazio">
+                  <td colSpan={8} className="ap-vazio">
                     Carregando...
                   </td>
                 </tr>
               )}
               {!carregando && pedidos.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="ped-vazio">
+                  <td colSpan={8} className="ap-vazio">
                     Nenhum pedido encontrado.
                   </td>
                 </tr>
@@ -173,16 +170,16 @@ export function AdminPedidos() {
               {!carregando &&
                 pedidos.map((p) => (
                   <tr key={p.id}>
-                    <td className="ped-nome">#{p.id}</td>
+                    <td className="ap-nome">#{p.id}</td>
                     <td>
-                      <span className="ped-nome">{p.cliente_nome}</span>
+                      <span className="ap-nome">{p.cliente_nome}</span>
                       <br />
-                      <span className="ped-desc">{p.cliente_email}</span>
+                      <span className="ap-desc">{p.cliente_email}</span>
                     </td>
                     <td>{p.total_itens} item(s)</td>
                     <td>{p.formato_de_pagamento || "—"}</td>
-                    <td className="ped-nome">R$ {p.preco?.toFixed(2) ?? "—"}</td>
-                    <td className="ped-desc">
+                    <td className="ap-nome">R$ {p.preco?.toFixed(2) ?? "—"}</td>
+                    <td className="ap-desc">
                       {p.created_at
                         ? new Date(p.created_at).toLocaleString("pt-BR")
                         : "—"}
@@ -191,37 +188,36 @@ export function AdminPedidos() {
                       <StatusBadge status={p.status} />
                     </td>
                     <td className="text-center">
-                      <div className="ped-acoes-cell">
-                        {proximoStatus(p.status) && (
+                      {proximoStatus(p.status) && (
+                        <button
+                          className="ap-btn-primary"
+                          style={{ fontSize: "0.78rem", padding: "5px 10px" }}
+                          disabled={alterando === p.id}
+                          onClick={() =>
+                            handleMudarStatus(p.id, proximoStatus(p.status))
+                          }
+                        >
+                          {alterando === p.id
+                            ? "..."
+                            : `→ ${proximoStatus(p.status)}`}
+                        </button>
+                      )}
+                      {p.status !== "CANCELADO" &&
+                        p.status !== "ENTREGUE" &&
+                        p.status !== "SAIU PARA ENTREGA" && (
                           <button
-                            className="ped-btn-primary"
-                            style={{ fontSize: "0.9rem", padding: "10px 14px" }}
+                            className="ap-btn-delete"
+                            style={{
+                              fontSize: "0.78rem",
+                              padding: "5px 10px",
+                              marginLeft: "6px",
+                            }}
                             disabled={alterando === p.id}
-                            onClick={() =>
-                              handleMudarStatus(p.id, proximoStatus(p.status))
-                            }
+                            onClick={() => handleMudarStatus(p.id, "CANCELADO")}
                           >
-                            {alterando === p.id
-                              ? "..."
-                              : `→ ${proximoStatus(p.status)}`}
+                            Cancelar
                           </button>
                         )}
-                        {p.status !== "CANCELADO" &&
-                          p.status !== "ENTREGUE" &&
-                          p.status !== "SAIU PARA ENTREGA" && (
-                            <button
-                              className="ped-btn-delete"
-                              style={{
-                                fontSize: "0.85rem",
-                                padding: "9px 12px",
-                              }}
-                              disabled={alterando === p.id}
-                              onClick={() => handleMudarStatus(p.id, "CANCELADO")}
-                            >
-                              Cancelar
-                            </button>
-                          )}
-                      </div>
                     </td>
                   </tr>
                 ))}

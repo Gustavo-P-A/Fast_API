@@ -17,7 +17,7 @@ export function ModalTamanho({ onCriar, onCancelar }) {
         <h3 className="np-modal-titulo">Novo Tamanho</h3>
         <div className="np-field">
           <label className="np-label">Nome</label>
-          <input className="np-input" placeholder="Ex: P, M, G, GG" value={nome} onChange={e => setNome(e.target.value)} />
+          <input className="np-input" placeholder="Ex: G, M, P, GG" value={nome} onChange={e => setNome(e.target.value)} />
         </div>
         <div className="np-grid-2">
           <div className="np-field">

@@ -1,0 +1,27 @@
+.ap-filtros {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ap-input,
+.ap-select {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #333;
+  background: #fafafa;
+  outline: none;
+  transition: border 0.15s;
+}
+
+.ap-input { min-width: 220px; }
+.ap-select { min-width: 150px; }
+
+.ap-input:focus,
+.ap-select:focus {
+  border-color: #e53935;
+  background: #fff;
+}

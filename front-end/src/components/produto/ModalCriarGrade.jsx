@@ -1,24 +1,19 @@
 import { useState } from "react";
-import { criar_grade, editar_grade } from "../../api/auth";
+import { criar_grade } from "../../api/auth";
 
-export function ModalCriarGrade({ gradeEditando, onCriado, onCancelar }) {
-  const isEditing = !!gradeEditando;
-  const [nome, setNome] = useState(gradeEditando?.nome || "");
-  const [posicao, setPosicao] = useState(gradeEditando ? String(gradeEditando.posicao) : "");
+export function ModalCriarGrade({ onCriado, onCancelar }) {
+  const [nome, setNome] = useState("");
+  const [posicao, setPosicao] = useState("");
   const [salvando, setSalvando] = useState(false);
 
-  async function handleSalvar() {
+  async function handleCriar() {
     if (!nome.trim() || !posicao) { alert("Preencha todos os campos."); return; }
     setSalvando(true);
     try {
-      if (isEditing) {
-        await editar_grade(gradeEditando.id, nome.trim(), Number(posicao));
-      } else {
-        await criar_grade(nome.trim(), Number(posicao));
-      }
+      await criar_grade(nome.trim(), Number(posicao));
       onCriado();
     } catch {
-      alert(isEditing ? "Erro ao editar grade." : "Erro ao criar grade.");
+      alert("Erro ao criar grade.");
     } finally {
       setSalvando(false);
     }
@@ -27,7 +22,7 @@ export function ModalCriarGrade({ gradeEditando, onCriado, onCancelar }) {
   return (
     <div className="np-modal-overlay">
       <div className="np-modal">
-        <h3 className="np-modal-titulo">{isEditing ? "Editar Grade" : "Nova Grade"}</h3>
+        <h3 className="np-modal-titulo">Nova Grade</h3>
         <div className="np-field">
           <label className="np-label">Nome</label>
           <input className="np-input" placeholder="Ex: Pizza Salgada" value={nome} onChange={e => setNome(e.target.value)} />
@@ -39,8 +34,8 @@ export function ModalCriarGrade({ gradeEditando, onCriado, onCancelar }) {
         </div>
         <div className="np-modal-acoes">
           <button className="np-btn-ghost" onClick={onCancelar}>Cancelar</button>
-          <button className="np-btn-primary" onClick={handleSalvar} disabled={salvando}>
-            {salvando ? "Salvando..." : isEditing ? "Salvar" : "Criar"}
+          <button className="np-btn-primary" onClick={handleCriar} disabled={salvando}>
+            {salvando ? "Salvando..." : "Criar"}
           </button>
         </div>
       </div>

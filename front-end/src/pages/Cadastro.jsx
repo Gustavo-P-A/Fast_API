@@ -9,9 +9,10 @@ export function Cadastro() {
   const [Email, setEmail] = useState("");
   const { handleCadastro } = useContext(AuthContext);
 
+
   async function handleSubmit(e) {
     e.preventDefault();
-    await handleCadastro(Nome, Email, Senha);
+    handleCadastro(Nome, Email, Senha);
   }
   const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ export function Cadastro() {
             Cadastrar
           </button>
         </form>
- 
+
         <p className="login-link">
           Já tem conta?{" "}
           <span

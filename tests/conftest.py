@@ -2,34 +2,26 @@
 Configuração compartilhada dos testes (pytest carrega este arquivo
 automaticamente, não precisa importar em lugar nenhum).
 
-Ideia central: cada teste roda dentro de uma transação Postgres que
-nunca é commitada -- ao final do teste, um ROLLBACK desfaz tudo, então
-o próximo teste começa limpo, sem precisar recriar tabela a cada vez.
-O schema (as 21 tabelas de sql/schema.sql) é recriado do zero uma vez
-por sessão de testes.
-
-Precisa de um Postgres acessível via TEST_DATABASE_URL (default: banco
-pizzaria_test local -- suba com `docker compose up` na raiz do repo e
-crie o banco uma vez com `createdb -h localhost -U pizzaria_app pizzaria_test`).
+Ideia central: cada teste roda contra um banco SQLite EM MEMÓRIA,
+criado do zero e destruído no final. Isso é o que separa "teste
+automatizado" de "teste manual no /docs": ele não depende de estado
+que sobrou de uma execução anterior, e não toca no seu banco.db real.
 """
 import os
 
 # Precisa vir ANTES de importar qualquer coisa do projeto, porque
-# core/settings.py e database.py leem essas variáveis assim que são importados.
+# core/settings.py lê essas variáveis assim que é importado.
 os.environ.setdefault("SECRET_KEY", "chave-de-teste-nao-usar-em-producao")
 os.environ.setdefault("SECRET", "segredo-de-teste-nao-usar-em-producao")
-os.environ["DATABASE_URL"] = os.getenv(
-    "TEST_DATABASE_URL", "postgresql://pizzaria_app:pizzaria_dev_pw@localhost:5432/pizzaria_test"
-)
-TEST_DATABASE_URL = os.environ["DATABASE_URL"]
 
 import sys
-import psycopg
-from psycopg.rows import dict_row
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from fastapi.testclient import TestClient
 
-# Garante que os módulos do backend (main, database, produto_routes...)
+# Garante que os módulos do backend (main, models, produto_routes...)
 # sejam importáveis quando o pytest rodar a partir da raiz do projeto.
 BACKEND_DIR = os.path.join(os.path.dirname(__file__), "..", "Fast_API")
 sys.path.insert(0, os.path.abspath(BACKEND_DIR))
@@ -40,85 +32,94 @@ sys.path.insert(0, os.path.abspath(BACKEND_DIR))
 os.makedirs(os.path.join(os.path.abspath(BACKEND_DIR), "uploads"), exist_ok=True)
 os.chdir(os.path.abspath(BACKEND_DIR))
 
-from database import pegar_conexao  # noqa: E402
+from models import Base, Usuario  # noqa: E402
+from dependencies import pegar_sessao  # noqa: E402
 from dependsadm import verificar_adm  # noqa: E402
 from core.security import verificar_token  # noqa: E402
 from main import app  # noqa: E402
 
 
-@pytest.fixture(scope="session", autouse=True)
-def _preparar_schema_teste():
-    """Recria as tabelas do zero uma vez por sessão de testes, a
-    partir de sql/schema.sql -- garante que a estrutura do banco de
-    teste está sempre em dia com o schema atual do projeto."""
-    schema_path = os.path.join(os.path.abspath(BACKEND_DIR), "sql", "schema.sql")
-    with open(schema_path) as f:
-        schema_sql = f.read()
-    with psycopg.connect(TEST_DATABASE_URL, autocommit=True) as conn:
-        conn.execute("DROP SCHEMA public CASCADE")
-        conn.execute("CREATE SCHEMA public")
-        conn.execute(schema_sql)
+@pytest.fixture()
+def db_session():
+    """Cria um banco SQLite em memória novo para cada teste."""
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    Base.metadata.create_all(engine)
+    TestingSession = sessionmaker(bind=engine)
+    session = TestingSession()
+    try:
+        yield session
+    finally:
+        session.close()
+        Base.metadata.drop_all(engine)
 
 
 @pytest.fixture()
-def db_conn():
-    """Uma conexão por teste, dentro de uma transação nunca commitada
-    -- ao sair do teste, o rollback desfaz tudo que ele escreveu."""
-    with psycopg.connect(TEST_DATABASE_URL, row_factory=dict_row, autocommit=False) as conn:
-        yield conn
-        conn.rollback()
-
-
-@pytest.fixture()
-def admin_usuario(db_conn):
+def admin_usuario(db_session):
     """Um usuário admin já salvo no banco de teste, pronto pra ser
     usado como 'usuário logado' nos testes que exigem admin."""
-    return db_conn.execute(
-        "INSERT INTO usuarios (nome, email, senha, ativo, adm) VALUES (%s, %s, %s, %s, %s) RETURNING *",
-        ("Admin Teste", "admin@teste.com", "hash-fake", True, True),
-    ).fetchone()
+    usuario = Usuario(
+        nome="Admin Teste",
+        email="admin@teste.com",
+        senha="hash-fake",
+        ativo=True,
+        adm=True,
+    )
+    db_session.add(usuario)
+    db_session.commit()
+    db_session.refresh(usuario)
+    return usuario
 
 
 @pytest.fixture()
-def usuario_comum(db_conn):
+def usuario_comum(db_session):
     """Um usuário 'dono do pedido' comum, não-admin -- usado para
     testar as regras de 'só o dono ou um admin pode mexer no pedido'."""
-    return db_conn.execute(
-        "INSERT INTO usuarios (nome, email, senha, ativo, adm) VALUES (%s, %s, %s, %s, %s) RETURNING *",
-        ("Cliente Teste", "cliente@teste.com", "hash-fake", True, False),
-    ).fetchone()
+    usuario = Usuario(
+        nome="Cliente Teste",
+        email="cliente@teste.com",
+        senha="hash-fake",
+        ativo=True,
+        adm=False,
+    )
+    db_session.add(usuario)
+    db_session.commit()
+    db_session.refresh(usuario)
+    return usuario
 
 
 @pytest.fixture()
-def client(db_conn, admin_usuario):
+def client(db_session, admin_usuario):
     """
     TestClient do FastAPI com duas dependências trocadas:
-    - pegar_conexao -> devolve a conexão de teste (transação isolada)
+    - pegar_sessao -> devolve a sessão de teste (banco em memória)
     - verificar_adm -> devolve direto o admin de teste, sem precisar
       logar de verdade / gerar JWT / mandar cookie
+
+    Isso é o "dependency override" do FastAPI: testamos a LÓGICA da
+    rota sem precisar simular autenticação de verdade em todo teste.
+    (Autenticação em si merece seus próprios testes separados.)
     """
-    def _get_test_conn():
-        yield db_conn
+    def _get_test_session():
+        yield db_session
 
     def _get_test_admin():
         return admin_usuario
 
-    app.dependency_overrides[pegar_conexao] = _get_test_conn
+    app.dependency_overrides[pegar_sessao] = _get_test_session
     app.dependency_overrides[verificar_adm] = _get_test_admin
 
-    # Sem "with": o lifespan de main.py (que abre/fecha o pool de verdade)
-    # não precisa rodar aqui -- pegar_conexao já está sobrescrito acima,
-    # então nenhuma requisição de teste toca o pool real. Além disso, o
-    # pool real não pode ser reaberto depois de fechado (psycopg_pool),
-    # então entrar no lifespan a cada teste quebraria a partir do segundo.
-    try:
-        yield TestClient(app)
-    finally:
-        app.dependency_overrides.clear()
+    with TestClient(app) as test_client:
+        yield test_client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture()
-def client_como(db_conn):
+def client_como(db_session):
     """
     Variante do fixture 'client' para rotas que usam verificar_token
     diretamente (como order_routes.py), em vez de verificar_adm.
@@ -128,18 +129,16 @@ def client_como(db_conn):
     precisar de um fixture fixo por tipo de usuário.
     """
     def _fabrica(usuario_logado):
-        def _get_test_conn():
-            yield db_conn
+        def _get_test_session():
+            yield db_session
 
         def _get_test_usuario():
             return usuario_logado
 
-        app.dependency_overrides[pegar_conexao] = _get_test_conn
+        app.dependency_overrides[pegar_sessao] = _get_test_session
         app.dependency_overrides[verificar_token] = _get_test_usuario
 
         return TestClient(app)
 
-    try:
-        yield _fabrica
-    finally:
-        app.dependency_overrides.clear()
+    yield _fabrica
+    app.dependency_overrides.clear()

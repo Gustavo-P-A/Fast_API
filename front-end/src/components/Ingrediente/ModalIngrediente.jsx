@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { criar_item_simples, editar_item_simples } from "../../api/auth";
-import "../../styles/produto/ModalIngrediente.css";
 
 export function ModalIngrediente({ ingrediente, onSalvo, onCancelar }) {
   const [nome, setNome] = useState(ingrediente?.nome || "");
@@ -38,24 +37,24 @@ export function ModalIngrediente({ ingrediente, onSalvo, onCancelar }) {
   }
 
   return (
-    <div className="modaling-modal-overlay">
-      <div className="modaling-modal">
-        <h3 className="modaling-modal-titulo">{ingrediente ? "Editar Ingrediente" : "Novo Ingrediente"}</h3>
+    <div className="ap-modal-overlay">
+      <div className="ap-modal">
+        <h3 className="ap-modal-titulo">{ingrediente ? "Editar Ingrediente" : "Novo Ingrediente"}</h3>
 
-        <div className="modaling-modal-field">
-          <label className="modaling-modal-label">Nome</label>
+        <div className="ap-modal-field">
+          <label className="ap-modal-label">Nome</label>
           <input
-            className="modaling-input"
+            className="ap-input"
             placeholder="Ex: Mussarela, Bacon, Catupiry"
             value={nome}
             onChange={e => setNome(e.target.value)}
           />
         </div>
 
-        <div className="modaling-modal-field">
-          <label className="modaling-modal-label">Preço</label>
+        <div className="ap-modal-field">
+          <label className="ap-modal-label">Preço</label>
           <input
-            className="modaling-input"
+            className="ap-input"
             type="number"
             step="0.01"
             placeholder="0,00"
@@ -64,9 +63,9 @@ export function ModalIngrediente({ ingrediente, onSalvo, onCancelar }) {
           />
         </div>
 
-        <div className="modaling-modal-acoes">
-          <button className="modaling-btn-ghost" onClick={onCancelar}>Cancelar</button>
-          <button className="modaling-btn-primary" onClick={handleSalvar} disabled={salvando}>
+        <div className="ap-modal-acoes">
+          <button className="ap-btn-ghost" onClick={onCancelar}>Cancelar</button>
+          <button className="ap-btn-primary" onClick={handleSalvar} disabled={salvando}>
             {salvando ? "Salvando..." : "Salvar"}
           </button>
         </div>

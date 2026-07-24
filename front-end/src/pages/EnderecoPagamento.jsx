@@ -1,10 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import {
   endereco, editar_endereco,
   criar_endereco, delete_endereco,
 } from "../api/auth";
-import { CartContext } from "../contexts/CartContext";
 import { CardEndereco } from "../components/endereco_pagamento/CardEndereco";
 import { FormEndereco } from "../components/endereco_pagamento/FormEndereco";
 import { SecaoPagamento } from "../components/endereco_pagamento/SecaoPagamento";
@@ -13,7 +12,6 @@ import "../styles/EnderecoPagamento.css";
 export function EnderecoPagamento() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { vazio } = useContext(CartContext);
   const [enderecos, setEnderecos] = useState([]);
   const [enderecoSelecionado, setEnderecoSelecionado] = useState(state?.endereco?.id || "");
   const [pagamento, setPagamento] = useState(state?.pagamento || "");
@@ -21,7 +19,7 @@ export function EnderecoPagamento() {
   const [adicionando, setAdicionando] = useState(false);
 
   useEffect(() => {
-    if (vazio) { navigate("/carrinho"); return; }
+    if (!state?.tamanho_id) { navigate("/"); return; }
     endereco().then(setEnderecos);
   }, []);
 
@@ -29,7 +27,7 @@ export function EnderecoPagamento() {
     if (!enderecoSelecionado || !pagamento) return;
     const enderecoObj = enderecos.find(e => e.id === enderecoSelecionado);
     navigate("/finalizar-pedido", {
-      state: { endereco: enderecoObj, pagamento },
+      state: { ...state, endereco: enderecoObj, pagamento },
     });
   }
 

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { criar_adicionais, salvar_preco_adicional } from "../../api/auth";
-import "../../styles/produto/ModalBorda.css";
 
 export function ModalBorda({ borda, tamanhos, onSalvo, onCancelar }) {
   const precosOriginais = Object.fromEntries((borda?.precos || []).map(p => [p.tamanho_id, p]));
@@ -33,14 +32,14 @@ export function ModalBorda({ borda, tamanhos, onSalvo, onCancelar }) {
   }
 
   return (
-    <div className="modalbor-modal-overlay">
-      <div className="modalbor-modal">
-        <h3 className="modalbor-modal-titulo">{borda ? "Editar Borda" : "Nova Borda"}</h3>
+    <div className="ap-modal-overlay">
+      <div className="ap-modal">
+        <h3 className="ap-modal-titulo">{borda ? "Editar Borda" : "Nova Borda"}</h3>
 
-        <div className="modalbor-modal-field">
-          <label className="modalbor-modal-label">Nome</label>
+        <div className="ap-modal-field">
+          <label className="ap-modal-label">Nome</label>
           <input
-            className="modalbor-input"
+            className="ap-input"
             placeholder="Ex: Catupiry, Cheddar, Chocolate"
             value={nome}
             disabled={!!borda}
@@ -48,14 +47,14 @@ export function ModalBorda({ borda, tamanhos, onSalvo, onCancelar }) {
           />
         </div>
 
-        <div className="modalbor-modal-field">
-          <label className="modalbor-modal-label">Preço por tamanho</label>
-          <div className="modalbor-modal-grid">
+        <div className="ap-modal-field">
+          <label className="ap-modal-label">Preço por tamanho</label>
+          <div className="ap-modal-grid">
             {tamanhos.map(t => (
-              <div key={t.id} className="modalbor-modal-grid-item">
-                <label className="modalbor-modal-sublabel">{t.nome}</label>
+              <div key={t.id} className="ap-modal-grid-item">
+                <label className="ap-modal-sublabel">{t.nome}</label>
                 <input
-                  className="modalbor-input"
+                  className="ap-input"
                   type="number"
                   step="0.01"
                   placeholder="0,00"
@@ -67,9 +66,9 @@ export function ModalBorda({ borda, tamanhos, onSalvo, onCancelar }) {
           </div>
         </div>
 
-        <div className="modalbor-modal-acoes">
-          <button className="modalbor-btn-ghost" onClick={onCancelar}>Cancelar</button>
-          <button className="modalbor-btn-primary" onClick={handleSalvar} disabled={salvando}>
+        <div className="ap-modal-acoes">
+          <button className="ap-btn-ghost" onClick={onCancelar}>Cancelar</button>
+          <button className="ap-btn-primary" onClick={handleSalvar} disabled={salvando}>
             {salvando ? "Salvando..." : "Salvar"}
           </button>
         </div>
