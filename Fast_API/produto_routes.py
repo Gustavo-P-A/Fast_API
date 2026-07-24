@@ -1,16 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
-from models import Grade, Sabores, PrecoPizza, GradeSabores
-from dependencies import pegar_sessao
+from database import pegar_conexao, fetch_one, fetch_all, execute, ConnCommitRoute
 from dependsadm import verificar_adm
 from schemas import NovoProdutoSchema
-from sqlalchemy.orm import Session
-from fastapi.encoders import jsonable_encoder
+from psycopg import errors
 import shutil, os, uuid
 
 TIPOS_PERMITIDOS = {"image/jpeg", "image/png", "image/webp"}
 TAMANHO_MAXIMO = 2 * 1024 * 1024  # 2MB
 
-produto_routes = APIRouter(prefix='/admin', tags=['produtos'])
+produto_routes = APIRouter(prefix='/admin', tags=['produtos'], route_class=ConnCommitRoute)
 
 
 @produto_routes.post('/upload-imagem')
@@ -42,28 +40,38 @@ async def upload_imagem(
 @produto_routes.post('/novo-produto')
 async def criar_novo_produto(
     novo_produto_schema: NovoProdutoSchema,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    sabor = Sabores(
-        nome=novo_produto_schema.nome,
-        descricao=novo_produto_schema.descricao,
-        ativo=novo_produto_schema.ativo,
-        categoria_id=novo_produto_schema.categoria_id,
-        imagem_url=novo_produto_schema.imagem_url,
-        disponivel_cardapio_normal=novo_produto_schema.disponivel_cardapio_normal,
-        disponivel_monte_sua_pizza=novo_produto_schema.disponivel_monte_sua_pizza,
-        permite_borda=novo_produto_schema.permite_borda,
-        permite_ingrediente=novo_produto_schema.permite_ingrediente,
+    sabor = fetch_one(
+        conn,
+        """
+        INSERT INTO sabores (nome, descricao, ativo, categoria_id, imagem_url,
+                              disponivel_cardapio_normal, disponivel_monte_sua_pizza,
+                              permite_borda, permite_ingrediente)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING id
+        """,
+        (
+            novo_produto_schema.nome, novo_produto_schema.descricao, novo_produto_schema.ativo,
+            novo_produto_schema.categoria_id, novo_produto_schema.imagem_url,
+            novo_produto_schema.disponivel_cardapio_normal, novo_produto_schema.disponivel_monte_sua_pizza,
+            novo_produto_schema.permite_borda, novo_produto_schema.permite_ingrediente,
+        ),
     )
-    session.add(sabor)
-    session.commit()
 
     for i in novo_produto_schema.precos:
-        session.add(PrecoPizza(sabor_id=sabor.id, tamanho_id=i.tamanho_id, preco=i.preco))
+        execute(
+            conn,
+            "INSERT INTO preco_pizza (sabor_id, tamanho_id, preco) VALUES (%s, %s, %s)",
+            (sabor["id"], i.tamanho_id, i.preco),
+        )
 
-    session.add(GradeSabores(grade_id=novo_produto_schema.grade_id, sabores_id=sabor.id))
-    session.commit()
+    execute(
+        conn,
+        "INSERT INTO grade_sabores (grade_id, sabores_id) VALUES (%s, %s)",
+        (novo_produto_schema.grade_id, sabor["id"]),
+    )
     return {'mensagem': 'Produto criado com sucesso'}
 
 
@@ -71,110 +79,126 @@ async def criar_novo_produto(
 async def editar_novo_produto(
     id: int,
     produto_schema: NovoProdutoSchema,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    produto = session.query(Sabores).filter(Sabores.id == id).first()
+    produto = fetch_one(conn, "SELECT id FROM sabores WHERE id = %s", (id,))
     if not produto:
         raise HTTPException(status_code=404, detail='Produto não encontrado')
 
-    grade = session.query(GradeSabores).filter(GradeSabores.sabores_id == id).first()
+    grade = fetch_one(conn, "SELECT grade_id FROM grade_sabores WHERE sabores_id = %s", (id,))
     if not grade:
         raise HTTPException(status_code=404, detail='Grade do produto não encontrada')
 
-    produto.nome = produto_schema.nome
-    produto.descricao = produto_schema.descricao
-    produto.ativo = produto_schema.ativo
-    produto.categoria_id = produto_schema.categoria_id
-    produto.disponivel_cardapio_normal = produto_schema.disponivel_cardapio_normal
-    produto.disponivel_monte_sua_pizza = produto_schema.disponivel_monte_sua_pizza
-    produto.permite_borda = produto_schema.permite_borda
-    produto.permite_ingrediente = produto_schema.permite_ingrediente
+    campos = {
+        "nome": produto_schema.nome,
+        "descricao": produto_schema.descricao,
+        "ativo": produto_schema.ativo,
+        "categoria_id": produto_schema.categoria_id,
+        "disponivel_cardapio_normal": produto_schema.disponivel_cardapio_normal,
+        "disponivel_monte_sua_pizza": produto_schema.disponivel_monte_sua_pizza,
+        "permite_borda": produto_schema.permite_borda,
+        "permite_ingrediente": produto_schema.permite_ingrediente,
+    }
     if produto_schema.imagem_url:
-        produto.imagem_url = produto_schema.imagem_url
+        campos["imagem_url"] = produto_schema.imagem_url
+
+    set_sql = ", ".join(f"{campo} = %s" for campo in campos)
+    produto_atualizado = fetch_one(
+        conn,
+        f"UPDATE sabores SET {set_sql} WHERE id = %s RETURNING *",
+        (*campos.values(), id),
+    )
 
     for i in produto_schema.precos:
-        preco_db = session.query(PrecoPizza).filter(
-            PrecoPizza.sabor_id == id,
-            PrecoPizza.tamanho_id == i.tamanho_id
-        ).first()
+        preco_db = fetch_one(
+            conn,
+            "SELECT id FROM preco_pizza WHERE sabor_id = %s AND tamanho_id = %s",
+            (id, i.tamanho_id),
+        )
         if preco_db:
-            preco_db.preco = i.preco
+            execute(conn, "UPDATE preco_pizza SET preco = %s WHERE id = %s", (i.preco, preco_db["id"]))
         else:
-            session.add(PrecoPizza(sabor_id=id, tamanho_id=i.tamanho_id, preco=i.preco))
+            execute(
+                conn,
+                "INSERT INTO preco_pizza (sabor_id, tamanho_id, preco) VALUES (%s, %s, %s)",
+                (id, i.tamanho_id, i.preco),
+            )
 
-    session.commit()
-    return {'mensagem': 'Produto editado com sucesso', 'produto': jsonable_encoder(produto)}
+    return {'mensagem': 'Produto editado com sucesso', 'produto': produto_atualizado}
 
 
 @produto_routes.patch('/produto/{id}/status')
 async def toggle_status(
     id: int,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    produto = session.query(Sabores).filter(Sabores.id == id).first()
-    if not produto:
+    resultado = fetch_one(
+        conn,
+        "UPDATE sabores SET ativo = NOT ativo WHERE id = %s RETURNING id, ativo",
+        (id,),
+    )
+    if not resultado:
         raise HTTPException(status_code=404, detail='Produto não encontrado')
 
-    produto.ativo = not produto.ativo
-    session.commit()
-    return {'id': id, 'ativo': produto.ativo}
+    return {'id': resultado["id"], 'ativo': resultado["ativo"]}
 
 
 @produto_routes.get('/listar/novo-produto/{id}')
 async def listar_produto(
     id: int,
     request: Request,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    produto = session.query(Sabores).filter(Sabores.id == id).first()
-    grade = session.query(GradeSabores).filter(GradeSabores.sabores_id == id).first()
-    precos = session.query(PrecoPizza).filter(PrecoPizza.sabor_id == id).all()
+    produto = fetch_one(conn, "SELECT * FROM sabores WHERE id = %s", (id,))
+    grade = fetch_one(conn, "SELECT grade_id FROM grade_sabores WHERE sabores_id = %s", (id,))
+    precos = fetch_all(conn, "SELECT id, sabor_id, tamanho_id, preco FROM preco_pizza WHERE sabor_id = %s", (id,))
 
     if not produto:
         raise HTTPException(status_code=404, detail='Produto não encontrado')
     if not grade:
         raise HTTPException(status_code=404, detail='Grade do produto não encontrada')
 
-    imagem_url = produto.imagem_url
+    imagem_url = produto["imagem_url"]
     if imagem_url and not imagem_url.startswith('http'):
         base_url = f"{request.url.scheme}://{request.url.netloc}"
         imagem_url = f'{base_url}{imagem_url}'
 
     return {
-        'id': produto.id,
-        'nome': produto.nome,
-        'descricao': produto.descricao,
-        'ativo': produto.ativo,
-        'categoria_id': produto.categoria_id,
-        'grade_id': grade.grade_id,
+        'id': produto["id"],
+        'nome': produto["nome"],
+        'descricao': produto["descricao"],
+        'ativo': produto["ativo"],
+        'categoria_id': produto["categoria_id"],
+        'grade_id': grade["grade_id"],
         'precos': precos,
         'imagem_url': imagem_url,
-        'disponivel_cardapio_normal': produto.disponivel_cardapio_normal,
-        'disponivel_monte_sua_pizza': produto.disponivel_monte_sua_pizza,
-        'permite_borda': produto.permite_borda,
-        'permite_ingrediente': produto.permite_ingrediente,
+        'disponivel_cardapio_normal': produto["disponivel_cardapio_normal"],
+        'disponivel_monte_sua_pizza': produto["disponivel_monte_sua_pizza"],
+        'permite_borda': produto["permite_borda"],
+        'permite_ingrediente': produto["permite_ingrediente"],
     }
 
 
 @produto_routes.get('/listar/todos-produtos')
 async def listar_todos_produtos(
     request: Request,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    produtos = session.query(Sabores).all()
+    produtos = fetch_all(conn, "SELECT * FROM sabores", ())
     base_url = f"{request.url.scheme}://{request.url.netloc}"
     return [
         {
-            'id': p.id,
-            'nome': p.nome,
-            'descricao': p.descricao,
-            'ativo': p.ativo,
-            'categoria_id': p.categoria_id,
-            'imagem_url': f'{base_url}{p.imagem_url}' if p.imagem_url and not p.imagem_url.startswith('http') else p.imagem_url,
+            'id': p["id"],
+            'nome': p["nome"],
+            'descricao': p["descricao"],
+            'ativo': p["ativo"],
+            'categoria_id': p["categoria_id"],
+            'disponivel_monte_sua_pizza': p["disponivel_monte_sua_pizza"],
+            'imagem_url': f'{base_url}{p["imagem_url"]}' if p["imagem_url"] and not p["imagem_url"].startswith('http') else p["imagem_url"],
         }
         for p in produtos
     ]
@@ -183,54 +207,31 @@ async def listar_todos_produtos(
 @produto_routes.delete('/deletar/sabor/{id}')
 async def deletar_sabor(
     id: int,
-    session: Session = Depends(pegar_sessao),
+    conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    sabor = session.query(Sabores).filter(Sabores.id == id).first()
+    sabor = fetch_one(conn, "SELECT * FROM sabores WHERE id = %s", (id,))
     if not sabor:
         raise HTTPException(status_code=404, detail='Sabor não encontrado')
 
-    if sabor.imagem_url and not sabor.imagem_url.startswith('http'):
-        caminho = sabor.imagem_url.lstrip('/')
+    if sabor["imagem_url"] and not sabor["imagem_url"].startswith('http'):
+        caminho = sabor["imagem_url"].lstrip('/')
         if os.path.exists(caminho):
             os.remove(caminho)
 
-    session.query(PrecoPizza).filter(PrecoPizza.sabor_id == id).delete()
-    session.delete(sabor)
-    session.commit()
-    return {'mensagem': 'Sabor deletado com sucesso'}
-
-@produto_routes.get('/listar/produtos-por-grade')
-async def produtos_por_grade(
-    request: Request,
-    session: Session = Depends(pegar_sessao),
-    usuario=Depends(verificar_adm)
-):
-    grades = session.query(Grade).order_by(Grade.posicao).all()
-    base_url = f"{request.url.scheme}://{request.url.netloc}"
-    resultado = []
-    for grade in grades:
-        sabores = (
-            session.query(Sabores)
-            .join(GradeSabores, GradeSabores.sabores_id == Sabores.id)
-            .filter(GradeSabores.grade_id == grade.id, Sabores.ativo == True)
-            .all()
+    execute(conn, "DELETE FROM preco_pizza WHERE sabor_id = %s", (id,))
+    # grade_sabores também referencia o sabor. No models.py original não
+    # tinha cascade nenhum aqui (nem essa limpeza manual) — no SQLite isso
+    # passava batido porque FK nunca foi validada de verdade lá (ver
+    # observação no schema.sql). No Postgres, sem essa linha, o DELETE de
+    # baixo ia falhar com violação de FK pra praticamente todo sabor.
+    execute(conn, "DELETE FROM grade_sabores WHERE sabores_id = %s", (id,))
+    try:
+        execute(conn, "DELETE FROM sabores WHERE id = %s", (id,))
+    except errors.ForeignKeyViolation:
+        conn.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail='Não é possível excluir: esse sabor já foi usado em pedidos ou faz parte de um produto de monte-sua-pizza',
         )
-        produtos = []
-        for s in sabores:
-            menor_preco = session.query(PrecoPizza).filter(PrecoPizza.sabor_id == s.id).order_by(PrecoPizza.preco).first()
-            imagem = f"{base_url}{s.imagem_url}" if s.imagem_url and not s.imagem_url.startswith("http") else s.imagem_url
-            produtos.append({
-                "id": s.id,
-                "nome": s.nome,
-                "descricao": s.descricao,
-                "imagem_url": imagem,
-                "menor_preco": menor_preco.preco if menor_preco else None,
-            })
-        resultado.append({
-            "grade_id": grade.id,
-            "grade_nome": grade.nome,
-            "posicao": grade.posicao,
-            "produtos": produtos,
-        })
-    return resultado
+    return {'mensagem': 'Sabor deletado com sucesso'}
