@@ -23,7 +23,7 @@ vi.mock("../../src/api/auth", () => ({
   upload_imagem: vi.fn(),
 }));
 
-import * as api from "../../src/api/auth";
+import * as api from "../../../src/api/auth";
 
 // NovoProduto usa useNavigate/useParams do react-router-dom, então
 // precisa ser renderizado dentro de um <MemoryRouter> -- fora de um
