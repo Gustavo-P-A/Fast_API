@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pizzaria_app
+      POSTGRES_PASSWORD: vitrasites1306
+      POSTGRES_DB: pizzaria
+    ports:
+      - "5432:5432"
+    volumes:
+      - pizzaria_pgdata:/var/lib/postgresql/data
+      # roda uma vez só, na primeira vez que o volume é criado (container novo/vazio).
+      # se você já tem o volume de um teste anterior, ver "resetar o banco local" no README.
+      - ./Fast_API/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pizzaria_app -d pizzaria"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pizzaria_pgdata:
