@@ -1,17 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { cardapio_por_grade } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { CartContext } from "../contexts/CartContext";
 import "../styles/Home.css";
 
 export function Home() {
   const [grades, setGrades] = useState([]);
   const navigate = useNavigate();
+  const { adicionarBebida } = useContext(CartContext);
 
   useEffect(() => {
     cardapio_por_grade()
       .then(data => setGrades(data || []))
       .catch(() => setGrades([]));
   }, []);
+
+  function abrirProduto(produto) {
+    if (produto.tipo === "bebida") return; // bebida só adiciona ao carrinho, não navega
+    if (produto.tipo === "monte_pizza") {
+      navigate(`/monte-pizza/${produto.id}`);
+    } else {
+      navigate(`/sabores/${produto.id}`);
+    }
+  }
+
+  function handleAdicionarBebida(e, produto) {
+    e.stopPropagation();
+    adicionarBebida({
+      item_simples_id: produto.id,
+      nome: produto.nome,
+      preco: produto.menor_preco,
+    }, 1);
+  }
 
   return (
     <div className="home-page">
@@ -21,26 +41,39 @@ export function Home() {
             {grade.posicao === 0 ? "⭐ " : ""}{grade.grade_nome}
           </h2>
           <div className="home-grid">
-            {grade.produtos.map(sabor => (
+            {grade.produtos.map(produto => (
               <div
-                key={sabor.id}
+                key={`${produto.tipo}-${produto.id}`}
                 className="home-card"
-                onClick={() => navigate(`/sabores/${sabor.id}`)}
+                onClick={() => abrirProduto(produto)}
               >
                 <div className="home-card-foto">
-                  {sabor.imagem_url
-                    ? <img src={sabor.imagem_url} alt={sabor.nome} />
-                    : <div className="home-card-sem-foto">🍕</div>
+                  {produto.imagem_url
+                    ? <img src={produto.imagem_url} alt={produto.nome} />
+                    : <div className="home-card-sem-foto">{produto.tipo === "bebida" ? "🥤" : "🍕"}</div>
                   }
                 </div>
                 <div className="home-card-info">
-                  <p className="home-card-nome">{sabor.nome}</p>
-                  <p className="home-card-descricao">{sabor.descricao}</p>
+                  <p className="home-card-nome">{produto.nome}</p>
+                  <p className="home-card-descricao">{produto.descricao}</p>
                   <p className="home-card-preco">
-                    {sabor.menor_preco
-                      ? <><span className="home-card-preco-label">A partir de </span>R$ {Number(sabor.menor_preco).toFixed(2).replace(".", ",")}</>
-                      : "Consulte o preço"}
+                    {produto.tipo === "bebida"
+                      ? <>R$ {Number(produto.menor_preco).toFixed(2).replace(".", ",")}</>
+                      : produto.menor_preco
+                        ? <><span className="home-card-preco-label">A partir de </span>R$ {Number(produto.menor_preco).toFixed(2).replace(".", ",")}</>
+                        : produto.tipo === "monte_pizza"
+                          ? "Monte do seu jeito"
+                          : "Consulte o preço"}
                   </p>
+                  {produto.tipo === "bebida" && (
+                    <button
+                      type="button"
+                      className="home-card-btn-adicionar"
+                      onClick={e => handleAdicionarBebida(e, produto)}
+                    >
+                      + Adicionar
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

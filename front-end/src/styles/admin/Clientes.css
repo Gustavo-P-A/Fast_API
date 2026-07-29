@@ -1,0 +1,404 @@
+/* --- LAYOUT DA PÁGINA --- */
+.cli-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cli-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cli-titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.cli-subtitulo {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* --- BOTÕES --- */
+.cli-btn-primary {
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.cli-btn-primary:hover {
+  background-color: #b91c1c;
+}
+
+.cli-btn-ghost {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.cli-btn-ghost:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* --- CARD PRINCIPAL --- */
+.cli-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* --- FILTROS --- */
+.cli-filtros {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cli-input {
+  flex: 0 1 300px;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.cli-input:focus {
+  border-color: #dc2626;
+}
+
+.cli-select {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.cli-select:focus {
+  border-color: #dc2626;
+}
+
+/* --- RESUMO --- */
+.cli-resumo-linha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cli-resumo-ativo {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.cli-resumo-inativo {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+/* --- TABELA --- */
+.cli-table-wrap {
+  overflow-x: auto;
+}
+
+.cli-table {
+  width: 100%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.cli-table th {
+  box-sizing: border-box;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 12px 14px;
+  border-bottom: 2px solid #f3f4f6;
+  white-space: nowrap;
+}
+
+.cli-table td {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.95rem;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.cli-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.cli-row-inativo {
+  opacity: 0.55;
+}
+
+/* Larguras das colunas reais: Cliente, E-mail, Pedidos, Gasto Total, Status, Ações, Filler */
+.cli-table th:nth-child(1),
+.cli-table td:nth-child(1) {
+  width: 240px;
+  padding-left: 22px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.cli-table th:nth-child(2),
+.cli-table td:nth-child(2) {
+  width: 280px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.cli-table th:nth-child(3),
+.cli-table td:nth-child(3) {
+  width: 110px;
+}
+
+.cli-table th:nth-child(4),
+.cli-table td:nth-child(4) {
+  width: 150px;
+}
+
+.cli-table th:nth-child(5),
+.cli-table td:nth-child(5) {
+  width: 150px;
+}
+
+.cli-table th:nth-child(6),
+.cli-table td:nth-child(6) {
+  width: 190px;
+}
+
+.cli-col-filler {
+  width: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* .cli-table th define text-align:left com especificidade maior que
+   .text-center sozinha, então sem isto o cabeçalho Status/Ações ficava
+   à esquerda mesmo com className="text-center". */
+.cli-table th.text-center {
+  text-align: center;
+}
+
+.cli-vazio {
+  text-align: center;
+  padding: 40px 0;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.cli-nome {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.cli-desc {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* --- IMAGEM / THUMB --- */
+.cli-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f3f4f6;
+}
+
+.cli-thumb-empty {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+/* --- STATUS --- */
+.cli-btn-status {
+  display: inline-block;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.cli-btn-status:hover {
+  opacity: 0.85;
+}
+
+.cli-status-ativo {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.cli-status-inativo {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* --- AÇÕES --- */
+.cli-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.cli-btn-edit {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cli-btn-edit:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.cli-btn-delete {
+  background: transparent;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cli-btn-delete:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* --- CARDS DE STATUS --- */
+.cli-status-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.cli-status-card {
+  background: #fafafa;
+  border: 1px solid #f3f4f6;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.cli-status-card-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1f2937;
+  display: block;
+}
+
+.cli-status-card-label {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* --- AVATAR DO CLIENTE --- */
+.cli-cliente-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cli-cliente-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #dc2626;
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* --- LINHA EXPANSÍVEL (histórico de pedidos) --- */
+.cli-expand-header {
+  cursor: pointer;
+}
+
+.cli-expand {
+  background: #fafafa;
+}
+
+.cli-table-inner {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cli-table-inner td {
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  border-bottom: 1px solid #f0f0f0;
+}

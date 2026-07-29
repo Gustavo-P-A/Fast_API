@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
+import "../../styles/admin/Ingredientes.css";
 import { listar_item_simples, toggle_status_item_simples, deletar_item_simples } from "../../api/auth";
-import { ModalIngrediente } from "../../components/ingrediente/ModalIngrediente";
-import "../../styles/AdminPaginas.css";
+import { ModalIngrediente } from "../../components/Ingrediente/ModalIngrediente";
 
 export function AdminIngredientes() {
   const [ingredientes, setIngredientes] = useState([]);
@@ -54,72 +54,81 @@ export function AdminIngredientes() {
   });
 
   return (
-    <div className="ap-page">
-      <div className="ap-header">
+    <div className="ing-page">
+      <div className="ing-header">
         <div>
-          <h1 className="ap-titulo">Ingredientes</h1>
-          <p className="ap-subtitulo">Gerencie os ingredientes do cardápio.</p>
+          <h1 className="ing-titulo">Adicionais</h1>
+          <p className="ing-subtitulo">Gerencie os adicionais do cardápio.</p>
         </div>
-        <button className="ap-btn-primary" onClick={abrirNovo}>+ Novo Ingrediente</button>
+        <button className="ing-btn-primary" onClick={abrirNovo}>+ Novo Adicional</button>
       </div>
 
-      <div className="ap-card">
-        <div className="ap-filtros">
+      <div className="ing-card">
+        <div className="ing-filtros">
           <input
-            className="ap-input"
+            className="ing-input"
             placeholder="Buscar por nome..."
             value={filtroNome}
             onChange={e => setFiltroNome(e.target.value)}
           />
-          <select className="ap-select" value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
+          <select className="ing-select" value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
             <option value="">Todos</option>
             <option value="ativo">Ativos</option>
             <option value="inativo">Inativos</option>
           </select>
-          <button className="ap-btn-ghost" onClick={() => { setFiltroNome(""); setFiltroStatus(""); }}>
+          <button className="ing-btn-ghost" onClick={() => { setFiltroNome(""); setFiltroStatus(""); }}>
             Limpar
           </button>
         </div>
 
-        <div className="ap-resumo-linha">
+        <div className="ing-resumo-linha">
           <span>{ingredientesFiltrados.length} ingrediente(s)</span>
-          <span className="ap-resumo-ativo">{ingredientes.filter(i => i.ativo).length} ativos</span>
-          <span className="ap-resumo-inativo">{ingredientes.filter(i => !i.ativo).length} inativos</span>
+          <span className="ing-resumo-ativo">{ingredientes.filter(i => i.ativo).length} ativos</span>
+          <span className="ing-resumo-inativo">{ingredientes.filter(i => !i.ativo).length} inativos</span>
         </div>
 
-        <div className="ap-table-wrap">
-          <table className="ap-table">
+        <div className="ing-table-wrap">
+          <table className="ing-table ing-table-ingredientes">
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              <col className="ing-col-filler" />
+            </colgroup>
             <thead>
               <tr>
                 <th>Nome</th>
                 <th>Preço</th>
                 <th className="text-center">Status</th>
                 <th className="text-center">Ações</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {carregando && <tr><td colSpan={4} className="ap-vazio">Carregando...</td></tr>}
+              {carregando && <tr><td colSpan={5} className="ing-vazio">Carregando...</td></tr>}
               {!carregando && ingredientesFiltrados.length === 0 && (
-                <tr><td colSpan={4} className="ap-vazio">Nenhum ingrediente encontrado.</td></tr>
+                <tr><td colSpan={5} className="ing-vazio">Nenhum adicional encontrado.</td></tr>
               )}
               {!carregando && ingredientesFiltrados.map(i => (
-                <tr key={i.id} className={!i.ativo ? "ap-row-inativo" : ""}>
-                  <td className="ap-nome">{i.nome}</td>
+                <tr key={i.id} className={!i.ativo ? "ing-row-inativo" : ""}>
+                  <td className="ing-nome">{i.nome}</td>
                   <td>R$ {i.preco.toFixed(2)}</td>
                   <td className="text-center">
                     <button
-                      className={`ap-btn-status ${i.ativo ? "ap-status-ativo" : "ap-status-inativo"}`}
+                      className={`ing-btn-status ${i.ativo ? "ing-status-ativo" : "ing-status-inativo"}`}
                       onClick={() => handleToggle(i.id)}
                     >
                       {i.ativo ? "Ativo" : "Inativo"}
                     </button>
                   </td>
                   <td className="text-center">
-                    <div className="ap-acoes">
-                      <button className="ap-btn-edit" onClick={() => abrirEdicao(i)}>Editar</button>
-                      <button className="ap-btn-delete" onClick={() => handleDeletar(i.id)}>Excluir</button>
+                    <div className="ing-acoes">
+                      <button className="ing-btn-edit" onClick={() => abrirEdicao(i)}>Editar</button>
+                      <button className="ing-btn-delete" onClick={() => handleDeletar(i.id)}>Excluir</button>
                     </div>
                   </td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>
