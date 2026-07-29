@@ -1,0 +1,123 @@
+.mmp-page {
+  padding-bottom: 0;
+}
+
+.mmp-foto-central img {
+  object-fit: cover;
+}
+
+.mmp-titulo-central,
+.mmp-desc-central {
+  text-align: center;
+}
+
+.mmp-passos {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0 24px;
+  flex-wrap: wrap;
+}
+
+.mmp-passo {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #aaa;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.mmp-passo-ativo {
+  color: #d32f2f;
+  border-bottom-color: #d32f2f;
+}
+
+.mmp-secao {
+  margin-top: 8px;
+}
+
+.mmp-sabores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin: 16px 0 24px;
+}
+
+.mmp-sabor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border: 2px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+  text-align: center;
+}
+
+.mmp-sabor-card:hover:not(:disabled) {
+  border-color: #d32f2f;
+}
+
+.mmp-sabor-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.mmp-sabor-sem-foto {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+.mmp-sabor-selecionado {
+  border-color: #d32f2f;
+  background: #fff5f5;
+}
+
+.mmp-sabor-bloqueado {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mmp-botoes-passo {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.mmp-bebidas-carrossel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 0 16px;
+}
+
+.mmp-bebida-card {
+  flex: 0 0 auto;
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.mmp-bebida-card img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+}
