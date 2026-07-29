@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { NovoProduto } from "../../../src/pages/NovoProduto";
+import { NovoProduto } from "../../../src/pages/Admin/NovoProduto";
 
 // ── Mock da camada de API ──
 // NovoProduto.jsx importa várias funções de "../api/auth". Em vez de
