@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
+import "../../styles/admin/Clientes.css";
 import { listar_clientes_admin, pedidos_do_cliente } from "../../api/auth";
-import "../../styles/AdminPaginas.css";
 
 export function AdminClientes() {
   const [clientes, setClientes] = useState([]);
@@ -44,54 +44,63 @@ export function AdminClientes() {
   );
 
   return (
-    <div className="ap-page">
-      <div className="ap-header">
+    <div className="cli-page">
+      <div className="cli-header">
         <div>
-          <h1 className="ap-titulo">Clientes</h1>
-          <p className="ap-subtitulo">Gerencie seus clientes e acompanhe suas informações.</p>
+          <h1 className="cli-titulo">Clientes</h1>
+          <p className="cli-subtitulo">Gerencie seus clientes e acompanhe suas informações.</p>
         </div>
       </div>
 
       {/* Resumo */}
-      <div className="ap-status-cards">
-        <div className="ap-status-card">
-          <span className="ap-status-card-num">{clientes.length}</span>
-          <span className="ap-status-card-label">Total de Clientes</span>
+      <div className="cli-status-cards">
+        <div className="cli-status-card">
+          <span className="cli-status-card-num">{clientes.length}</span>
+          <span className="cli-status-card-label">Total de Clientes</span>
         </div>
-        <div className="ap-status-card">
-          <span className="ap-status-card-num" style={{ color: "#16a34a" }}>
+        <div className="cli-status-card">
+          <span className="cli-status-card-num" style={{ color: "#16a34a" }}>
             {clientes.filter(c => c.ativo).length}
           </span>
-          <span className="ap-status-card-label">Clientes Ativos</span>
+          <span className="cli-status-card-label">Clientes Ativos</span>
         </div>
-        <div className="ap-status-card">
-          <span className="ap-status-card-num" style={{ color: "#dc2626" }}>
+        <div className="cli-status-card">
+          <span className="cli-status-card-num" style={{ color: "#dc2626" }}>
             {clientes.filter(c => !c.ativo).length}
           </span>
-          <span className="ap-status-card-label">Clientes Inativos</span>
+          <span className="cli-status-card-label">Clientes Inativos</span>
         </div>
-        <div className="ap-status-card">
-          <span className="ap-status-card-num">
+        <div className="cli-status-card">
+          <span className="cli-status-card-num">
             R$ {clientes.reduce((acc, c) => acc + (c.gasto_total || 0), 0).toFixed(2)}
           </span>
-          <span className="ap-status-card-label">Faturamento Total</span>
+          <span className="cli-status-card-label">Faturamento Total</span>
         </div>
       </div>
 
-      <div className="ap-card">
-        <div className="ap-filtros">
+      <div className="cli-card">
+        <div className="cli-filtros">
           <input
-            className="ap-input"
+            className="cli-input"
             placeholder="Buscar por nome ou e-mail..."
             value={busca}
             onChange={e => setBusca(e.target.value)}
           />
-          <button className="ap-btn-ghost" onClick={() => setBusca("")}>Limpar</button>
-          <span className="ap-resumo-linha">{clientesFiltrados.length} cliente(s)</span>
+          <button className="cli-btn-ghost" onClick={() => setBusca("")}>Limpar</button>
+          <span className="cli-resumo-linha">{clientesFiltrados.length} cliente(s)</span>
         </div>
 
-        <div className="ap-table-wrap">
-          <table className="ap-table">
+        <div className="cli-table-wrap">
+          <table className="cli-table cli-table-clientes">
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col className="cli-col-filler" />
+            </colgroup>
             <thead>
               <tr>
                 <th>Cliente</th>
@@ -100,55 +109,57 @@ export function AdminClientes() {
                 <th className="text-center">Gasto Total</th>
                 <th className="text-center">Status</th>
                 <th className="text-center">Ações</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {carregando && (
-                <tr><td colSpan={6} className="ap-vazio">Carregando...</td></tr>
+                <tr><td colSpan={7} className="cli-vazio">Carregando...</td></tr>
               )}
               {!carregando && clientesFiltrados.length === 0 && (
-                <tr><td colSpan={6} className="ap-vazio">Nenhum cliente encontrado.</td></tr>
+                <tr><td colSpan={7} className="cli-vazio">Nenhum cliente encontrado.</td></tr>
               )}
               {!carregando && clientesFiltrados.map(c => (
                 <>
-                  <tr key={c.id} className={!c.ativo ? "ap-row-inativo" : ""}>
+                  <tr key={c.id} className={!c.ativo ? "cli-row-inativo" : ""}>
                     <td>
-                      <div className="ap-cliente-info">
-                        <div className="ap-cliente-avatar">{c.nome[0].toUpperCase()}</div>
-                        <span className="ap-nome">{c.nome}</span>
+                      <div className="cli-cliente-info">
+                        <div className="cli-cliente-avatar">{c.nome[0].toUpperCase()}</div>
+                        <span className="cli-nome">{c.nome}</span>
                       </div>
                     </td>
-                    <td className="ap-desc">{c.email}</td>
+                    <td className="cli-desc">{c.email}</td>
                     <td className="text-center">{c.total_pedidos}</td>
-                    <td className="text-center ap-nome">R$ {c.gasto_total.toFixed(2)}</td>
+                    <td className="text-center cli-nome">R$ {c.gasto_total.toFixed(2)}</td>
                     <td className="text-center">
-                      <span className={`ap-btn-status ${c.ativo ? "ap-status-ativo" : "ap-status-inativo"}`}>
+                      <span className={`cli-btn-status ${c.ativo ? "cli-status-ativo" : "cli-status-inativo"}`}>
                         {c.ativo ? "Ativo" : "Inativo"}
                       </span>
                     </td>
                     <td className="text-center">
                       <button
-                        className="ap-btn-edit"
+                        className="cli-btn-edit"
                         onClick={() => handleVerPedidos(c)}
                       >
                         {clienteSelecionado?.id === c.id ? "Fechar" : "Ver Pedidos"}
                       </button>
                     </td>
+                    <td></td>
                   </tr>
 
                   {/* Linha expandida com pedidos do cliente */}
                   {clienteSelecionado?.id === c.id && (
                     <tr key={`pedidos-${c.id}`}>
-                      <td colSpan={6} className="ap-expand">
-                        <div className="ap-expand-header">
+                      <td colSpan={7} className="cli-expand">
+                        <div className="cli-expand-header">
                           <strong>Pedidos de {c.nome}</strong>
                         </div>
                         {carregandoPedidos ? (
-                          <p className="ap-vazio">Carregando pedidos...</p>
+                          <p className="cli-vazio">Carregando pedidos...</p>
                         ) : pedidos.length === 0 ? (
-                          <p className="ap-vazio">Nenhum pedido encontrado.</p>
+                          <p className="cli-vazio">Nenhum pedido encontrado.</p>
                         ) : (
-                          <table className="ap-table ap-table-inner">
+                          <table className="cli-table cli-table-inner">
                             <thead>
                               <tr>
                                 <th>#</th>

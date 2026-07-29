@@ -1,13 +1,23 @@
 import { useState, useEffect } from "react";
+import "../../styles/admin/AdminLista.css";
 import {
-  listar_todos_produtos, listar_categoria,
-  listar_grade, listar_produtos_por_grade, mover_produtos_grade,
+  listar_todos_produtos,
+  listar_categoria,
+  listar_grade,
+  listar_produtos_por_grade,
+  mover_produtos_grade,
+  listar_monte_pizza,
+  listar_item_simples,
 } from "../../api/auth";
-import { PreviewCardapio } from "../../components/produto/PreviewCardapio";
-import "../../styles/AdminPaginas.css";
+import { PreviewCardapio } from "../../components/grades/PreviewCardapio";
+import { FiltrosGrades } from "../../components/grades/FiltrosGrades";
+import { BarraMovimentacaoGrade } from "../../components/grades/BarraMovimentacaoGrade";
+import { TabelaGrades } from "../../components/grades/TabelaGrades";
 
 export function AdminGrades() {
   const [produtos, setProdutos] = useState([]);
+  const [montePizzas, setMontePizzas] = useState([]);
+  const [bebidas, setBebidas] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [grades, setGrades] = useState([]);
   const [preview, setPreview] = useState([]);
@@ -15,55 +25,109 @@ export function AdminGrades() {
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroIdMin, setFiltroIdMin] = useState("");
   const [filtroIdMax, setFiltroIdMax] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
   const [selecionados, setSelecionados] = useState([]);
   const [gradeDestino, setGradeDestino] = useState("");
   const [movendo, setMovendo] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
-  useEffect(() => { buscar(); }, []);
+  useEffect(() => {
+    buscar();
+  }, []);
 
   async function buscar() {
     setCarregando(true);
     try {
-      const [prods, cats, grs, prev] = await Promise.all([
-        listar_todos_produtos(), listar_categoria(),
-        listar_grade(), listar_produtos_por_grade(),
+      const [prods, cats, grs, prev, mps, bebs] = await Promise.all([
+        listar_todos_produtos(),
+        listar_categoria(),
+        listar_grade(),
+        listar_produtos_por_grade(),
+        listar_monte_pizza(),
+        listar_item_simples("BEBIDA"),
       ]);
+
       setProdutos(prods);
       setCategorias(cats);
       setGrades(grs.slice().sort((a, b) => a.posicao - b.posicao));
       setPreview(prev);
+      setMontePizzas(mps);
+      setBebidas(bebs);
     } finally {
       setCarregando(false);
     }
   }
 
   const produtoGradeMap = Object.fromEntries(
-    preview.flatMap(g => g.produtos.map(p => [p.id, { nome: g.grade_nome, posicao: g.posicao }]))
+    preview.flatMap((g) =>
+      g.produtos.map((p) => [
+        `${p.tipo}-${p.id}`,
+        { nome: g.grade_nome, posicao: g.posicao },
+      ])
+    )
   );
 
-  // ← declaração única com todos os filtros
-  const produtosFiltrados = produtos.filter(p => {
+  const listaUnificada = [
+    ...produtos.map((p) => ({ ...p, tipo: "sabor" })),
+    ...montePizzas.map((mp) => ({
+      id: mp.id,
+      nome: mp.nome,
+      descricao: `${mp.tamanho_nome} — até ${mp.qtd_sabores_efetiva} sabor(es)`,
+      imagem_url: mp.imagem_url,
+      ativo: mp.ativo,
+      categoria_id: mp.categoria_id,
+      tipo: "monte_pizza",
+    })),
+    ...bebidas.map((b) => ({
+      id: b.id,
+      nome: b.nome,
+      descricao: b.descricao || `R$ ${Number(b.preco).toFixed(2)}`,
+      imagem_url: b.imagem_url,
+      ativo: b.ativo,
+      categoria_id: b.categoria_id,
+      tipo: "bebida",
+    })),
+  ];
+
+  const produtosFiltrados = listaUnificada.filter((p) => {
     const catOk = filtroCategoria ? String(p.categoria_id) === filtroCategoria : true;
     const statusOk = filtroStatus === "" ? true : filtroStatus === "ativo" ? p.ativo : !p.ativo;
     const idMinOk = filtroIdMin !== "" ? p.id >= Number(filtroIdMin) : true;
     const idMaxOk = filtroIdMax !== "" ? p.id <= Number(filtroIdMax) : true;
-    return catOk && statusOk && idMinOk && idMaxOk;
+    const tipoOk = filtroTipo ? p.tipo === filtroTipo : true;
+    return catOk && statusOk && idMinOk && idMaxOk && tipoOk;
   });
 
   const todosSelecionados =
     produtosFiltrados.length > 0 && selecionados.length === produtosFiltrados.length;
 
-  function handleCheckbox(id) {
-    setSelecionados(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]);
+  function handleCheckbox(tipo, id) {
+    setSelecionados((prev) => {
+      const existe = prev.some((s) => s.tipo === tipo && s.id === id);
+      return existe
+        ? prev.filter((s) => !(s.tipo === tipo && s.id === id))
+        : [...prev, { tipo, id }];
+    });
+  }
+
+  function handleSelecionarTodos() {
+    setSelecionados(
+      todosSelecionados ? [] : produtosFiltrados.map((p) => ({ tipo: p.tipo, id: p.id }))
+    );
   }
 
   async function handleMoverGrade() {
     if (!gradeDestino) return alert("Selecione a grade destino.");
     if (!selecionados.length) return alert("Selecione ao menos um produto.");
+
     setMovendo(true);
     try {
-      await mover_produtos_grade(selecionados, Number(gradeDestino));
+      const sabor_ids = selecionados.filter((s) => s.tipo === "sabor").map((s) => s.id);
+      const monte_pizza_ids = selecionados.filter((s) => s.tipo === "monte_pizza").map((s) => s.id);
+      const item_simples_ids = selecionados.filter((s) => s.tipo === "bebida").map((s) => s.id);
+
+      await mover_produtos_grade(sabor_ids, Number(gradeDestino), monte_pizza_ids, item_simples_ids);
+
       setSelecionados([]);
       setGradeDestino("");
       await buscar();
@@ -79,6 +143,7 @@ export function AdminGrades() {
     setFiltroStatus("");
     setFiltroIdMin("");
     setFiltroIdMax("");
+    setFiltroTipo("");
   }
 
   return (
@@ -92,117 +157,40 @@ export function AdminGrades() {
         </div>
 
         <div className="ap-card">
-          <div className="ap-filtros">
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: "0.85rem", color: "#888", whiteSpace: "nowrap" }}>ID</span>
-              <input
-                className="ap-input"
-                style={{ width: 70 }}
-                type="number"
-                placeholder="de"
-                value={filtroIdMin}
-                onChange={e => setFiltroIdMin(e.target.value)}
-              />
-              <span style={{ color: "#888", fontSize: "0.85rem" }}>até</span>
-              <input
-                className="ap-input"
-                style={{ width: 70 }}
-                type="number"
-                placeholder="9999"
-                value={filtroIdMax}
-                onChange={e => setFiltroIdMax(e.target.value)}
-              />
-            </div>
+          <FiltrosGrades
+            categorias={categorias}
+            filtroCategoria={filtroCategoria} setFiltroCategoria={setFiltroCategoria}
+            filtroTipo={filtroTipo} setFiltroTipo={setFiltroTipo}
+            filtroStatus={filtroStatus} setFiltroStatus={setFiltroStatus}
+            filtroIdMin={filtroIdMin} setFiltroIdMin={setFiltroIdMin}
+            filtroIdMax={filtroIdMax} setFiltroIdMax={setFiltroIdMax}
+            onLimpar={limparFiltros}
+          />
 
-            <select className="ap-select" value={filtroCategoria} onChange={e => setFiltroCategoria(e.target.value)}>
-              <option value="">Todas categorias</option>
-              {categorias.map(c => <option key={c.id} value={String(c.id)}>{c.nome}</option>)}
-            </select>
-
-            <select className="ap-select" value={filtroStatus} onChange={e => setFiltroStatus(e.target.value)}>
-              <option value="">Todos</option>
-              <option value="ativo">Ativos</option>
-              <option value="inativo">Inativos</option>
-            </select>
-
-            <button className="ap-btn-ghost" onClick={limparFiltros}>Limpar</button>
-          </div>
-
-          {selecionados.length > 0 && (
-            <div className="ap-massa-bar">
-              <span className="ap-massa-info">{selecionados.length} produto(s) selecionado(s)</span>
-              <select className="ap-select" value={gradeDestino} onChange={e => setGradeDestino(e.target.value)}>
-                <option value="">Mover para grade...</option>
-                {grades.map(g => (
-                  <option key={g.id} value={String(g.id)}>
-                    {g.posicao === 0 ? `⭐ ${g.nome} (Promoção)` : `${g.nome} — Pos. ${g.posicao}`}
-                  </option>
-                ))}
-              </select>
-              <button className="ap-btn-primary" onClick={handleMoverGrade} disabled={movendo}>
-                {movendo ? "Movendo..." : "Confirmar"}
-              </button>
-              <button className="ap-btn-ghost" onClick={() => setSelecionados([])}>Cancelar</button>
-            </div>
-          )}
+          <BarraMovimentacaoGrade
+            selecionados={selecionados}
+            grades={grades}
+            gradeDestino={gradeDestino}
+            setGradeDestino={setGradeDestino}
+            movendo={movendo}
+            onConfirmar={handleMoverGrade}
+            onCancelar={() => setSelecionados([])}
+          />
 
           <div className="ap-resumo-linha">
             <span>{produtosFiltrados.length} produto(s)</span>
           </div>
 
-          <div className="ap-table-wrap">
-            <table className="ap-table">
-              <thead>
-                <tr>
-                  <th>
-                    <input type="checkbox" checked={todosSelecionados}
-                      onChange={() => todosSelecionados ? setSelecionados([]) : setSelecionados(produtosFiltrados.map(p => p.id))} />
-                  </th>
-                  <th>ID</th>
-                  <th>Produto</th>
-                  <th>Categoria</th>
-                  <th>Grade Atual</th>
-                  <th className="text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {carregando && <tr><td colSpan={6} className="ap-vazio">Carregando...</td></tr>}
-                {!carregando && produtosFiltrados.length === 0 && (
-                  <tr><td colSpan={6} className="ap-vazio">Nenhum produto encontrado.</td></tr>
-                )}
-                {!carregando && produtosFiltrados.map(p => {
-                  const gradeInfo = produtoGradeMap[p.id];
-                  const catNome = categorias.find(c => c.id === p.categoria_id)?.nome || "—";
-                  return (
-                    <tr key={p.id} className={[!p.ativo ? "ap-row-inativo" : "", selecionados.includes(p.id) ? "ap-row-selecionado" : ""].join(" ")}>
-                      <td><input type="checkbox" checked={selecionados.includes(p.id)} onChange={() => handleCheckbox(p.id)} /></td>
-                      <td style={{ color: "#aaa", fontSize: "0.85rem", fontWeight: 600 }}>#{p.id}</td>
-                      <td>
-                        <div className="ag-produto-cell">
-                          {p.imagem_url ? <img src={p.imagem_url} alt={p.nome} className="ap-thumb" /> : <div className="ap-thumb-empty">🍕</div>}
-                          <div>
-                            <div className="ap-nome">{p.nome}</div>
-                            <div className="ap-desc">{p.descricao}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td><span className="ag-badge-cat">{catNome}</span></td>
-                      <td>
-                        {gradeInfo
-                          ? <span className="ag-badge-grade">{gradeInfo.posicao === 0 ? "⭐ " : ""}{gradeInfo.nome}</span>
-                          : <span className="ag-sem-grade">Sem grade</span>}
-                      </td>
-                      <td className="text-center">
-                        <span className={`ap-btn-status ${p.ativo ? "ap-status-ativo" : "ap-status-inativo"}`}>
-                          {p.ativo ? "Ativo" : "Inativo"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <TabelaGrades
+            produtos={produtosFiltrados}
+            categorias={categorias}
+            produtoGradeMap={produtoGradeMap}
+            carregando={carregando}
+            selecionados={selecionados}
+            todosSelecionados={todosSelecionados}
+            onSelecionarTodos={handleSelecionarTodos}
+            onCheckbox={handleCheckbox}
+          />
         </div>
       </div>
 

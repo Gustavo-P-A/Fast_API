@@ -1,0 +1,342 @@
+/* --- LAYOUT DA PÁGINA --- */
+.bor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bor-titulo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.bor-subtitulo {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 4px 0 0;
+}
+
+/* --- BOTÕES --- */
+.bor-btn-primary {
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.bor-btn-primary:hover {
+  background-color: #b91c1c;
+}
+
+.bor-btn-ghost {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.bor-btn-ghost:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+/* --- CARD PRINCIPAL --- */
+.bor-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #f3f4f6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* --- FILTROS --- */
+.bor-filtros {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.bor-input {
+  flex: 0 1 300px;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.bor-input:focus {
+  border-color: #dc2626;
+}
+
+.bor-select {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.bor-select:focus {
+  border-color: #dc2626;
+}
+
+/* --- RESUMO --- */
+.bor-resumo-linha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.bor-resumo-ativo {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.bor-resumo-inativo {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+/* --- TABELA --- */
+.bor-table-wrap {
+  overflow-x: auto;
+}
+
+.bor-table {
+  width: 100%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.bor-table th {
+  box-sizing: border-box;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 12px 14px;
+  border-bottom: 2px solid #f3f4f6;
+  white-space: nowrap;
+}
+
+.bor-table td {
+  box-sizing: border-box;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.95rem;
+  color: #374151;
+  vertical-align: middle;
+}
+
+.bor-table tbody tr:hover {
+  background-color: #fafafa;
+}
+
+.bor-row-inativo {
+  opacity: 0.55;
+}
+
+/* Larguras das colunas reais: Nome, Preços por tamanho, Status, Ações, Filler */
+.bor-table th:nth-child(1),
+.bor-table td:nth-child(1) {
+  width: 260px;
+  padding-left: 22px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.bor-table th:nth-child(2),
+.bor-table td:nth-child(2) {
+  width: 360px;
+  padding-left: 22px;
+}
+
+.bor-table th:nth-child(3),
+.bor-table td:nth-child(3) {
+  width: 160px;
+}
+
+.bor-table th:nth-child(4),
+.bor-table td:nth-child(4) {
+  width: 240px;
+}
+
+.bor-col-filler {
+  width: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* .bor-table th define text-align:left com especificidade maior que
+   .text-center sozinha, então sem isto o cabeçalho Status/Ações ficava
+   à esquerda mesmo com className="text-center". */
+.bor-table th.text-center {
+  text-align: center;
+}
+
+.bor-vazio {
+  text-align: center;
+  padding: 40px 0;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.bor-nome {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* --- IMAGEM / THUMB --- */
+.bor-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f3f4f6;
+}
+
+.bor-thumb-empty {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+/* --- STATUS --- */
+.bor-btn-status {
+  display: inline-block;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.bor-btn-status:hover {
+  opacity: 0.85;
+}
+
+.bor-status-ativo {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.bor-status-inativo {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* --- AÇÕES --- */
+.bor-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+
+.bor-btn-edit {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bor-btn-edit:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.bor-btn-delete {
+  background: transparent;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bor-btn-delete:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* --- PREÇOS POR TAMANHO --- */
+.bor-precos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: #4b5563;
+}
+
+.bor-ag-badge-grade {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.bor-ag-sem-grade {
+  color: #d1d5db;
+  font-style: italic;
+}

@@ -8,7 +8,7 @@ import { getImagemUrl } from "../../api/axios";
 import { ModalCriarCategoria } from "../produto/ModalCriarCategoria";
 import { ModalCriarGrade } from "../produto/ModalCriarGrade";
 import { SelectComCriar } from "../produto/SelectComCriar";
-import "../../styles/NovoProduto.css";
+import "../../styles/admin/NovoProduto.css";
 
 export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeholderDescricao, iconePreview }) {
   const { id } = useParams();
