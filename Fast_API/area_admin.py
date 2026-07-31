@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from database import pegar_conexao, fetch_one, fetch_all, execute, ConnCommitRoute
 from dependsadm import verificar_adm
-from calculos import qtd_sabores_efetiva
 from schemas import GradeCriarSchema, TamanhosSchema, AdicionaisSchema, PrecoAdicionalSchema, GradeSchema, GradeSaboresSchema, CategoriaSchema
 from psycopg import errors
 from enum import Enum
