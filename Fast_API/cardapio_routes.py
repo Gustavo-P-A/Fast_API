@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 from database import pegar_conexao, fetch_one, fetch_all, ConnCommitRoute
 from calculos import qtd_sabores_efetiva
-from schemas import AdicionaisSchema, SaboresResponseSchema, SaboresVisualizacaoSchema, TamanhosSchema, TamanhoPublicoSchema, PrecoPizzaResponseSchema, PrecoAdicionalResponseSchema
+from schemas import AdicionaisSchema, SaboresResponseSchema, SaboresVisualizacaoSchema, TamanhoPublicoSchema, PrecoPizzaResponseSchema, PrecoAdicionalResponseSchema
 
 cardapio_routes = APIRouter(prefix='/cardapio', tags=['/cardapio'], route_class=ConnCommitRoute)
 

@@ -12,7 +12,7 @@ import { NovoProduto } from "../../../src/pages/Admin/NovoProduto";
 // O caminho no vi.mock() precisa ser o MESMO caminho usado dentro do
 // arquivo que está sendo testado (relativo ao arquivo de origem,
 // não ao teste) -- é assim que o Vitest sabe qual import interceptar.
-vi.mock("../../src/api/auth", () => ({
+vi.mock("../../../src/api/auth", () => ({
   listar_categoria: vi.fn(),
   listar_grade: vi.fn(),
   listar_tamanho: vi.fn(),

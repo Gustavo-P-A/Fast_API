@@ -328,7 +328,7 @@ class TestTogglaEEditarEDeletar:
 
     def test_deletar_remove_produto_e_vinculos_em_cascata(self, client, db_conn):
         categoria, grade, tamanho = _criar_base(db_conn)
-        sabor = _criar_sabor(db_conn, "Calabresa", tamanho["id"], preco=40.0)
+        _criar_sabor(db_conn, "Calabresa", tamanho["id"], preco=40.0)
         produto_id = _criar_produto_monte_pizza(client, tamanho["id"], categoria["id"], grade["id"])
         client.post(f"/admin/monte-pizza/{produto_id}/sabores/importar-automatico")
 
