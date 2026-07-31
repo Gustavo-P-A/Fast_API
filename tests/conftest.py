@@ -5,7 +5,7 @@ automaticamente, não precisa importar em lugar nenhum).
 Ideia central: cada teste roda dentro de uma transação Postgres que
 nunca é commitada -- ao final do teste, um ROLLBACK desfaz tudo, então
 o próximo teste começa limpo, sem precisar recriar tabela a cada vez.
-O schema (as 21 tabelas de sql/schema.sql) é recriado do zero uma vez
+O schema (as 20 tabelas de sql/schema.sql) é recriado do zero uma vez
 por sessão de testes.
 
 Precisa de um Postgres acessível via TEST_DATABASE_URL (default: banco

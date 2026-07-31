@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
-from database import pegar_conexao, fetch_one, execute, ConnCommitRoute
+from database import pegar_conexao, fetch_one, ConnCommitRoute
 from core.security import criar_token, hash_password, verify_password, verificar_refresh_token, verificar_token
 from core.settings import settings
 from core.limiter import limiter
