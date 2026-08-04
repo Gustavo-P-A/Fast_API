@@ -75,14 +75,14 @@
 .np-grid-principal{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:24px;
+    gap:22px;
     align-items:start;
 }
 
 .np-coluna{
     display:flex;
     flex-direction:column;
-    gap:24px;
+    gap:22px;
 }
 
 /* =======================================================
@@ -150,7 +150,7 @@
 .np-input,
 .np-select,
 .np-textarea{
-
+ 
     width:100%;
     box-sizing:border-box;
 
@@ -218,8 +218,8 @@
 
 .np-upload-area{
 
-    min-height:180px;
-
+    min-height:0;
+    max-height:180px;
     display:flex;
     justify-content:center;
     align-items:center;
@@ -273,13 +273,10 @@
 }
 
 .np-img-preview{
-
     width:100%;
-
-    aspect-ratio:16/9;
-
+    height:180px;
+    aspect-ratio:unset;
     object-fit:cover;
-
 }
 
 .np-remover-img{
@@ -288,6 +285,14 @@
 
     color:var(--primary);
 
+}
+
+.np-subsecao{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    padding-top:20px;
+    border-top:1px solid var(--border-light);
 }
 
 /* =======================================================
@@ -712,6 +717,59 @@
 
 .np-table-wrap{
     overflow-x:auto;
+}
+
+.np-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.9rem;
+}
+
+.np-table thead th{
+    text-align:left;
+    padding:10px 12px;
+    border-bottom:2px solid var(--border);
+    font-weight:700;
+    color:var(--text);
+    font-size:.85rem;
+}
+
+.np-table tbody td{
+    padding:12px;
+    border-bottom:1px solid var(--border-light);
+    color:var(--text);
+}
+
+.np-table tbody tr:hover{
+    background:#fafafa;
+}
+
+.np-table .text-center{
+    text-align:center;
+}
+
+.np-vazio{
+    text-align:center;
+    padding:24px 12px;
+    color:#999;
+    font-size:.88rem;
+}
+
+.np-btn-delete{
+    border:1px solid var(--border);
+    background:white;
+    color:#dc2626;
+    border-radius:8px;
+    padding:6px 14px;
+    font-size:.82rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.np-btn-delete:hover{
+    background:#fee2e2;
+    border-color:#dc2626;
 }
 
 /* =======================================================

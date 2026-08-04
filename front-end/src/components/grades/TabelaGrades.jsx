@@ -44,7 +44,7 @@ export function TabelaGrades({
             <tr><td colSpan={8} className="ap-vazio">Nenhum produto encontrado.</td></tr>
           )}
 
-          {!carregando && produtos.map((p) => {
+          {!carregando && produtos.map((p, index) => {
             const selecionado = selecionados.some((s) => s.tipo === p.tipo && s.id === p.id);
             const gradeInfo = produtoGradeMap[chaveSelecao(p.tipo, p.id)];
             const catNome = categorias.find((c) => c.id === p.categoria_id)?.nome || "—";
@@ -58,7 +58,7 @@ export function TabelaGrades({
                   <input type="checkbox" checked={selecionado} onChange={() => onCheckbox(p.tipo, p.id)} />
                 </td>
 
-                <td className="ag-id-cell">#{p.id}</td>
+                <td className="ag-id-cell">#{p.numeroExibido}</td>
 
                 <td>
                   <div className="ag-produto-cell">
@@ -68,7 +68,6 @@ export function TabelaGrades({
                     }
                     <div className="ag-produto-info">
                       <div className="ap-nome">{p.nome}</div>
-                      <div className="ap-desc">{p.descricao}</div>
                     </div>
                   </div>
                 </td>

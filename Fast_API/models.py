@@ -213,7 +213,6 @@ class FormaPagamento(Base):
     tipo = Column(SQLEnum(TipoFormaPagamento), nullable=False)
     bandeira = Column(String, nullable=True)
     nome_impresso = Column(String, nullable=False)
-    # Por segurança (PCI-DSS), nunca armazenamos o número completo do cartão nem o CVV — só os 4 últimos dígitos.
     final_numero = Column(String(4), nullable=False)
     validade = Column(String, nullable=True)
     padrao = Column(Boolean, default=False)

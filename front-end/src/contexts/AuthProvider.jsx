@@ -33,7 +33,6 @@ export function AuthProvider({ children }) {
       alert(erroValidacao);
       return;
     }
-
     setCarregando(true);
     try {
       const data = await cadastro(nome, email, senha);
@@ -45,7 +44,7 @@ export function AuthProvider({ children }) {
       if (!userData)
         throw new Error("Não foi possível obter os dados do usuário.");
       setUsuario(userData);
-      navigate("/perfil");
+      navigate("/home");
     } catch (error) {
       const msgErro =
         error.response?.data?.detail ||

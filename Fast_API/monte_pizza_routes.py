@@ -202,11 +202,7 @@ async def importar_sabores_automatico(
     conn = Depends(pegar_conexao),
     usuario=Depends(verificar_adm)
 ):
-    """
-    Busca todos os Sabores com disponivel_monte_sua_pizza=True que também têm
-    preço cadastrado (PrecoPizza) para o tamanho deste Monte Sua Pizza, e cria
-    os vínculos em lote (ignorando os que já existem).
-    """
+    
     produto = fetch_one(conn, "SELECT id, tamanho_id FROM produto_monte_pizza WHERE id = %s", (id,))
     if not produto:
         raise HTTPException(status_code=404, detail='Monte Sua Pizza não encontrado')
@@ -240,41 +236,6 @@ async def importar_sabores_automatico(
         novos += 1
 
     return {'mensagem': f'{novos} sabor(es) importado(s) com sucesso', 'total_candidatos': len(candidatos)}
-
-
-@monte_pizza_routes.post('/{id}/sabores/sincronizar')
-async def sincronizar_sabores(
-    id: int,
-    conn = Depends(pegar_conexao),
-    usuario=Depends(verificar_adm)
-):
-    """
-    Atualiza a lista de sabores vinculados: remove qualquer vínculo cujo sabor
-    tenha deixado de ser 'disponivel_monte_sua_pizza' ou tenha ficado inativo
-    desde que foi importado. Usado pelo botão "Atualizar sabores" na tela de edição.
-    """
-    produto = fetch_one(conn, "SELECT id FROM produto_monte_pizza WHERE id = %s", (id,))
-    if not produto:
-        raise HTTPException(status_code=404, detail='Monte Sua Pizza não encontrado')
-
-    vinculos = fetch_all(
-        conn,
-        """
-        SELECT mps.id AS vinculo_id, s.ativo, s.disponivel_monte_sua_pizza
-        FROM monte_pizza_sabor mps
-        JOIN sabores s ON s.id = mps.sabor_id
-        WHERE mps.produto_monte_pizza_id = %s
-        """,
-        (produto["id"],),
-    )
-
-    removidos = 0
-    for v in vinculos:
-        if not v["ativo"] or not v["disponivel_monte_sua_pizza"]:
-            execute(conn, "DELETE FROM monte_pizza_sabor WHERE id = %s", (v["vinculo_id"],))
-            removidos += 1
-
-    return {'mensagem': f'{removidos} sabor(es) removido(s) por não estarem mais disponíveis'}
 
 
 @monte_pizza_routes.post('/{id}/sabores/adicionar')

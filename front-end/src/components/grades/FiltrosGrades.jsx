@@ -1,5 +1,6 @@
 export function FiltrosGrades({
   categorias,
+  filtroNome, setFiltroNome,
   filtroCategoria, setFiltroCategoria,
   filtroTipo, setFiltroTipo,
   filtroStatus, setFiltroStatus,
@@ -9,6 +10,15 @@ export function FiltrosGrades({
 }) {
   return (
     <div className="ap-filtros">
+      <div className="ap-filtro-nome-linha">
+        <input
+          className="ap-input"
+          placeholder="Buscar por nome..."
+          value={filtroNome}
+          onChange={e => setFiltroNome(e.target.value)}
+        />
+      </div>
+
       <div className="ap-filtro-id">
         <span>ID</span>
         <input
