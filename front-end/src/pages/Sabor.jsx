@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { saborId, preco_adicional, itens_simples_publico } from "../api/auth";
 import { getImagemUrl } from "../api/axios";
 import { AuthContext } from "../contexts/AuthContext";
@@ -12,25 +12,35 @@ import "../styles/Sabor.css";
 export function Sabor() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { usuario } = useContext(AuthContext);
-  const { adicionarItem } = useContext(CartContext);
+  const { adicionarItem, adicionarBebida } = useContext(CartContext);
+
+  const ehBebida = location.pathname.startsWith("/bebida");
 
   const [sabor, setSabor] = useState(null);
-  const [precoSelecionado, setPrecoSelecionado] = useState(null); // objeto PrecoPizza
+  const [precoSelecionado, setPrecoSelecionado] = useState(null);
   const [adicionaisAPI, setAdicionaisAPI] = useState([]);
   const [ingredientesAPI, setIngredientesAPI] = useState([]);
-  const [bordasSelecionadas, setBordasSelecionadas] = useState([]); // [{ adicional_id, partes }]
-  const [ingredientesSelecionados, setIngredientesSelecionados] = useState([]); // [{ item_simples_id, quantidade }]
+  const [bordasSelecionadas, setBordasSelecionadas] = useState([]);
+  const [ingredientesSelecionados, setIngredientesSelecionados] = useState([]);
+  const [quantidadeBebida, setQuantidadeBebida] = useState(1);
 
   useEffect(() => {
-    saborId(id).then(setSabor);
-  }, [id]);
+    setSabor(null);
+    if (ehBebida) {
+      itens_simples_publico("BEBIDA")
+        .then(lista => setSabor(lista.find(b => String(b.id) === id) || false));
+    } else {
+      saborId(id).then(setSabor);
+    }
+  }, [id, ehBebida]);
 
   useEffect(() => {
-    if (sabor?.permite_ingrediente) {
+    if (!ehBebida && sabor?.permite_ingrediente) {
       itens_simples_publico("INGREDIENTE").then(setIngredientesAPI).catch(() => setIngredientesAPI([]));
     }
-  }, [sabor]);
+  }, [sabor, ehBebida]);
 
   function selecionarTamanho(preco) {
     setPrecoSelecionado(preco);
@@ -40,8 +50,79 @@ export function Sabor() {
     }
   }
 
-  if (!sabor) return <div style={{ padding: 40, textAlign: "center" }}>Carregando...</div>;
+  if (sabor === null) return <div style={{ padding: 40, textAlign: "center" }}>Carregando...</div>;
 
+  if (sabor === false) {
+    return (
+      <div style={{ padding: 40, textAlign: "center" }}>
+        Item não encontrado.
+        <br />
+        <button className="sabor-btn-voltar" onClick={() => navigate(-1)}>← Voltar</button>
+      </div>
+    );
+  }
+
+  // ---------- Fluxo BEBIDA ----------
+  if (ehBebida) {
+    function diminuir() {
+      setQuantidadeBebida(q => Math.max(1, q - 1));
+    }
+
+    function aumentar() {
+      setQuantidadeBebida(q => q + 1);
+    }
+
+    function handleAdicionarBebida() {
+      adicionarBebida(
+        {
+          item_simples_id: sabor.id,
+          nome: sabor.nome,
+          preco: Number(sabor.preco),
+        },
+        quantidadeBebida
+      );
+      navigate("/carrinho");
+    }
+
+    return (
+      <div className="sabor-page">
+        <button className="sabor-btn-voltar" onClick={() => navigate(-1)}>← Voltar</button>
+
+        <div className="sabor-foto">
+          <img
+            src={sabor.imagem_url ? getImagemUrl(sabor.imagem_url) : "/bebida_padrao.png"}
+            alt={sabor.nome}
+          />
+        </div>
+
+        <div className="sabor-info">
+          <h1 className="sabor-nome">{sabor.nome}</h1>
+          {sabor.descricao && <p className="sabor-descricao">{sabor.descricao}</p>}
+
+          <div className="sabor-preco-estimado">
+            R$ {Number(sabor.preco).toFixed(2).replace(".", ",")}
+          </div>
+
+          <div className="sabor-quantidade">
+            <button className="sabor-qtd-btn" onClick={diminuir}>−</button>
+            <span className="sabor-qtd-valor">{quantidadeBebida}</span>
+            <button className="sabor-qtd-btn" onClick={aumentar}>+</button>
+          </div>
+
+          <button
+            className="sabor-btn-finalizar ativo"
+            onClick={() => usuario ? handleAdicionarBebida() : navigate("/cadastro")}
+          >
+            {usuario
+              ? `Adicionar ao Carrinho — R$ ${(Number(sabor.preco) * quantidadeBebida).toFixed(2).replace(".", ",")}`
+              : "Criar Conta"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ---------- Fluxo SABOR (pizza) — igual ao original ----------
   const precosOrdenados = sabor.preco_float
     ? [...sabor.preco_float].sort((a, b) => Number(a.preco) - Number(b.preco))
     : [];
@@ -58,7 +139,6 @@ export function Sabor() {
     return ingredientesAPI.find(i => i.id === itemId)?.preco || 0;
   }
 
-  // Regra B: 1 sabor de borda = preço cheio; 2+ sabores = proporcional às partes
   const sabotesDeBordaDistintos = bordasSelecionadas.length;
   const precoBordas = sabotesDeBordaDistintos === 0
     ? 0

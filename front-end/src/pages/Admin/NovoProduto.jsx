@@ -6,6 +6,7 @@ import {
   admin_tamanho, upload_imagem, excluir_categoria, excluir_grade
 } from "../../api/auth.js";
 import { InfoBasicas } from "../../components/produto/InfoBasicas.jsx";
+import { ImagemProduto } from "../../components/produto/ImagemProduto.jsx";
 import { SelectComCriar } from "../../components/produto/SelectComCriar.jsx";
 import { ToggleAtivo } from "../../components/produto/ToggleAtivo.jsx";
 import { ToggleGenerico } from "../../components/produto/ToggleGenerico.jsx";
@@ -14,7 +15,7 @@ import { ListaPrecos } from "../../components/produto/ListaPrecos.jsx";
 import { ModalTamanho } from "../../components/produto/ModalTamanho.jsx";
 import { ModalCriarCategoria } from "../../components/produto/ModalCriarCategoria.jsx";
 import { ModalCriarGrade } from "../../components/produto/ModalCriarGrade.jsx";
-import "../../styles/admin/NovoProduto.css"; /* design system "np-" compartilhado por NovoProduto, ModalBebida e NovoMonteSuaPizza */
+import "../../styles/admin/NovoProduto.css";
 
 export function NovoProduto() {
   const { id } = useParams();
@@ -38,7 +39,7 @@ export function NovoProduto() {
   const [imagemAtual, setImagemAtual] = useState(null);
   const [erros, setErros] = useState({});
   const [salvando, setSalvando] = useState(false);
-  const [modal, setModal] = useState(null); // 'tamanho' | 'categoria' | 'grade'
+  const [modal, setModal] = useState(null);
   const [itemEditando, setItemEditando] = useState(null);
 
   async function handleExcluirCategoria(categoria) {
@@ -163,7 +164,6 @@ export function NovoProduto() {
 
   return (
     <div className="np-page">
-      {/* Header */}
       <div className="np-header">
         <div>
           <button className="np-btn-voltar" onClick={() => navigate("/admin/produtos")}>← Voltar</button>
@@ -181,8 +181,6 @@ export function NovoProduto() {
           <InfoBasicas
             nome={nome} setNome={setNome}
             descricao={descricao} setDescricao={setDescricao}
-            imagem={imagem} setImagem={setImagem}
-            imagemAtual={imagemAtual}
             erros={erros}
           />
 
@@ -210,14 +208,30 @@ export function NovoProduto() {
                 erro={erros.grade}
               />
             </div>
+
+            <ImagemProduto
+              imagem={imagem} setImagem={setImagem}
+              imagemAtual={imagemAtual}
+            />
           </div>
         </div>
 
         {/* Coluna direita */}
         <div className="np-coluna">
-          <FormPrecos tamanhos={tamanhos} onAdicionar={handleAdicionarPreco} onNovoTamanho={() => setModal("tamanho")} />
-          {erros.precos && <span className="np-erro">{erros.precos}</span>}
-          <ListaPrecos precos={precos} tamanhos={tamanhos} onChange={handlePrecoChange} onRemover={handleRemoverPreco} />
+          <div className="np-section">
+            <div className="np-section-header">
+              <h2 className="np-section-titulo" style={{ borderBottom: "none", paddingBottom: 0 }}>
+                Tamanhos e Preços
+              </h2>
+              <button type="button" className="np-btn-link" onClick={() => setModal("tamanho")}>
+                + Novo tamanho
+              </button>
+            </div>
+
+            <FormPrecos tamanhos={tamanhos} onAdicionar={handleAdicionarPreco} />
+            {erros.precos && <span className="np-erro">{erros.precos}</span>}
+            <ListaPrecos precos={precos} tamanhos={tamanhos} onChange={handlePrecoChange} onRemover={handleRemoverPreco} />
+          </div>
 
           <div className="np-section">
             <h2 className="np-section-titulo">Regras deste sabor</h2>
@@ -230,7 +244,6 @@ export function NovoProduto() {
         </div>
       </div>
 
-      {/* Modais */}
       {modal === "tamanho" && (
         <ModalTamanho
           onCriar={async (nome, qtdSabores, qtdBordas) => {

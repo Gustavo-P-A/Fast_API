@@ -12,7 +12,7 @@ export function PassoBorda({
         setBordasSelecionadas={setBordasSelecionadas}
       />
       <div className="mmp-botoes-passo">
-        <button className="np-btn-ghost" onClick={onVoltar}>Voltar</button>
+        <button className="mmp-btn-voltar" onClick={onVoltar}>Voltar</button>
         <button className="sabor-btn-finalizar ativo" onClick={onContinuar}>Continuar</button>
       </div>
     </div>

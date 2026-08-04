@@ -4,7 +4,6 @@ export function PreviewCardapio({ preview = [] }) {
   return (
     <div className="ag-right">
       <div className="ag-preview-header">
-        <span className="ag-preview-icon">👁️</span>
         <div>
           <div className="ag-preview-title">Preview do Cardápio</div>
           <div className="ag-preview-sub">Visualização em tempo real</div>
@@ -34,7 +33,6 @@ export function PreviewCardapio({ preview = [] }) {
                 }
                 <div className="ag-preview-info">
                   <div className="ag-preview-nome">{p.nome}</div>
-                  <div className="ag-preview-desc">{p.descricao}</div>
                   {p.menor_preco && (
                     <div className="ag-preview-preco">
                       R$ {Number(p.menor_preco).toFixed(2).replace(".", ",")}

@@ -14,7 +14,7 @@ export function SeletorBorda({ opcoes, qtdBordas, bordasSelecionadas, setBordasS
     setBordasSelecionadas(prev => {
       const atual = prev.find(b => b.adicional_id === adicionalId);
       const novaQtd = (atual?.partes || 0) + delta;
-
+ 
       if (novaQtd <= 0) {
         return prev.filter(b => b.adicional_id !== adicionalId);
       }

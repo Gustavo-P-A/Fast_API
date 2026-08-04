@@ -21,7 +21,6 @@ from fastapi.responses import RedirectResponse
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Abre o pool de conexões no startup e fecha no shutdown. Ver database.py.
     pool.open()
     yield
     pool.close()

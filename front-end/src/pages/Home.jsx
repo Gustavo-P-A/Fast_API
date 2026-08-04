@@ -1,13 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { cardapio_por_grade } from "../api/auth";
 import { useNavigate } from "react-router-dom";
-import { CartContext } from "../contexts/CartContext";
 import "../styles/Home.css";
 
 export function Home() {
   const [grades, setGrades] = useState([]);
   const navigate = useNavigate();
-  const { adicionarBebida } = useContext(CartContext);
 
   useEffect(() => {
     cardapio_por_grade()
@@ -16,21 +14,13 @@ export function Home() {
   }, []);
 
   function abrirProduto(produto) {
-    if (produto.tipo === "bebida") return; // bebida só adiciona ao carrinho, não navega
-    if (produto.tipo === "monte_pizza") {
+    if (produto.tipo === "bebida") {
+      navigate(`/bebida/${produto.id}`);
+    } else if (produto.tipo === "monte_pizza") {
       navigate(`/monte-pizza/${produto.id}`);
     } else {
       navigate(`/sabores/${produto.id}`);
     }
-  }
-
-  function handleAdicionarBebida(e, produto) {
-    e.stopPropagation();
-    adicionarBebida({
-      item_simples_id: produto.id,
-      nome: produto.nome,
-      preco: produto.menor_preco,
-    }, 1);
   }
 
   return (
@@ -65,15 +55,6 @@ export function Home() {
                           ? "Monte do seu jeito"
                           : "Consulte o preço"}
                   </p>
-                  {produto.tipo === "bebida" && (
-                    <button
-                      type="button"
-                      className="home-card-btn-adicionar"
-                      onClick={e => handleAdicionarBebida(e, produto)}
-                    >
-                      + Adicionar
-                    </button>
-                  )}
                 </div>
               </div>
             ))}

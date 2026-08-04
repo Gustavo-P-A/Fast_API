@@ -20,18 +20,24 @@ export function MeusPedidos() {
   return (
     <div className="main-wrapper">
       <button className="btn-voltar" onClick={() => navigate('/')}>
-        Voltar
+        ← Voltar
       </button>
 
       <div className="content-area">
-        <h2 style={{ color: "#3e3e3e", marginBottom: "20px" }}>Meus Pedidos</h2>
+        <h2>Meus Pedidos</h2>
 
         <div className="container">
+          {pedidos.length === 0 && (
+            <div className="card card-vazio">
+              <p className="descricao">Você ainda não fez nenhum pedido.</p>
+            </div>
+          )}
+
           {pedidos.map((pedido, index) => {
             const item = pedido.itens[0];
             if (!item) {
               return (
-                <div key={index} className="card" style={{ padding: "20px", textAlign: "center" }}>
+                <div key={index} className="card card-vazio">
                   <p className="descricao">Pedido sem itens</p>
                 </div>
               );

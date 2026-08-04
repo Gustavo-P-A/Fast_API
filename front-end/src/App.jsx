@@ -23,6 +23,7 @@ const NovoIngrediente = lazy(() => import("./pages/Admin/NovoIngrediente.jsx").t
 const NovoMonteSuaPizza = lazy(() => import("./pages/Admin/NovoMonteSuaPizza.jsx").then(m => ({ default: m.NovoMonteSuaPizza })));
 const ContaLayout = lazy(() => import("./components/ContaLayout.jsx").then(m => ({ default: m.ContaLayout })));
 
+
 const FormasPagamento = lazy(() => import("./components/perfil/FormasPagamento.jsx").then(m => ({ default: m.FormasPagamento })));
 const Historico = lazy(() => import("./components/perfil/Historico.jsx").then(m => ({ default: m.Historico })));
 const Enderecos = lazy(() => import("./components/perfil/Enderecos.jsx").then(m => ({ default: m.Enderecos })));
@@ -61,6 +62,7 @@ export function App() {
               {/* Rotas públicas e de cliente */}
               <Route path="/" element={<Home />} />
               <Route path="/sabores/:id" element={<Sabor />} />
+              <Route path="/bebida/:id" element={<Sabor />} />
               <Route path="/monte-pizza/:id" element={<MontarMontePizza />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Cadastro />} />
