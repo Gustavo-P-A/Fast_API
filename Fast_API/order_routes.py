@@ -18,9 +18,7 @@ def _shape_item_simples(r: dict, prefixo: str = "isi_") -> dict:
 
 
 def _montar_resposta_pedido(conn, pedido_id: int):
-    """Monta o ResponsePedidoSchema inteiro (itens -> sabores/adicionais/ingredientes,
-    bebidas) a partir de buscas SQL explícitas — equivalente a devolver o objeto
-    Pedidos do SQLAlchemy e deixar o Pydantic andar pelos relationships sozinho."""
+    
     pedido = fetch_one(conn, "SELECT * FROM pedidos WHERE id = %s", (pedido_id,))
     if not pedido:
         return None

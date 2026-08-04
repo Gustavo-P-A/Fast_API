@@ -115,6 +115,14 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
 
   return (
     <div className="np-page">
+
+      <div className="np-acoes-rodape">
+        <button className="np-btn-ghost" onClick={() => navigate(rotaVoltar)}>Cancelar</button>
+        <button className="np-btn-primary" onClick={handleSalvar} disabled={salvando}>
+          {salvando ? "Salvando..." : `Salvar ${titulo}`}
+        </button>
+      </div>
+      
       <div className="np-header">
         <div>
           <button className="np-btn-voltar" onClick={() => navigate(rotaVoltar)}>← Voltar</button>
@@ -243,13 +251,6 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="np-acoes-rodape">
-        <button className="np-btn-ghost" onClick={() => navigate(rotaVoltar)}>Cancelar</button>
-        <button className="np-btn-primary" onClick={handleSalvar} disabled={salvando}>
-          {salvando ? "Salvando..." : `Salvar ${titulo}`}
-        </button>
       </div>
 
       {modalCategoriaAberto && (

@@ -24,14 +24,7 @@ export function SaboresVinculados({
             >
               {importando ? "Importando..." : "Importar sabores automaticamente"}
             </button>
-            <button
-              type="button"
-              className="np-btn-ghost"
-              onClick={onSincronizar}
-              disabled={sincronizando}
-            >
-              {sincronizando ? "Atualizando..." : "Atualizar sabores"}
-            </button>
+
           </div>
           <p className="np-hint" style={{ marginBottom: 16 }}>
             "Importar" traz sabores novos disponíveis para este tamanho. "Atualizar" remove
@@ -64,7 +57,7 @@ export function SaboresVinculados({
           </div>
 
           <div className="np-table-wrap">
-            <table className="ap-table">
+            <table className="np-table">
               <thead>
                 <tr>
                   <th>Sabor</th>
@@ -74,7 +67,7 @@ export function SaboresVinculados({
               </thead>
               <tbody>
                 {sabores.length === 0 && (
-                  <tr><td colSpan={3} className="ap-vazio">Nenhum sabor vinculado ainda.</td></tr>
+                  <tr><td colSpan={3} className="np-vazio">Nenhum sabor vinculado ainda.</td></tr>
                 )}
                 {sabores.map(s => (
                   <tr key={s.id}>
@@ -83,7 +76,7 @@ export function SaboresVinculados({
                       {s.preco != null ? `R$ ${s.preco.toFixed(2)}` : "— sem preço nesse tamanho"}
                     </td>
                     <td className="text-center">
-                      <button className="ap-btn-delete" onClick={() => onRemoverSabor(s.id)}>Remover</button>
+                      <button className="np-btn-delete" onClick={() => onRemoverSabor(s.id)}>Remover</button>
                     </td>
                   </tr>
                 ))}

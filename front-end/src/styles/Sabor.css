@@ -194,3 +194,44 @@
   margin: 14px 0; font-size: 1rem; color: #444;
   padding: 10px 14px; background: #fafafa; border-radius: 8px;
 }
+
+/* =======================================================
+   Fluxo Bebida (quantidade)
+======================================================= */
+
+.sabor-quantidade {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.sabor-qtd-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.sabor-qtd-btn:hover {
+  border-color: #e53935;
+  color: #e53935;
+  background: #fff5f5;
+}
+
+.sabor-qtd-valor {
+  min-width: 32px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}

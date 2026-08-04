@@ -1,124 +1,127 @@
-/* --- LAYOUT GERAL --- */
 .main-wrapper {
-  min-height: 100vh;
-  background-color: #f7f7f7;
-  display: flex;
-  flex-direction: column;
-}
-
-.content-area {
-  max-width: 1200px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 30px 20px;
-  width: 100%;
+  padding: 24px 20px 60px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- NAVBAR --- */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  width: 100%;
-}
-
-.navbar-logo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #ea1d2c;
-  cursor: pointer;
-}
-
-/* --- BOTÃO VOLTAR (Baseado no seu 1º CSS) --- */
 .btn-voltar {
-  position: relative; 
-  top: auto;
-  left: auto;
-  background-color: #3e3e3e;
+  background: #333;
   color: white;
-  font-weight: bold;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
   transition: background 0.2s;
 }
+.btn-voltar:hover { background: #e53935; }
 
-.btn-voltar:hover {
-  background-color: #555;
+.content-area h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 20px;
 }
 
-.btn-voltar:active {
-  background-color: #ea1d2c;
-  transform: scale(0.95);
-}
-
-/* --- GRID DE PEDIDOS --- */
 .container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-  gap: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* --- CARD DE PEDIDO (Baseado no seu 3º CSS) --- */
 .card {
   display: flex;
-  flex-direction: column; 
+  align-items: center;
+  gap: 16px;
+  background: #fff;
   border: 1px solid #eee;
-  border-radius: 12px;
-  background-color: #fff;
-  overflow: hidden; 
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 14px;
+  padding: 14px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
 }
 
 .card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
-  border-color: #ea1d2c;
+  border-color: #f0b8b6;
+  box-shadow: 0 6px 16px rgba(229, 57, 53, 0.1);
+  transform: translateY(-1px);
 }
 
 .foto-container {
-  width: 100%;
-  height: 180px; 
-  background-color: #f2f2f2;
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f5f5f5;
 }
 
 .foto-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover; 
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .info {
-  padding: 15px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.badge-status {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 2px;
 }
 
 .nome {
   font-weight: 700;
-  color: #3e3e3e;
-  font-size: 1.2rem;
-  margin: 10px 0 5px 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .descricao {
-  color: #717171;
-  font-size: 0.9rem;
-  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: #888;
+  margin: 0;
 }
 
 .preco {
-  font-weight: 800;
-  color: #3e3e3e;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #e53935;
+  margin: 4px 0 0;
 }
 
-/* --- STATUS BADGE --- */
-.badge-status {
-  display: inline-block;
-  padding: 5px 12px;
-  background-color: #fff1f2;
-  color: #ea1d2c;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.card-vazio {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+}
+
+@media (max-width: 480px) {
+  .foto-container {
+    width: 64px;
+    height: 64px;
+  }
+  .nome { font-size: 0.92rem; }
 }

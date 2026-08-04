@@ -696,3 +696,13 @@
   color: #6b7280;
   text-align: center;
 }
+
+.ap-filtro-nome-linha {
+  flex-basis: 100%;
+  display: flex;
+}
+
+.ap-filtro-nome-linha .ap-input {
+  flex: 1 1 auto;
+  width: 100%;
+}

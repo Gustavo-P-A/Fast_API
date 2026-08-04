@@ -29,7 +29,6 @@
   border-bottom: 1px solid #f0f0f0;
 }
 
-.ag-preview-icon { font-size: 1.2rem; }
 .ag-preview-title { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; }
 .ag-preview-sub { font-size: 0.75rem; color: #888; }
 
@@ -95,15 +94,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.ag-preview-desc {
-  font-size: 0.73rem;
-  color: #888;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+
 .ag-preview-preco { font-size: 0.8rem; font-weight: 700; color: #e53935; }
 
 .ag-preview-vazio { text-align: center; color: #aaa; font-size: 0.85rem; padding: 2rem 0; }

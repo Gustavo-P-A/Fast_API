@@ -21,6 +21,7 @@ export function AdminGrades() {
   const [categorias, setCategorias] = useState([]);
   const [grades, setGrades] = useState([]);
   const [preview, setPreview] = useState([]);
+  const [filtroNome, setFiltroNome] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
   const [filtroIdMin, setFiltroIdMin] = useState("");
@@ -89,13 +90,23 @@ export function AdminGrades() {
     })),
   ];
 
-  const produtosFiltrados = listaUnificada.filter((p) => {
+  const produtosFiltradosBase = listaUnificada.filter((p) => {
+    const nomeOk = p.nome.toLowerCase().includes(filtroNome.toLowerCase());
     const catOk = filtroCategoria ? String(p.categoria_id) === filtroCategoria : true;
     const statusOk = filtroStatus === "" ? true : filtroStatus === "ativo" ? p.ativo : !p.ativo;
-    const idMinOk = filtroIdMin !== "" ? p.id >= Number(filtroIdMin) : true;
-    const idMaxOk = filtroIdMax !== "" ? p.id <= Number(filtroIdMax) : true;
     const tipoOk = filtroTipo ? p.tipo === filtroTipo : true;
-    return catOk && statusOk && idMinOk && idMaxOk && tipoOk;
+    return nomeOk && catOk && statusOk && tipoOk;
+  });
+
+  const produtosNumerados = produtosFiltradosBase.map((p, index) => ({
+    ...p,
+    numeroExibido: index + 1,
+  }));
+
+  const produtosFiltrados = produtosNumerados.filter((p) => {
+    const idMinOk = filtroIdMin !== "" ? p.numeroExibido >= Number(filtroIdMin) : true;
+    const idMaxOk = filtroIdMax !== "" ? p.numeroExibido <= Number(filtroIdMax) : true;
+    return idMinOk && idMaxOk;
   });
 
   const todosSelecionados =
@@ -139,6 +150,7 @@ export function AdminGrades() {
   }
 
   function limparFiltros() {
+    setFiltroNome("");
     setFiltroCategoria("");
     setFiltroStatus("");
     setFiltroIdMin("");
@@ -159,6 +171,7 @@ export function AdminGrades() {
         <div className="ap-card">
           <FiltrosGrades
             categorias={categorias}
+            filtroNome={filtroNome} setFiltroNome={setFiltroNome}
             filtroCategoria={filtroCategoria} setFiltroCategoria={setFiltroCategoria}
             filtroTipo={filtroTipo} setFiltroTipo={setFiltroTipo}
             filtroStatus={filtroStatus} setFiltroStatus={setFiltroStatus}

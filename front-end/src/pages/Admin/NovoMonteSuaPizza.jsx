@@ -4,7 +4,6 @@ import {
   listar_categoria, listar_grade, listar_tamanho, upload_imagem,
   criar_monte_pizza, editar_monte_pizza, buscar_monte_pizza,
   importar_sabores_monte_pizza, adicionar_sabores_monte_pizza, remover_sabor_monte_pizza,
-  sincronizar_sabores_monte_pizza,
   listar_todos_produtos, excluir_categoria, excluir_grade,
 } from "../../api/auth";
 import { InfoBasicas } from "../../components/produto/InfoBasicas";
@@ -43,7 +42,6 @@ export function NovoMonteSuaPizza() {
 
   const [sabores, setSabores] = useState([]);
   const [importando, setImportando] = useState(false);
-  const [sincronizando, setSincronizando] = useState(false);
   const [todosSabores, setTodosSabores] = useState([]);
   const [saborParaAdicionar, setSaborParaAdicionar] = useState("");
 
@@ -167,18 +165,6 @@ export function NovoMonteSuaPizza() {
     }
   }
 
-  async function handleSincronizar() {
-    setSincronizando(true);
-    try {
-      const resultado = await sincronizar_sabores_monte_pizza(idAtual);
-      alert(resultado.mensagem);
-      await carregarProduto(idAtual);
-    } catch {
-      alert("Erro ao atualizar sabores.");
-    } finally {
-      setSincronizando(false);
-    }
-  }
 
   async function handleAdicionarManual() {
     if (!saborParaAdicionar) return;
@@ -239,9 +225,7 @@ export function NovoMonteSuaPizza() {
             saborParaAdicionar={saborParaAdicionar}
             setSaborParaAdicionar={setSaborParaAdicionar}
             importando={importando}
-            sincronizando={sincronizando}
             onImportarAutomatico={handleImportarAutomatico}
-            onSincronizar={handleSincronizar}
             onAdicionarManual={handleAdicionarManual}
             onRemoverSabor={handleRemoverSabor}
           />

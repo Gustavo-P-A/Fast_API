@@ -894,18 +894,6 @@ export async function importar_sabores_monte_pizza(id) {
   }
 }
 
-export async function sincronizar_sabores_monte_pizza(id) {
-  try {
-    const response = await api.post(
-      `/admin/monte-pizza/${id}/sabores/sincronizar`,
-    );
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
 export async function adicionar_sabores_monte_pizza(id, sabor_ids) {
   try {
     const response = await api.post(
@@ -974,6 +962,16 @@ export async function definir_forma_pagamento_padrao(id) {
 export async function deletar_forma_pagamento(id) {
   try {
     const response = await api.delete(`/formas-pagamento/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function itemSimplesId(id) {
+  try {
+    const response = await api.get(`/cardapio/itens-simples/${id}`);
     return response.data;
   } catch (error) {
     console.error(error);

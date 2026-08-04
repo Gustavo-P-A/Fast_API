@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function FormPrecos({ tamanhos, onAdicionar, onNovoTamanho }) {
+export function FormPrecos({ tamanhos, onAdicionar }) {
   const [tamanhoId, setTamanhoId] = useState("");
   const [precoTemp, setPrecoTemp] = useState("");
 
@@ -14,16 +14,7 @@ export function FormPrecos({ tamanhos, onAdicionar, onNovoTamanho }) {
   }
 
   return (
-    <div className="np-section">
-      <div className="np-section-header">
-        <h2 className="np-section-titulo" style={{ borderBottom: "none", paddingBottom: 0 }}>
-          Tamanhos e Preços
-        </h2>
-        <button type="button" className="np-btn-link" onClick={onNovoTamanho}>
-          + Novo tamanho
-        </button>
-      </div>
-
+    <>
       <div className="np-grid-2">
         <div className="np-field">
           <label className="np-label">Tamanho</label>
@@ -51,6 +42,6 @@ export function FormPrecos({ tamanhos, onAdicionar, onNovoTamanho }) {
       <button type="button" className="np-btn-secondary" onClick={handleAdicionar}>
         + Adicionar preço
       </button>
-    </div>
+    </>
   );
 }
