@@ -29,11 +29,24 @@ export function AdminProdutos() {
     buscar();
   }, []);
 
-  async function handleDeletar(id) {
-    if (!confirm("Deseja realmente excluir este produto?")) return;
-    await deletar_sabor(id);
-    setProdutos(prev => prev.filter(p => p.id !== id));
+async function handleDeletar(id) {
+  if (!confirm("Deseja realmente excluir este produto?")) return;
+  try {
+    const data = await deletar_sabor(id);
+
+    if (data.mensagem?.includes("inativado")) {
+      // não foi excluído de verdade — só marcado como inativo
+      setProdutos(prev => prev.map(p => p.id === id ? { ...p, ativo: false } : p));
+      alert(data.mensagem);
+    } else {
+      // excluído de verdade, some da lista
+      setProdutos(prev => prev.filter(p => p.id !== id));
+    }
+  } catch (err) {
+    const msg = err.response?.data?.detail || "Erro ao excluir produto.";
+    alert(msg);
   }
+}
 
   async function handleToggle(id) {
     try {

@@ -3,7 +3,8 @@ from database import pegar_conexao, fetch_one, fetch_all, execute, ConnCommitRou
 from dependsadm import verificar_adm
 from schemas import NovoProdutoSchema
 from psycopg import errors
-import os, uuid
+import os
+import uuid
 
 TIPOS_PERMITIDOS = {"image/jpeg", "image/png", "image/webp"}
 TAMANHO_MAXIMO = 2 * 1024 * 1024  # 2MB

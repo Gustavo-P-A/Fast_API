@@ -237,37 +237,6 @@ class TestAdicionarSaboresManual:
         assert response.status_code == 422
 
 
-class TestSincronizarSabores:
-
-    def test_remove_sabor_que_ficou_indisponivel(self, client, db_conn):
-        categoria, grade, tamanho = _criar_base(db_conn)
-        sabor = _criar_sabor(db_conn, "Calabresa", tamanho["id"], preco=40.0)
-        produto_id = _criar_produto_monte_pizza(client, tamanho["id"], categoria["id"], grade["id"])
-        client.post(f"/admin/monte-pizza/{produto_id}/sabores/importar-automatico")
-
-        # sabor deixa de estar disponível para monte-sua-pizza depois de importado
-        db_conn.execute("UPDATE sabores SET disponivel_monte_sua_pizza = %s WHERE id = %s", (False, sabor["id"]))
-
-        response = client.post(f"/admin/monte-pizza/{produto_id}/sabores/sincronizar")
-
-        assert response.status_code == 200
-        assert "1 sabor(es) removido(s)" in response.json()["mensagem"]
-        detalhe = client.get(f"/admin/monte-pizza/{produto_id}").json()
-        assert detalhe["sabores"] == []
-
-    def test_mantem_sabor_ainda_disponivel(self, client, db_conn):
-        categoria, grade, tamanho = _criar_base(db_conn)
-        _criar_sabor(db_conn, "Calabresa", tamanho["id"], preco=40.0)
-        produto_id = _criar_produto_monte_pizza(client, tamanho["id"], categoria["id"], grade["id"])
-        client.post(f"/admin/monte-pizza/{produto_id}/sabores/importar-automatico")
-
-        response = client.post(f"/admin/monte-pizza/{produto_id}/sabores/sincronizar")
-
-        assert "0 sabor(es) removido(s)" in response.json()["mensagem"]
-        detalhe = client.get(f"/admin/monte-pizza/{produto_id}").json()
-        assert len(detalhe["sabores"]) == 1
-
-
 class TestRemoverSaborIndividual:
 
     def test_remove_vinculo_existente(self, client, db_conn):

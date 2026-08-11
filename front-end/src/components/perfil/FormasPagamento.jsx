@@ -138,11 +138,6 @@ export function FormasPagamento() {
     setValidade(formatarValidade(e.target.value));
   }
 
-  function handleChangeBandeira(e) {
-    setBandeiraManual(true);
-    setBandeira(e.target.value);
-  }
-
   async function handleSalvar() {
     const novosErros = {};
     if (!numero.trim() || numero.replace(/\D/g, "").length < 4) novosErros.numero = "Informe o número completo";

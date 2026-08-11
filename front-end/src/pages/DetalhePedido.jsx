@@ -12,7 +12,7 @@ export function DetalhePedido() {
 
   useEffect(() => {
     pedido_por_id(id).then(setPedido).catch(() => navigate("/meus-pedidos"));
-  }, [id]);
+  }, [id, navigate]);
 
   if (!pedido) return <div style={{ padding: 40, textAlign: "center" }}>Carregando...</div>;
 

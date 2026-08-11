@@ -1,8 +1,9 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from database import pegar_conexao, fetch_one, fetch_all, execute, ConnCommitRoute
 from calculos import preco_item, recalcular_preco_pedido
 from schemas import ResponsePedidoSchema, ItemPedidoCriacaoSchema
-from enums import TipoPagamento
 from core.security import verificar_token
 
 order_router = APIRouter(prefix="/order", tags=["order"], route_class=ConnCommitRoute)
@@ -17,11 +18,24 @@ def _shape_item_simples(r: dict, prefixo: str = "isi_") -> dict:
     }
 
 
+def _expirar_pix_se_necessario(conn, pedido: dict) -> dict:
+    # Se o pedido está aguardando Pix e o prazo de 1h já passou, cancela
+    # automaticamente. Chamado sempre que um pedido é lido (montagem da
+    # resposta), então não depende de nenhum job/cron rodando em paralelo.
+    if pedido["status"] == 'AGUARDANDO_PAGAMENTO_PIX' and pedido["pix_expira_em"]:
+        if datetime.now(timezone.utc) > pedido["pix_expira_em"]:
+            execute(conn, "UPDATE pedidos SET status = 'CANCELADO' WHERE id = %s", (pedido["id"],))
+            pedido["status"] = 'CANCELADO'
+    return pedido
+
+
 def _montar_resposta_pedido(conn, pedido_id: int):
-    
+
     pedido = fetch_one(conn, "SELECT * FROM pedidos WHERE id = %s", (pedido_id,))
     if not pedido:
         return None
+
+    pedido = _expirar_pix_se_necessario(conn, pedido)
 
     itens = []
     for item in fetch_all(conn, "SELECT * FROM itens_pedido WHERE pedido_id = %s", (pedido_id,)):
@@ -112,6 +126,8 @@ def _montar_resposta_pedido(conn, pedido_id: int):
         "id": pedido["id"], "status": pedido["status"], "preco": pedido["preco"],
         "endereco_id": pedido["endereco_id"], "formato_de_pagamento": pedido["formato_de_pagamento"],
         "created_at": pedido["created_at"], "troco_para": pedido["troco_para"],
+        "forma_pagamento_id": pedido["forma_pagamento_id"], "parcelas": pedido["parcelas"],
+        "pix_codigo": pedido["pix_codigo"], "pix_expira_em": pedido["pix_expira_em"],
         "itens": itens, "bebidas_rel": bebidas_rel,
     }
 
@@ -423,25 +439,6 @@ async def remover_adicional(
         'itens_pedido': total_itens["total"],
         'pedido': _montar_resposta_pedido(conn, pedido["id"]),
     }
-
-
-@order_router.post('/pedido/finalizar/{id_pedido}')
-async def finalizar_pedido(id_pedido: int, tipo_pagamento: TipoPagamento, id_endereco: int, conn = Depends(pegar_conexao), usuario: dict = Depends(verificar_token)):
-    pedido = fetch_one(conn, "SELECT id, usuario_id FROM pedidos WHERE id = %s", (id_pedido,))
-    if not pedido:
-        raise HTTPException(status_code=404, detail='Pedido não encontrado')
-    if not usuario["adm"] and usuario["id"] != pedido["usuario_id"]:
-        raise HTTPException(status_code=401, detail='Você não tem autorização para fazer está modificação')
-
-    endereco = fetch_one(conn, "SELECT id FROM enderecos_entrega WHERE id = %s", (id_endereco,))
-    if not endereco:
-        raise HTTPException(status_code=404, detail='Endereço não encontrado')
-
-    execute(
-        conn, "UPDATE pedidos SET formato_de_pagamento = %s, endereco_id = %s, status = 'PENDENTE' WHERE id = %s",
-        (tipo_pagamento.value, endereco["id"], id_pedido),
-    )
-    return {'mensagem': f'Pedido numero: {id_pedido} finalizado com sucesso', 'pedido': _montar_resposta_pedido(conn, id_pedido)}
 
 
 @order_router.get('/pedido/{id_pedido}', response_model=ResponsePedidoSchema)

@@ -2,8 +2,8 @@ export function SaboresVinculados({
   isEditing,
   sabores, saboresDisponiveisParaAdicionar,
   saborParaAdicionar, setSaborParaAdicionar,
-  importando, sincronizando,
-  onImportarAutomatico, onSincronizar, onAdicionarManual, onRemoverSabor,
+  importando, 
+  onImportarAutomatico, onAdicionarManual, onRemoverSabor,
 }) {
   return (
     <div className="np-section">
@@ -24,13 +24,8 @@ export function SaboresVinculados({
             >
               {importando ? "Importando..." : "Importar sabores automaticamente"}
             </button>
-
           </div>
-          <p className="np-hint" style={{ marginBottom: 16 }}>
-            "Importar" traz sabores novos disponíveis para este tamanho. "Atualizar" remove
-            sabores que deixaram de estar disponíveis no Monte Sua Pizza.
-          </p>
-
+          
           <div className="np-grid-2" style={{ marginBottom: 16 }}>
             <div className="np-field">
               <label className="np-label">Adicionar sabor manualmente</label>

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { login, cadastro, me, validarDadosCadastro } from "../api/auth";
-import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }) {
@@ -104,8 +103,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }

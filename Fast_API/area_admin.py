@@ -429,3 +429,36 @@ async def produtos_por_grade(
             "produtos": produtos,
         })
     return resultado
+
+
+@area_admin.delete('/deletar/sabor/{id_sabor}')
+async def deletar_sabor(id_sabor: int, conn = Depends(pegar_conexao), usuario: dict = Depends(verificar_adm)):
+    sabor = fetch_one(conn, "SELECT id FROM sabores WHERE id = %s", (id_sabor,))
+    if not sabor:
+        raise HTTPException(status_code=404, detail='Sabor não encontrado')
+
+    # Já foi vendido em algum pedido? Aí não dá pra apagar de verdade,
+    # apagar quebraria o histórico. Só inativa.
+    ja_vendido = fetch_one(conn, "SELECT id FROM item_pedido_sabor WHERE sabor_id = %s LIMIT 1", (id_sabor,))
+    if ja_vendido:
+        execute(conn, "UPDATE sabores SET ativo = false WHERE id = %s", (id_sabor,))
+        return {'mensagem': 'Este sabor já foi vendido em pedidos anteriores, então não pode ser excluído. Ele foi inativado e não aparece mais no cardápio.'}
+
+    # Nunca foi vendido: pode excluir de verdade, cascateando configuração atual
+    execute(conn, "DELETE FROM grade_sabores WHERE sabores_id = %s", (id_sabor,))
+    execute(conn, "DELETE FROM preco_pizza WHERE sabor_id = %s", (id_sabor,))
+    execute(conn, "DELETE FROM monte_pizza_sabor WHERE sabor_id = %s", (id_sabor,))
+    execute(conn, "DELETE FROM sabores WHERE id = %s", (id_sabor,))
+    return {'mensagem': 'Sabor excluído'}
+
+
+@area_admin.patch('/pedidos/{id_pedido}/confirmar-pix')
+async def confirmar_pagamento_pix(id_pedido: int, conn = Depends(pegar_conexao), usuario: dict = Depends(verificar_adm)):
+    pedido = fetch_one(conn, "SELECT id, status FROM pedidos WHERE id = %s", (id_pedido,))
+    if not pedido:
+        raise HTTPException(status_code=404, detail='Pedido não encontrado')
+    if pedido["status"] != 'AGUARDANDO_PAGAMENTO_PIX':
+        raise HTTPException(status_code=400, detail='Este pedido não está aguardando pagamento via Pix')
+
+    execute(conn, "UPDATE pedidos SET status = 'CONFIRMADO' WHERE id = %s", (id_pedido,))
+    return {'mensagem': 'Pagamento confirmado'}
