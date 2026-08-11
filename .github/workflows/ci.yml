@@ -1,4 +1,4 @@
-name: CI - Backend
+name: CI
 
 # Quando esse pipeline roda:
 # - toda vez que alguém abre/atualiza um PR contra a main
@@ -36,13 +36,19 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2. Instala o Python
+      # 2. Instala o Python (com cache do pip -- reaproveita os pacotes
+      #    já baixados entre execuções, em vez de rebaixar tudo toda vez)
       - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            Fast_API/requirements.txt
+            requirements-dev.txt
 
-      # 3. Instala as dependências do projeto + as de teste
+      # 3. Instala as dependências do projeto + as de teste (pytest-cov
+      #    pro relatório de cobertura, ruff pro lint)
       - name: Instalar dependências
         working-directory: ./Fast_API
         run: |
@@ -50,7 +56,13 @@ jobs:
           pip install -r requirements.txt
           pip install -r ../requirements-dev.txt
 
-      # 4. Roda os testes
+      # 4. Lint -- pega bug real (import/variável não usada, nome
+      #    indefinido, erro de sintaxe); ver pyproject.toml pro porquê
+      #    do conjunto de regras ser enxuto.
+      - name: Lint (ruff)
+        run: ruff check Fast_API/
+
+      # 5. Roda os testes com relatório de cobertura.
       #    Se qualquer teste falhar, este step falha, o job falha,
       #    e o PR aparece com um X vermelho no GitHub -- é isso que
       #    impede (ou pelo menos avisa) que código quebrado seja
@@ -61,7 +73,14 @@ jobs:
           SECRET: segredo-de-teste-ci-nao-usar-em-producao
           TEST_DATABASE_URL: postgresql://pizzaria_app:pizzaria_dev_pw@localhost:5432/pizzaria_test
         run: |
-          python -m pytest tests/ -v
+          python -m pytest tests/ -v --cov=Fast_API --cov-report=term-missing --cov-report=xml
+
+      - name: Publicar relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-backend
+          path: coverage.xml
 
   testes-frontend:
     runs-on: ubuntu-latest
@@ -81,6 +100,17 @@ jobs:
         working-directory: ./front-end
         run: npm ci
 
-      - name: Rodar testes
+      - name: Lint (eslint)
         working-directory: ./front-end
-        run: npm test
+        run: npm run lint
+
+      - name: Rodar testes com cobertura
+        working-directory: ./front-end
+        run: npx vitest run --coverage
+
+      - name: Publicar relatório de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-frontend
+          path: front-end/coverage

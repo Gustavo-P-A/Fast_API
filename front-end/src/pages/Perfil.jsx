@@ -1,10 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
+import { NavLink, Outlet } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
-import { FormasPagamento } from "../components/perfil/FormasPagamento";
-import { Historico } from "../components/perfil/Historico";
-import { Enderecos } from "../components/perfil/Enderecos";
-import { DadosConta } from "../components/perfil/DadosConta";
-import { Seguranca } from "../components/perfil/Seguranca";
 import "../styles/perfil/Perfil.css";
 
 const MENU = [
@@ -17,18 +13,6 @@ const MENU = [
 
 export function Perfil() {
   const { usuario, handleLogout } = useContext(AuthContext);
-  const [secaoAtiva, setSecaoAtiva] = useState("pagamento");
-
-  function renderSecao() {
-    switch (secaoAtiva) {
-      case "pagamento": return <FormasPagamento />;
-      case "historico": return <Historico />;
-      case "enderecos": return <Enderecos />;
-      case "dados": return <DadosConta />;
-      case "seguranca": return <Seguranca />;
-      default: return null;
-    }
-  }
 
   return (
     <div className="perfil-wrap">
@@ -41,15 +25,14 @@ export function Perfil() {
           <p className="perfil-sidebar-section-label">CONTA</p>
 
           {MENU.map(item => (
-            <button
+            <NavLink
               key={item.chave}
-              type="button"
-              className={`perfil-sidebar-link ${secaoAtiva === item.chave ? "active" : ""}`}
-              onClick={() => setSecaoAtiva(item.chave)}
+              to={`/perfil/${item.chave}`}
+              className={({ isActive }) => `perfil-sidebar-link ${isActive ? "active" : ""}`}
             >
               <span className="perfil-link-icon">{item.icon}</span>
               <span>{item.label}</span>
-            </button>
+            </NavLink>
           ))}
         </nav>
 
@@ -66,7 +49,7 @@ export function Perfil() {
       </aside>
 
       <main className="perfil-main">
-        {renderSecao()}
+        <Outlet />
       </main>
     </div>
   );

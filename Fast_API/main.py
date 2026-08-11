@@ -15,6 +15,7 @@ from produto_routes import produto_routes
 from item_simples_routes import item_simples_routes
 from monte_pizza_routes import monte_pizza_routes
 from formas_pagamento_routes import formas_pagamento_routes
+from finalizar_pedido import finalizar_pagamento
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
@@ -58,3 +59,4 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.include_router(item_simples_routes)
 app.include_router(monte_pizza_routes)
 app.include_router(formas_pagamento_routes)
+app.include_router(finalizar_pagamento)

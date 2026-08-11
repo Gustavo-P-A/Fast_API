@@ -9,7 +9,7 @@ import { SeletorBorda } from "../components/sabor/SeletorBorda";
 import { SeletorIngrediente } from "../components/sabor/SeletorIngrediente";
 import "../styles/Sabor.css";
 
-export function Sabor() {
+function SaborConteudo() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,7 +27,6 @@ export function Sabor() {
   const [quantidadeBebida, setQuantidadeBebida] = useState(1);
 
   useEffect(() => {
-    setSabor(null);
     if (ehBebida) {
       itens_simples_publico("BEBIDA")
         .then(lista => setSabor(lista.find(b => String(b.id) === id) || false));
@@ -230,4 +229,13 @@ export function Sabor() {
       </div>
     </div>
   );
+}
+
+// Remonta o componente inteiro a cada troca de :id (ou entre /sabores e
+// /bebida) via `key` -- assim o estado (sabor, seleções etc.) já nasce
+// limpo no mount seguinte, sem precisar dar setSabor(null) de forma
+// síncrona dentro do useEffect pra "resetar" o item anterior.
+export function Sabor() {
+  const location = useLocation();
+  return <SaborConteudo key={location.pathname} />;
 }

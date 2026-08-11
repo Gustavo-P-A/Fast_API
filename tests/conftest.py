@@ -143,3 +143,24 @@ def client_como(db_conn):
         yield _fabrica
     finally:
         app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def client_autenticacao_real(db_conn):
+    """
+    Variante do 'client' que NÃO sobrescreve verificar_token nem
+    verificar_adm -- usada pelos testes de auth_routes.py, onde o
+    próprio fluxo de login/cadastro precisa rodar de verdade (JWT
+    real, cookies reais) em vez de ser simulado.
+
+    Só pegar_conexao é trocado pela conexão de teste isolada.
+    """
+    def _get_test_conn():
+        yield db_conn
+
+    app.dependency_overrides[pegar_conexao] = _get_test_conn
+
+    try:
+        yield TestClient(app)
+    finally:
+        app.dependency_overrides.clear()

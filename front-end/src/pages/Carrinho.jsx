@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../contexts/CartContext";
-import { precoItemCarrinho } from "../contexts/CartProvider";
+import { precoItemCarrinho } from "../contexts/carrinhoCalculos";
 import "../styles/Carrinho.css";
 
 export function Carrinho() {

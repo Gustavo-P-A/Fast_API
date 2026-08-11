@@ -15,7 +15,6 @@ vi.mock("../../../src/api/auth", () => ({
   importar_sabores_monte_pizza: vi.fn(),
   adicionar_sabores_monte_pizza: vi.fn(),
   remover_sabor_monte_pizza: vi.fn(),
-  sincronizar_sabores_monte_pizza: vi.fn(),
   listar_todos_produtos: vi.fn(),
 }));
 
@@ -227,25 +226,6 @@ describe("NovoMonteSuaPizza (admin)", () => {
     });
     await waitFor(() => {
       expect(screen.getByText("Calabresa")).toBeInTheDocument();
-    });
-  });
-
-  it("botão 'Atualizar sabores' chama sincronizar e recarrega", async () => {
-    api.buscar_monte_pizza.mockResolvedValue({
-      id: 5, nome: "MSP", descricao: "", ativo: true, tamanho_id: 10,
-      categoria_id: 1, grade_id: 1, qtd_sabores_override: null,
-      permite_borda: true, permite_ingrediente: true, imagem_url: null,
-      sabores: [{ id: 1, nome: "Calabresa", preco: 40.0 }],
-    });
-    api.sincronizar_sabores_monte_pizza.mockResolvedValue({ mensagem: "0 removido(s)" });
-
-    renderPaginaEditando("5");
-    await waitFor(() => screen.getByText("Atualizar sabores"));
-
-    fireEvent.click(screen.getByText("Atualizar sabores"));
-
-    await waitFor(() => {
-      expect(api.sincronizar_sabores_monte_pizza).toHaveBeenCalledWith("5");
     });
   });
 

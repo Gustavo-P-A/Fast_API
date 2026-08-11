@@ -46,6 +46,12 @@ dist-ssr/
 build/
 out/
 
+# Relatórios de cobertura de teste (gerados por pytest-cov e vitest --coverage)
+coverage/
+htmlcov/
+.coverage
+coverage.xml
+
 # ==============================================================================
 # 5. CONFIGURAÇÕES DE IDES E EDITORES
 # ==============================================================================

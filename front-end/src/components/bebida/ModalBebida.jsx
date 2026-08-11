@@ -1,4 +1,4 @@
-  import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   listar_categoria, listar_grade, criar_item_simples, editar_item_simples,
@@ -9,6 +9,8 @@ import { ModalCriarCategoria } from "../produto/ModalCriarCategoria";
 import { ModalCriarGrade } from "../produto/ModalCriarGrade";
 import { SelectComCriar } from "../produto/SelectComCriar";
 import "../../styles/admin/NovoProduto.css";
+
+const TAMANHO_MAXIMO_IMAGEM = 2 * 1024 * 1024; // 2MB — precisa bater com o backend
 
 export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeholderDescricao, iconePreview }) {
   const { id } = useParams();
@@ -65,12 +67,27 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
     carregar();
   }, [id]);
 
+  function handleImagemChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > TAMANHO_MAXIMO_IMAGEM) {
+      setErros(prev => ({ ...prev, imagem: "Imagem muito grande. Máximo 2MB." }));
+      e.target.value = ""; // limpa o input pra permitir selecionar de novo
+      return;
+    }
+
+    setErros(prev => ({ ...prev, imagem: undefined }));
+    setImagem(file);
+  }
+
   function handleSalvar() {
     const novosErros = {};
     if (!nome.trim()) novosErros.nome = "Nome é obrigatório";
     if (!categoria_id) novosErros.categoria = "Categoria é obrigatória";
     if (precisaGrade && !grade_id) novosErros.grade = "Grade é obrigatória";
     if (!preco) novosErros.preco = "Preço é obrigatório";
+    if (imagem && imagem.size > TAMANHO_MAXIMO_IMAGEM) novosErros.imagem = "Imagem muito grande. Máximo 2MB.";
     if (Object.keys(novosErros).length > 0) { setErros(novosErros); return; }
 
     salvar();
@@ -104,8 +121,9 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
         alert(`${titulo} criado com sucesso!`);
       }
       navigate(rotaVoltar);
-    } catch {
-      alert(`Erro ao salvar ${titulo.toLowerCase()}.`);
+    } catch (err) {
+      const msg = err.response?.data?.detail || `Erro ao salvar ${titulo.toLowerCase()}.`;
+      alert(msg);
     } finally {
       setSalvando(false);
     }
@@ -122,7 +140,7 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
           {salvando ? "Salvando..." : `Salvar ${titulo}`}
         </button>
       </div>
-      
+
       <div className="np-header">
         <div>
           <button className="np-btn-voltar" onClick={() => navigate(rotaVoltar)}>← Voltar</button>
@@ -224,8 +242,9 @@ export function ModalBebida({ tipo, titulo, rotaVoltar, placeholderNome, placeho
                 type="file"
                 accept="image/jpeg,image/png,image/webp"
                 style={{ display: "none" }}
-                onChange={e => setImagem(e.target.files[0])}
+                onChange={handleImagemChange}
               />
+              {erros.imagem && <span className="np-erro">{erros.imagem}</span>}
             </div>
           </div>
         </div>
