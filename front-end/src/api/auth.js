@@ -152,10 +152,31 @@ export async function meus_pedidos() {
   }
 }
 
-export async function finalizar_pedido_id(id, id_endereco, tipo_pagamento) {
+export async function finalizar_pedido_id(
+  id,
+  id_endereco,
+  tipo_pagamento,
+  forma_pagamento_id,
+  parcelas,
+  troco_para,
+) {
   try {
+    const params = new URLSearchParams({
+      tipo_pagamento,
+      id_endereco,
+    });
+    if (forma_pagamento_id !== undefined && forma_pagamento_id !== null) {
+      params.append("forma_pagamento_id", forma_pagamento_id);
+    }
+    if (parcelas !== undefined && parcelas !== null) {
+      params.append("parcelas", parcelas);
+    }
+    if (troco_para !== undefined && troco_para !== null) {
+      params.append("troco_para", troco_para);
+    }
+
     const response = await api.post(
-      `/order/pedido/finalizar/${id}?tipo_pagamento=${tipo_pagamento}&id_endereco=${id_endereco}`,
+      `/order/pedido/finalizar/${id}?${params.toString()}`,
       {},
     );
     return response.data;
@@ -723,6 +744,10 @@ export async function pedido_por_id(id) {
     console.error(error);
     throw error;
   }
+}
+ 
+export async function visualizar_pedido(id) {
+  return pedido_por_id(id);
 }
 
 export async function criar_item_simples(payload) {

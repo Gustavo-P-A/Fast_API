@@ -44,7 +44,7 @@ export function TabelaGrades({
             <tr><td colSpan={8} className="ap-vazio">Nenhum produto encontrado.</td></tr>
           )}
 
-          {!carregando && produtos.map((p, index) => {
+          {!carregando && produtos.map((p) => {
             const selecionado = selecionados.some((s) => s.tipo === p.tipo && s.id === p.id);
             const gradeInfo = produtoGradeMap[chaveSelecao(p.tipo, p.id)];
             const catNome = categorias.find((c) => c.id === p.categoria_id)?.nome || "—";

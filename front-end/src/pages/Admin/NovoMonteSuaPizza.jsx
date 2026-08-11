@@ -3,8 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   listar_categoria, listar_grade, listar_tamanho, upload_imagem,
   criar_monte_pizza, editar_monte_pizza, buscar_monte_pizza,
-  importar_sabores_monte_pizza, adicionar_sabores_monte_pizza, remover_sabor_monte_pizza,
-  listar_todos_produtos, excluir_categoria, excluir_grade,
+  importar_sabores_monte_pizza, adicionar_sabores_monte_pizza, 
+  remover_sabor_monte_pizza, listar_todos_produtos, 
+  excluir_categoria, excluir_grade,
 } from "../../api/auth";
 import { InfoBasicas } from "../../components/produto/InfoBasicas";
 import { ModalCriarCategoria } from "../../components/produto/ModalCriarCategoria";
@@ -164,7 +165,6 @@ export function NovoMonteSuaPizza() {
       setImportando(false);
     }
   }
-
 
   async function handleAdicionarManual() {
     if (!saborParaAdicionar) return;

@@ -1,11 +1,11 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   criar_pedido, pedido_adicionais, adicionar_adicional, adicionar_ingrediente,
   adicionar_bebida_pedido, finalizar_pedido_id,
 } from "../api/auth";
 import { CartContext } from "../contexts/CartContext";
-import { precoItemCarrinho } from "../contexts/CartProvider";
+import { precoItemCarrinho } from "../contexts/carrinhoCalculos";
 import "../styles/FinalizarPedido.css";
 
 export function FinalizarPedido() {
@@ -13,9 +13,24 @@ export function FinalizarPedido() {
   const { state } = useLocation();
   const { itens, bebidas, total, vazio, limparCarrinho } = useContext(CartContext);
   const [enviando, setEnviando] = useState(false);
+  // Depois que o pedido é enviado com sucesso, limparCarrinho() esvazia o
+  // carrinho -- o que faria "vazio" virar true e o efeito abaixo nos
+  // mandar de volta pro /carrinho, atropelando o navigate pro Pix (ou
+  // pra /meus-pedidos) que acabamos de disparar. Essa flag desliga esse
+  // redirecionamento automático assim que o pedido já foi enviado.
+  const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
-  if (vazio || !state?.endereco || !state?.pagamento) {
-    navigate("/carrinho");
+  const faltaDadosParaRevisar = !pedidoEnviado && (vazio || !state?.endereco || !state?.pagamento);
+
+  // navigate() precisa rodar como efeito, não durante o render --
+  // chamá-lo direto no corpo do componente dispara o aviso do React
+  // Router "Cannot update a component while rendering a different
+  // component".
+  useEffect(() => {
+    if (faltaDadosParaRevisar) navigate("/carrinho");
+  }, [faltaDadosParaRevisar, navigate]);
+
+  if (faltaDadosParaRevisar) {
     return null;
   }
 
@@ -30,11 +45,11 @@ export function FinalizarPedido() {
           sabor_ids: item.sabor_ids,
         });
 
-        for (const borda of item.bordas) {
+        for (const borda of item.bordas || []) {
           await adicionar_adicional(pedido.id, itemCriado.item_id, borda.adicional_id, borda.tamanho_id, borda.partes);
         }
 
-        for (const ingrediente of item.ingredientes) {
+        for (const ingrediente of item.ingredientes || []) {
           await adicionar_ingrediente(pedido.id, itemCriado.item_id, ingrediente.item_simples_id, ingrediente.quantidade);
         }
       }
@@ -43,11 +58,26 @@ export function FinalizarPedido() {
         await adicionar_bebida_pedido(pedido.id, bebida.item_simples_id, bebida.quantidade);
       }
 
-      await finalizar_pedido_id(pedido.id, state.endereco.id, state.pagamento);
+      await finalizar_pedido_id(
+        pedido.id,
+        state.endereco.id,
+        state.pagamento,
+        state.formaPagamentoId,
+        state.parcelas,
+        state.trocoPara,
+      );
+
       limparCarrinho();
-      navigate("/meus-pedidos");
-    } catch {
-      alert("Erro ao enviar pedido. Tente novamente.");
+      setPedidoEnviado(true);
+
+      if (state.pagamento === "Pix") {
+        navigate(`/pedido/${pedido.id}/pix`);
+      } else {
+        navigate("/meus-pedidos");
+      }
+    } catch (err) {
+      const msg = err.response?.data?.detail || "Erro ao enviar pedido. Tente novamente.";
+      alert(msg);
     } finally {
       setEnviando(false);
     }
@@ -108,7 +138,11 @@ export function FinalizarPedido() {
 
       <div className="revisao-secao">
         <h2 className="revisao-secao-titulo">Forma de pagamento</h2>
-        <p className="revisao-linha">{state.pagamento}</p>
+        <p className="revisao-linha">
+          {state.pagamento}
+          {state.parcelas > 1 && ` em ${state.parcelas}x`}
+          {state.pagamento === "Dinheiro" && state.trocoPara ? ` — troco para R$ ${Number(state.trocoPara).toFixed(2).replace(".", ",")}` : ""}
+        </p>
       </div>
 
       <div className="revisao-total">

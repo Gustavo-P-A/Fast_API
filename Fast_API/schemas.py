@@ -280,15 +280,28 @@ class ResponsePedidoSchema(BaseModel):
     created_at: datetime
     formato_de_pagamento: Optional[str] = None
     endereco_rel: Optional[EnderecoEntregaResponseSchema] = None
+    troco_para: Optional[float] = None
+    forma_pagamento_id: Optional[int] = None
+    parcelas: Optional[int] = None
+    pix_codigo: Optional[str] = None
+    pix_expira_em: Optional[datetime] = None
     itens: List[ItemPedidoSchema]
     bebidas_rel: List[ItemPedidoBebidaResponseSchema] = []
- 
+
     @field_serializer('created_at')
     def serializar_created_at(self, dt: datetime) -> str:
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         return dt.isoformat()
- 
+
+    @field_serializer('pix_expira_em')
+    def serializar_pix_expira_em(self, dt: Optional[datetime]) -> Optional[str]:
+        if dt is None:
+            return None
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -381,7 +394,7 @@ class ProdutoMonteSuaPizzaSchema(BaseModel):
 class MonteSuaPizzaSaborItemSchema(BaseModel):
     id: int
     nome: str
-    preco: Optional[float] = None  # preço vivo naquele tamanho (None se não cadastrado)
+    preco: Optional[float] = None  
 
     model_config = ConfigDict(from_attributes=True)
 

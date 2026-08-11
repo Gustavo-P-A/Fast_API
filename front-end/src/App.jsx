@@ -6,6 +6,7 @@ import { Navbar } from "./components/Navbar";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { AdminRoute } from "./components/AdminRoute";
 
+
 const Home = lazy(() => import("./pages/Home").then(m => ({ default: m.Home })));
 const Login = lazy(() => import("./pages/Login").then(m => ({ default: m.Login })));
 const Cadastro = lazy(() => import("./pages/Cadastro").then(m => ({ default: m.Cadastro })));
@@ -19,9 +20,8 @@ const DetalhePedido = lazy(() => import("./pages/DetalhePedido").then(m => ({ de
 const FinalizarPedido = lazy(() => import("./pages/FinalizarPedido.jsx").then(m => ({ default: m.FinalizarPedido })));
 const Carrinho = lazy(() => import("./pages/Carrinho.jsx").then(m => ({ default: m.Carrinho })));
 const NovaBebida = lazy(() => import("./pages/Admin/NovaBebida.jsx").then(m => ({ default: m.NovaBebida })));
-const NovoIngrediente = lazy(() => import("./pages/Admin/NovoIngrediente.jsx").then(m => ({ default: m.NovoIngrediente })));
 const NovoMonteSuaPizza = lazy(() => import("./pages/Admin/NovoMonteSuaPizza.jsx").then(m => ({ default: m.NovoMonteSuaPizza })));
-const ContaLayout = lazy(() => import("./components/ContaLayout.jsx").then(m => ({ default: m.ContaLayout })));
+const PixPagamento = lazy(() => import("./components/formato_pagamento/pix_pagamento.jsx").then(m => ({ default: m.PixPagamento })));
 
 
 const FormasPagamento = lazy(() => import("./components/perfil/FormasPagamento.jsx").then(m => ({ default: m.FormasPagamento })));
@@ -69,14 +69,21 @@ export function App() {
               <Route path="/carrinho" element={<Carrinho />} />
               <Route path="/meus-pedidos" element={<PrivateRoute><MeusPedidos /></PrivateRoute>} />
               <Route path="/meus-pedidos/:id" element={<PrivateRoute><DetalhePedido /></PrivateRoute>} />
-              <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+
+              {/* Perfil com abas por URL própria */}
+              <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>}>
+                <Route index element={<Navigate to="dados" replace />} />
+                <Route path="pagamento" element={<FormasPagamento />} />
+                <Route path="historico" element={<Historico />} />
+                <Route path="enderecos" element={<Enderecos />} />
+                <Route path="dados" element={<DadosConta />} />
+                <Route path="seguranca" element={<Seguranca />} />
+              </Route>
+
               <Route path="/endereco-pagamento" element={<PrivateRoute><EnderecoPagamento /></PrivateRoute>} />
               <Route path="/finalizar-pedido" element={<PrivateRoute><FinalizarPedido /></PrivateRoute>} />
-              <Route path="pagamento" element={<FormasPagamento />} />
-              <Route path="historico" element={<Historico />} />
-              <Route path="enderecos" element={<Enderecos />} />
-              <Route path="dados" element={<DadosConta />} />
-              <Route path="seguranca" element={<Seguranca />} />
+              <Route path="/pedido/:id/pix" element={<PrivateRoute><PixPagamento /></PrivateRoute>} />
+
             {/* Rotas admin com sidebar */}
             <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<Navigate to="produtos" replace />} />
@@ -95,8 +102,6 @@ export function App() {
             <Route path="/novo-produto/:id" element={<AdminRoute><NovoProduto /></AdminRoute>} />
             <Route path="/admin/nova-bebida" element={<AdminRoute><NovaBebida /></AdminRoute>} />
             <Route path="/admin/nova-bebida/:id" element={<AdminRoute><NovaBebida /></AdminRoute>} />
-            <Route path="/admin/novo-ingrediente" element={<AdminRoute><NovoIngrediente /></AdminRoute>} />
-            <Route path="/admin/novo-ingrediente/:id" element={<AdminRoute><NovoIngrediente /></AdminRoute>} />
             <Route path="/admin/novo-monte-pizza" element={<AdminRoute><NovoMonteSuaPizza /></AdminRoute>} />
             <Route path="/admin/novo-monte-pizza/:id" element={<AdminRoute><NovoMonteSuaPizza /></AdminRoute>} />
             </Routes>

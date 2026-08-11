@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import "../../styles/admin/Clientes.css";
 import { listar_clientes_admin, pedidos_do_cliente } from "../../api/auth";
 
@@ -120,7 +120,7 @@ export function AdminClientes() {
                 <tr><td colSpan={7} className="cli-vazio">Nenhum cliente encontrado.</td></tr>
               )}
               {!carregando && clientesFiltrados.map(c => (
-                <>
+                <Fragment key={c.id}>
                   <tr key={c.id} className={!c.ativo ? "cli-row-inativo" : ""}>
                     <td>
                       <div className="cli-cliente-info">
@@ -183,7 +183,7 @@ export function AdminClientes() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>

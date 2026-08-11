@@ -142,7 +142,7 @@ async def sabores_inicial(request: Request, conn = Depends(pegar_conexao)):
 async def sabor_visualizacao(id_sabor: int, request: Request, conn = Depends(pegar_conexao)):
     sabor = fetch_one(conn, "SELECT * FROM sabores WHERE id = %s", (id_sabor,))
     if not sabor:
-        return None
+        raise HTTPException(status_code=404, detail='Sabor não encontrado')
 
     imagem_url = sabor["imagem_url"]
     if imagem_url and not imagem_url.startswith('http'):

@@ -1,0 +1,58 @@
+.pix-container {
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 32px 24px;
+  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pix-container h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.pix-container > p {
+  color: #6b7280;
+  margin-bottom: 24px;
+}
+
+.pix-qr {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.pix-btn-copiar {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #16a34a;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.pix-btn-copiar:hover {
+  background: #15803d;
+}
+
+.pix-timer {
+  margin-top: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
+.pix-valor {
+  margin-top: 8px;
+  font-size: 1.05rem;
+  color: #111827;
+}

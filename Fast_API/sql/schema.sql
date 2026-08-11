@@ -289,7 +289,7 @@ CREATE TABLE monte_pizza_sabor (
 -- Índices extras nas colunas de FK mais consultadas em filtro/join.
 -- (Postgres NÃO cria índice automático em coluna de FK, só na PK.)
 -- ---------------------------------------------------------------------------
-CREATE INDEX idx_sabores_categoria_id            ON sabores(categoria_id);
+CREATE INDEX idx_sabores_categoria_id             ON sabores(categoria_id);
 CREATE INDEX idx_preco_pizza_sabor_id             ON preco_pizza(sabor_id);
 CREATE INDEX idx_preco_pizza_tamanho_id           ON preco_pizza(tamanho_id);
 CREATE INDEX idx_preco_adicional_adicional_id     ON preco_adicional(adicional_id);
