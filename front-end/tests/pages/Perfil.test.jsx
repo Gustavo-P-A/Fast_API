@@ -1,26 +1,32 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Perfil } from "../../src/pages/Perfil";
 import { AuthContext } from "../../src/contexts/AuthContext";
 
-vi.mock("../../src/components/perfil/FormasPagamento", () => ({ FormasPagamento: () => <div>Seção Pagamento</div> }));
-vi.mock("../../src/components/perfil/Historico", () => ({ Historico: () => <div>Seção Histórico</div> }));
-vi.mock("../../src/components/perfil/Enderecos", () => ({ Enderecos: () => <div>Seção Endereços</div> }));
-vi.mock("../../src/components/perfil/DadosConta", () => ({ DadosConta: () => <div>Seção Dados</div> }));
-vi.mock("../../src/components/perfil/Seguranca", () => ({ Seguranca: () => <div>Seção Segurança</div> }));
-
-function renderPerfil(handleLogout = vi.fn()) {
+function renderPerfil({ path = "/perfil/pagamento", handleLogout = vi.fn() } = {}) {
   render(
-    <AuthContext.Provider value={{ usuario: { nome: "Fulano da Silva" }, handleLogout }}>
-      <Perfil />
-    </AuthContext.Provider>
+    <MemoryRouter initialEntries={[path]}>
+      <AuthContext.Provider value={{ usuario: { nome: "Fulano da Silva" }, handleLogout }}>
+        <Routes>
+          <Route path="/perfil" element={<Perfil />}>
+            <Route index element={<Navigate to="dados" replace />} />
+            <Route path="pagamento" element={<div>Seção Pagamento</div>} />
+            <Route path="historico" element={<div>Seção Histórico</div>} />
+            <Route path="enderecos" element={<div>Seção Endereços</div>} />
+            <Route path="dados" element={<div>Seção Dados</div>} />
+            <Route path="seguranca" element={<div>Seção Segurança</div>} />
+          </Route>
+        </Routes>
+      </AuthContext.Provider>
+    </MemoryRouter>
   );
-  return handleLogout;
+  return { handleLogout };
 }
 
 describe("Perfil", () => {
-  it("mostra a seção de Formas de Pagamento por padrão", () => {
-    renderPerfil();
+  it("renderiza a seção correspondente à URL atual (Outlet)", () => {
+    renderPerfil({ path: "/perfil/pagamento" });
     expect(screen.getByText("Seção Pagamento")).toBeInTheDocument();
   });
 
@@ -30,8 +36,8 @@ describe("Perfil", () => {
     expect(screen.getByText("F")).toBeInTheDocument();
   });
 
-  it("clicar em cada item do menu troca a seção exibida", () => {
-    renderPerfil();
+  it("clicar em cada item do menu navega pra URL daquela seção", () => {
+    renderPerfil({ path: "/perfil/pagamento" });
 
     fireEvent.click(screen.getByText("Histórico de Compras"));
     expect(screen.getByText("Seção Histórico")).toBeInTheDocument();
@@ -47,7 +53,7 @@ describe("Perfil", () => {
   });
 
   it("botão Sair chama handleLogout", () => {
-    const handleLogout = renderPerfil();
+    const { handleLogout } = renderPerfil();
     fireEvent.click(screen.getByText("Sair"));
     expect(handleLogout).toHaveBeenCalled();
   });

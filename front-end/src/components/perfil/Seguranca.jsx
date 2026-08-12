@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { trocar_senha } from "../../api/auth.js";
 import { FEATURE_FLAGS } from "../../services/featureFlags.js";
 import "../../styles/perfil/FormasPagamento.css";
 

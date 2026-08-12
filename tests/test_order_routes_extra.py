@@ -270,7 +270,7 @@ class TestAdicionaisBorda:
 
 class TestFinalizarPedido:
 
-    def test_finaliza_com_sucesso(self, client_como, usuario_comum, db_conn):
+    def test_finaliza_com_pix_fica_aguardando_pagamento(self, client_como, usuario_comum, db_conn):
         c = client_como(usuario_comum)
         pedido_id, _, _ = _criar_pedido_com_item(db_conn, c)
         endereco = db_conn.execute(
@@ -287,9 +287,39 @@ class TestFinalizarPedido:
         )
 
         assert response.status_code == 200
-        pedido = db_conn.execute("SELECT status, formato_de_pagamento FROM pedidos WHERE id = %s", (pedido_id,)).fetchone()
-        assert pedido["status"] == "PENDENTE"
+        pedido = db_conn.execute(
+            "SELECT status, formato_de_pagamento, pix_codigo, pix_expira_em FROM pedidos WHERE id = %s", (pedido_id,)
+        ).fetchone()
+        # Pix não confirma pagamento na hora -- fica aguardando até ser
+        # confirmado (admin) ou expirar em 1h (ver _expirar_pix_se_necessario)
+        assert pedido["status"] == "AGUARDANDO_PAGAMENTO_PIX"
         assert pedido["formato_de_pagamento"] == "Pix"
+        assert pedido["pix_codigo"] is not None
+        assert pedido["pix_expira_em"] is not None
+
+    def test_finaliza_com_dinheiro_fica_pendente_direto(self, client_como, usuario_comum, db_conn):
+        c = client_como(usuario_comum)
+        pedido_id, _, _ = _criar_pedido_com_item(db_conn, c)
+        endereco = db_conn.execute(
+            """
+            INSERT INTO enderecos_entrega (rua, cep, complemento, cidade, estado, numero, bairro, usuario_id)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s) RETURNING *
+            """,
+            ("Rua X", "87200-000", None, "Cianorte", "PR", "1", "Centro", usuario_comum["id"]),
+        ).fetchone()
+
+        response = c.post(
+            f"/order/pedido/finalizar/{pedido_id}",
+            params={"tipo_pagamento": "Dinheiro", "id_endereco": endereco["id"], "troco_para": 50.0},
+        )
+
+        assert response.status_code == 200
+        pedido = db_conn.execute(
+            "SELECT status, troco_para, pix_codigo FROM pedidos WHERE id = %s", (pedido_id,)
+        ).fetchone()
+        assert pedido["status"] == "PENDENTE"
+        assert pedido["troco_para"] == 50.0
+        assert pedido["pix_codigo"] is None
 
     def test_endereco_inexistente_retorna_404(self, client_como, usuario_comum, db_conn):
         c = client_como(usuario_comum)

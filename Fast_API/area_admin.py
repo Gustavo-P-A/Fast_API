@@ -4,6 +4,7 @@ from dependsadm import verificar_adm
 from schemas import GradeCriarSchema, TamanhosSchema, AdicionaisSchema, PrecoAdicionalSchema, GradeSchema, GradeSaboresSchema, CategoriaSchema
 from psycopg import errors
 from enum import Enum
+import os
 
 area_admin = APIRouter(prefix='/admin', tags=['admin'], route_class=ConnCommitRoute)
 
@@ -433,7 +434,7 @@ async def produtos_por_grade(
 
 @area_admin.delete('/deletar/sabor/{id_sabor}')
 async def deletar_sabor(id_sabor: int, conn = Depends(pegar_conexao), usuario: dict = Depends(verificar_adm)):
-    sabor = fetch_one(conn, "SELECT id FROM sabores WHERE id = %s", (id_sabor,))
+    sabor = fetch_one(conn, "SELECT id, imagem_url FROM sabores WHERE id = %s", (id_sabor,))
     if not sabor:
         raise HTTPException(status_code=404, detail='Sabor não encontrado')
 
@@ -445,6 +446,10 @@ async def deletar_sabor(id_sabor: int, conn = Depends(pegar_conexao), usuario: d
         return {'mensagem': 'Este sabor já foi vendido em pedidos anteriores, então não pode ser excluído. Ele foi inativado e não aparece mais no cardápio.'}
 
     # Nunca foi vendido: pode excluir de verdade, cascateando configuração atual
+    if sabor["imagem_url"] and not sabor["imagem_url"].startswith('http'):
+        caminho = sabor["imagem_url"].lstrip('/')
+        if os.path.exists(caminho):
+            os.remove(caminho)
     execute(conn, "DELETE FROM grade_sabores WHERE sabores_id = %s", (id_sabor,))
     execute(conn, "DELETE FROM preco_pizza WHERE sabor_id = %s", (id_sabor,))
     execute(conn, "DELETE FROM monte_pizza_sabor WHERE sabor_id = %s", (id_sabor,))

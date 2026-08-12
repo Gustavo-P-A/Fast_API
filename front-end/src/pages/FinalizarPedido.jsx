@@ -34,6 +34,20 @@ export function FinalizarPedido() {
     return null;
   }
 
+  // Depois de enviado, o navigate() do handler abaixo já está levando o
+  // usuário pra outra página (Pix ou "meus pedidos") -- não faz sentido
+  // (e não é seguro) continuar renderizando a revisão completa aqui, já
+  // que ela depende de `state`, que pode não existir mais assim que a
+  // URL muda. Uma tela de transição simples evita ler `state.endereco`
+  // depois que ele já era.
+  if (pedidoEnviado) {
+    return (
+      <div className="revisao-container">
+        <p className="revisao-linha">Redirecionando...</p>
+      </div>
+    );
+  }
+
   async function handleFinalizarEnviar() {
     setEnviando(true);
     try {

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
 from database import pegar_conexao, fetch_one, fetch_all, execute, ConnCommitRoute
 from dependsadm import verificar_adm
 from schemas import NovoProdutoSchema
-from psycopg import errors
 import os
 import uuid
 
@@ -203,36 +202,3 @@ async def listar_todos_produtos(
         }
         for p in produtos
     ]
-
-
-@produto_routes.delete('/deletar/sabor/{id}')
-async def deletar_sabor(
-    id: int,
-    conn = Depends(pegar_conexao),
-    usuario=Depends(verificar_adm)
-):
-    sabor = fetch_one(conn, "SELECT * FROM sabores WHERE id = %s", (id,))
-    if not sabor:
-        raise HTTPException(status_code=404, detail='Sabor não encontrado')
-
-    if sabor["imagem_url"] and not sabor["imagem_url"].startswith('http'):
-        caminho = sabor["imagem_url"].lstrip('/')
-        if os.path.exists(caminho):
-            os.remove(caminho)
-
-    execute(conn, "DELETE FROM preco_pizza WHERE sabor_id = %s", (id,))
-    # grade_sabores também referencia o sabor. No models.py original não
-    # tinha cascade nenhum aqui (nem essa limpeza manual) — no SQLite isso
-    # passava batido porque FK nunca foi validada de verdade lá (ver
-    # observação no schema.sql). No Postgres, sem essa linha, o DELETE de
-    # baixo ia falhar com violação de FK pra praticamente todo sabor.
-    execute(conn, "DELETE FROM grade_sabores WHERE sabores_id = %s", (id,))
-    try:
-        execute(conn, "DELETE FROM sabores WHERE id = %s", (id,))
-    except errors.ForeignKeyViolation:
-        conn.rollback()
-        raise HTTPException(
-            status_code=409,
-            detail='Não é possível excluir: esse sabor já foi usado em pedidos ou faz parte de um produto de monte-sua-pizza',
-        )
-    return {'mensagem': 'Sabor deletado com sucesso'}
