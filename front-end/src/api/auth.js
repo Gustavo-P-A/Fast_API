@@ -67,6 +67,21 @@ export async function atualizar_meus_dados(payload) {
   }
 }
 
+// Backend ainda não existe (ver FEATURE_FLAGS.seguranca em Seguranca.jsx,
+// que mantém esse fluxo escondido do usuário até o endpoint existir de
+// verdade). Já deixamos a chamada pronta, no mesmo padrão das outras
+// funções deste arquivo, pra troca de senha não travar em "trocar_senha
+// não definido" assim que o backend for implementado.
+export async function trocar_senha(payload) {
+  try {
+    const response = await api.put("/auth/trocar-senha", payload);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function cardapio() {
   try {
     const response = await api.get("/cardapio/sabores");

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import { FinalizarPedido } from "../../src/pages/FinalizarPedido";
 import { CartContext } from "../../src/contexts/CartContext";
 
@@ -29,9 +29,10 @@ const ITEM = {
 
 const ENDERECO = { id: 1, rua: "Rua das Flores", numero: "10", bairro: "Centro", cidade: "Cianorte", estado: "PR", cep: "87200-000" };
 
-const STATE_VALIDO = { endereco: ENDERECO, pagamento: "Pix" };
+const STATE_PIX = { endereco: ENDERECO, pagamento: "Pix" };
+const STATE_DINHEIRO = { endereco: ENDERECO, pagamento: "Dinheiro", trocoPara: 50 };
 
-function renderPagina({ state = STATE_VALIDO, contexto = {} } = {}) {
+function renderPagina({ state = STATE_PIX, contexto = {} } = {}) {
   const limparCarrinho = vi.fn();
   const valorContexto = {
     itens: [ITEM], bebidas: [], total: 40, vazio: false, limparCarrinho, ...contexto,
@@ -39,7 +40,12 @@ function renderPagina({ state = STATE_VALIDO, contexto = {} } = {}) {
   render(
     <MemoryRouter initialEntries={[{ pathname: "/finalizar-pedido", state }]}>
       <CartContext.Provider value={valorContexto}>
-        <FinalizarPedido />
+        <Routes>
+          <Route path="/finalizar-pedido" element={<FinalizarPedido />} />
+          <Route path="/pedido/:id/pix" element={<div>Página de pagamento Pix</div>} />
+          <Route path="/meus-pedidos" element={<div>Página de meus pedidos</div>} />
+          <Route path="/carrinho" element={<div>Página do carrinho</div>} />
+        </Routes>
       </CartContext.Provider>
     </MemoryRouter>
   );
@@ -64,19 +70,38 @@ describe("FinalizarPedido", () => {
     expect(screen.getByText("Calabresa")).toBeInTheDocument();
     expect(screen.getByText("Tamanho: Grande")).toBeInTheDocument();
     expect(screen.getByText(/Rua das Flores, 10/)).toBeInTheDocument();
-    expect(screen.getByText("Pix")).toBeInTheDocument();
+    expect(screen.getByText(/Pix/)).toBeInTheDocument();
     expect(screen.getAllByText("R$ 40,00").length).toBeGreaterThan(0);
   });
 
-  it("finalizar envia o pedido: cria, adiciona itens, bebidas e finaliza", async () => {
+  it("mostra parcelas e troco quando aplicável", () => {
+    renderPagina({ state: { ...STATE_DINHEIRO } });
+    expect(screen.getByText(/troco para R\$ 50,00/)).toBeInTheDocument();
+  });
+
+  it("finalizar com Pix: envia todos os dados e navega pra tela de pagamento Pix", async () => {
     const { limparCarrinho } = renderPagina();
 
     fireEvent.click(screen.getByText("Finalizar e Enviar Pedido"));
 
-    await waitFor(() => expect(api.finalizar_pedido_id).toHaveBeenCalledWith(99, 1, "Pix"));
+    await waitFor(() => expect(api.finalizar_pedido_id).toHaveBeenCalledWith(
+      99, 1, "Pix", undefined, undefined, undefined
+    ));
     expect(api.criar_pedido).toHaveBeenCalled();
     expect(api.pedido_adicionais).toHaveBeenCalledWith(99, { tamanho_id: 10, sabor_ids: [1] });
     expect(limparCarrinho).toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByText("Página de pagamento Pix")).toBeInTheDocument());
+  });
+
+  it("finalizar com Dinheiro: navega pra meus pedidos (não pro Pix)", async () => {
+    renderPagina({ state: STATE_DINHEIRO });
+
+    fireEvent.click(screen.getByText("Finalizar e Enviar Pedido"));
+
+    await waitFor(() => expect(api.finalizar_pedido_id).toHaveBeenCalledWith(
+      99, 1, "Dinheiro", undefined, undefined, 50
+    ));
+    await waitFor(() => expect(screen.getByText("Página de meus pedidos")).toBeInTheDocument());
   });
 
   it("envia bordas e ingredientes do item antes de finalizar", async () => {
@@ -101,14 +126,15 @@ describe("FinalizarPedido", () => {
     await waitFor(() => expect(api.adicionar_bebida_pedido).toHaveBeenCalledWith(99, 3, 2));
   });
 
-  it("erro no meio do envio mostra alerta e não limpa o carrinho", async () => {
-    api.pedido_adicionais.mockRejectedValue(new Error("falhou"));
+  it("erro no meio do envio mostra a mensagem da API e não limpa o carrinho nem navega", async () => {
+    api.pedido_adicionais.mockRejectedValue({ response: { data: { detail: "Sabor indisponível" } } });
     const { limparCarrinho } = renderPagina();
 
     fireEvent.click(screen.getByText("Finalizar e Enviar Pedido"));
 
-    await waitFor(() => expect(window.alert).toHaveBeenCalledWith("Erro ao enviar pedido. Tente novamente."));
+    await waitFor(() => expect(window.alert).toHaveBeenCalledWith("Sabor indisponível"));
     expect(limparCarrinho).not.toHaveBeenCalled();
+    expect(screen.getByText("Revise seu pedido")).toBeInTheDocument();
   });
 
   it("carrinho vazio não renderiza a revisão do pedido", () => {

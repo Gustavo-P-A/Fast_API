@@ -227,7 +227,9 @@ class TestDeletarSabor:
     def test_sabor_inexistente_retorna_404(self, client):
         assert client.delete("/admin/deletar/sabor/99999").status_code == 404
 
-    def test_sabor_usado_em_pedido_retorna_409(self, client, db_conn):
+    def test_sabor_usado_em_pedido_e_inativado_em_vez_de_excluido(self, client, db_conn):
+        """Regra de negócio: sabor já vendido não pode ser apagado de
+        verdade (quebraria o histórico do pedido) -- é inativado."""
         categoria, grade, tamanho = _criar_categoria_grade_tamanho(db_conn)
         sabor = _criar_sabor_com_grade(db_conn, categoria["id"], grade["id"])
         usuario = db_conn.execute(
@@ -249,4 +251,8 @@ class TestDeletarSabor:
 
         response = client.delete(f"/admin/deletar/sabor/{sabor['id']}")
 
-        assert response.status_code == 409
+        assert response.status_code == 200
+        assert "inativado" in response.json()["mensagem"]
+        atualizado = db_conn.execute("SELECT ativo FROM sabores WHERE id = %s", (sabor["id"],)).fetchone()
+        assert atualizado["ativo"] is False
+
