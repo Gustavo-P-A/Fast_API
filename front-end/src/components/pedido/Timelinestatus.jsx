@@ -1,5 +1,11 @@
-import '../../styles/pedido/TimelineStatus.css';
-const ETAPAS = ["PENDENTE", "CONFIRMADO", "EM PREPARO", "SAIU PARA ENTREGA", "ENTREGUE"];
+import "../../styles/pedido/TimelineStatus.css";
+const ETAPAS = [
+  "PENDENTE",
+  "CONFIRMADO",
+  "EM PREPARO",
+  "SAIU PARA ENTREGA",
+  "ENTREGUE",
+];
 
 export function TimelineStatus({ status }) {
   if (status === "CANCELADO") {
@@ -16,7 +22,10 @@ export function TimelineStatus({ status }) {
   return (
     <div className="timeline-status">
       {ETAPAS.map((etapa, i) => (
-        <div key={etapa} className={`timeline-etapa ${i <= indiceAtual ? "concluida" : ""} ${i === indiceAtual ? "atual" : ""}`}>
+        <div
+          key={etapa}
+          className={`timeline-etapa ${i <= indiceAtual ? "concluida" : ""} ${i === indiceAtual ? "atual" : ""}`}
+        >
           <span className="timeline-bolinha" />
           <span className="timeline-label">{etapa}</span>
           {i < ETAPAS.length - 1 && <span className="timeline-linha" />}
@@ -25,3 +34,5 @@ export function TimelineStatus({ status }) {
     </div>
   );
 }
+
+export default TimelineStatus;
