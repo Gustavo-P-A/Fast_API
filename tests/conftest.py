@@ -52,7 +52,7 @@ def _preparar_schema_teste():
     partir de sql/schema.sql -- garante que a estrutura do banco de
     teste está sempre em dia com o schema atual do projeto."""
     schema_path = os.path.join(os.path.abspath(BACKEND_DIR), "sql", "schema.sql")
-    with open(schema_path) as f:
+    with open(schema_path, encoding="utf-8") as f:
         schema_sql = f.read()
     with psycopg.connect(TEST_DATABASE_URL, autocommit=True) as conn:
         conn.execute("DROP SCHEMA public CASCADE")

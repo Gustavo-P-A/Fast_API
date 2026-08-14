@@ -181,7 +181,16 @@ CREATE TABLE pedidos (
     endereco_id           INTEGER REFERENCES enderecos_entrega(id),
     formato_de_pagamento  TEXT CHECK (formato_de_pagamento IN ('Pix', 'Cartão de crédito', 'Cartão de débito', 'Dinheiro')),
     created_at            TIMESTAMPTZ DEFAULT now(),
-    troco_para            DOUBLE PRECISION
+    troco_para            DOUBLE PRECISION,
+    -- Checkout com cartão/vale salvo (formas_pagamento.id) e parcelamento
+    -- (só cartão de crédito) -- ver finalizar_pedido.py.
+    forma_pagamento_id    INTEGER REFERENCES formas_pagamento(id),
+    parcelas              INTEGER,
+    -- Pix "fake" (sem gateway real) -- código copia-e-cola e validade de
+    -- 1h; passado o prazo, _expirar_pix_se_necessario (order_routes.py)
+    -- cancela o pedido automaticamente na próxima leitura.
+    pix_codigo            TEXT,
+    pix_expira_em         TIMESTAMPTZ
 );
 
 -- ---------------------------------------------------------------------------
